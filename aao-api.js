@@ -78,10 +78,10 @@
     opts = opts || {};
     var headers = { Accept: "application/json" };
     if (body !== undefined) headers["Content-Type"] = "application/json";
-    if (opts.auth) {
+    if (opts.auth || opts.optionalAuth) {
       var t = await token();
-      if (!t) throw ApiError(401, "UNAUTHENTICATED", "Please log in again.");
-      headers.Authorization = "Bearer " + t;
+      if (t) headers.Authorization = "Bearer " + t;
+      else if (opts.auth) throw ApiError(401, "UNAUTHENTICATED", "Please log in again.");
     }
     var res;
     try {
@@ -355,7 +355,64 @@
     }
   }
 
+  /* ---------- the employer's own jobs ---------- */
+  async function myJobs() {
+    try {
+      var r = await call("GET", "/me/jobs?limit=50", undefined, { auth: true, fresh: true });
+      return r.data || [];
+    } catch (e) {
+      if (e.status === 404) return []; /* no employer profile yet */
+      throw e;
+    }
+  }
+  async function closeJob(id) {
+    var r = await call("POST", "/me/jobs/" + encodeURIComponent(id) + "/close", undefined, { auth: true });
+    return r.data;
+  }
+  async function reopenJob(id) {
+    var r = await call("POST", "/me/jobs/" + encodeURIComponent(id) + "/reopen", { expires_in_days: 30 }, { auth: true });
+    return r.data;
+  }
+
+  /* ---------- reports (anyone may report; a signed-in reporter's token is sent when there is one) ---------- */
+  async function report(o) {
+    var body = { target_type: o.type, target_id: o.id, reason: o.reason };
+    if (o.details) body.details = o.details;
+    try {
+      await call("POST", "/reports", body, { optionalAuth: true });
+    } catch (e) {
+      if (e.status === 429) throw ApiError(429, "RATE_LIMITED", "You have sent several reports recently. Please try again later.");
+      if (e.status === 404) throw ApiError(404, "NOT_FOUND", "That listing is no longer available.");
+      throw e;
+    }
+  }
+
+  /* ---------- profile photo: signed upload URL, raw bytes to storage, then register the file ---------- */
+  async function uploadPhoto(file) {
+    if (["image/jpeg", "image/png", "image/webp"].indexOf(file.type) < 0) throw ApiError(400, "VALIDATION_ERROR", "Please choose a JPEG, PNG or WebP image.");
+    if (!file.size) throw ApiError(400, "VALIDATION_ERROR", "That file is empty.");
+    if (file.size > 2 * 1024 * 1024) throw ApiError(400, "VALIDATION_ERROR", "That image is larger than 2 MB. Please choose a smaller one.");
+    var a = await call("POST", "/me/talent-profile/photo/upload-url", { content_type: file.type, size: file.size }, { auth: true });
+    var up = a.data.upload, put;
+    try {
+      put = await fetch(up.url, { method: "PUT", headers: up.headers, body: file });
+    } catch (err) {
+      throw ApiError(0, "NETWORK", "The upload failed. Check your connection and try again.");
+    }
+    if (!put.ok) throw ApiError(put.status, "UPLOAD", "The upload was not accepted. Please try again.");
+    var r = await call("PUT", "/me/talent-profile/photo", { file: a.data.file }, { auth: true });
+    mine = { kind: "talent", data: r.data };
+    return safeUrl(r.data.photo_url);
+  }
+  function myPhotoUrl() {
+    return mine && mine.kind === "talent" && mine.data ? safeUrl(mine.data.photo_url) : "";
+  }
+
   window.AAOApi = {
+    myJobs: myJobs, closeJob: closeJob, reopenJob: reopenJob,
+    report: report,
+    uploadPhoto: uploadPhoto, myPhotoUrl: myPhotoUrl,
+    hasTalentProfile: function () { return !!(mine && mine.kind === "talent" && mine.data); },
     jobFromOwn: jobFromOwn,
     sentInquiries: sentInquiries,
     receivedInquiries: receivedInquiries,

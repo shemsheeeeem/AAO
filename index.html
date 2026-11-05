@@ -4259,7 +4259,74 @@ V.login.init = function(){
   });
   initLoginLogoKey();
 };
+/* Live mode: the desks show the signed-in user's real data instead of the sample content. */
+V.dashboardLive = function(){
+  var u=getDemoUser();
+  if(!u)return V.login();
+  var E=AAOApi.esc,first=E((u.name||"").split(" ")[0]||"there");
+  if(u.role==="va"){
+    var has=AAOApi.hasTalentProfile();
+    return '<section class="dash"><div class="wrap">'+
+      '<div class="dash-head"><div><div class="dash-badge"><em>VA desk</em></div><h1>Welcome back, '+first+'.</h1><p>'+(has?"Your profile is live. Keep it current so clients can find you.":"Create your profile so clients can find you.")+'</p></div>'+
+      '<div class="dash-actions"><a class="btn btn-navy" href="#talent">Browse openings</a><a class="btn btn-line" href="#va-profile">'+(has?"Edit profile":"Create profile")+'</a><a class="btn btn-line" href="#messages">Inquiries</a><a class="btn btn-line" href="#logout">Log out</a></div></div>'+
+      '<div class="dash-toast" id="dtoast" role="status"></div>'+
+      '<div class="dash-stats"><div class="dash-stat"><strong>'+(has?"Live":"Not yet")+'</strong><span>Your profile</span></div><div class="dash-stat"><strong id="dl-count">…</strong><span>Inquiries received</span></div></div>'+
+      '<div class="dash-panels"><div class="dash-panel"><h2>Next steps</h2>'+dashRows([
+        [has?"Update your profile":"Create your profile","Skills, availability and a short introduction",has?"Edit profile":"Start","#va-profile"],
+        ["Browse new openings","Open roles from clients","View jobs","#talent"],
+        ["Read your inquiries","Clients who contacted you","Open","#messages"]
+      ])+'<p class="dash-note">Signed in as '+E(u.email)+'</p></div></div></div></section>';
+  }
+  var memOn=isAaOMember();
+  var memAct=memOn?'<a class="btn btn-line" href="#messages">Messages</a>':membershipLink("btn btn-gold","Unlock membership")+'<a class="btn btn-line" href="#membership">Membership</a>';
+  return '<section class="dash"><div class="wrap">'+
+    '<div class="dash-head"><div><div class="dash-badge"><em>Client desk</em></div><h1>Welcome back, '+first+'.</h1><p>'+(memOn?"Membership is active. Message assistants and hire when you’re ready.":"Browse is free. Unlock membership to message, interview, and hire.")+'</p></div>'+
+    '<div class="dash-actions"><a class="btn '+(memOn?"btn-gold":"btn-navy")+'" href="#talent">Find assistants</a><a class="btn btn-line" href="#post-job">Post a job</a>'+memAct+'<a class="btn btn-line" href="#logout">Log out</a></div></div>'+
+    '<div class="dash-toast" id="dtoast" role="status"></div>'+
+    '<div class="dash-stats"><div class="dash-stat"><strong id="dl-open">…</strong><span>Open jobs</span></div><div class="dash-stat"><strong>'+(memOn?"On":"Off")+'</strong><span>Membership</span></div></div>'+
+    '<div class="dash-panels"><div class="dash-panel"><h2>Your jobs</h2><div id="dl-jobs"><p class="dash-note">Loading…</p></div><p class="dash-note">Signed in as '+E(u.email)+'</p></div></div></div></section>';
+};
+V.dashboardLive.init = function(){
+  var u=getDemoUser();
+  if(!u){go("login");return;}
+  var E=AAOApi.esc,root=$(".dash");
+  if(!root)return;
+  if(u.role==="va"){
+    AAOApi.receivedInquiries().then(function(l){var c=$("#dl-count");if(c&&document.body.contains(c))c.textContent=l.length;}).catch(function(){var c=$("#dl-count");if(c)c.textContent="–";});
+    return;
+  }
+  var box=$("#dl-jobs");
+  function when(s){try{return new Date(s).toLocaleDateString([],{dateStyle:"medium"});}catch(e){return "";}}
+  function paint(){
+    return AAOApi.myJobs().then(function(list){
+      if(!document.body.contains(box))return;
+      var open=list.filter(function(j){return j.status==="open";}).length;
+      var o=$("#dl-open");if(o)o.textContent=open;
+      if(!list.length){box.innerHTML='<p class="dash-note">You have not posted a job yet.</p><div class="dash-row"><div><strong>Post your first job</strong><span>It goes live right away</span></div><a class="dash-act" href="#post-job">Post a job</a></div>';return;}
+      box.innerHTML=list.map(function(j){
+        var st=j.status==="open"?"Open · expires "+when(j.expires_at):(j.status==="closed"?"Closed":(j.status==="expired"?"Expired · reopen to list it again":"Hidden by an administrator"));
+        var left=j.status==="open"?'<a class="dash-person" href="#job-'+E(j.id)+'"><strong>'+E(j.title)+'</strong><span>'+E(st)+'</span></a>':'<div><strong>'+E(j.title)+'</strong><span>'+E(st)+'</span></div>';
+        var ctl=j.status==="open"?'<button type="button" class="dash-act" data-job-act="close" data-job-id="'+E(j.id)+'">Close</button>':(j.status==="closed"||j.status==="expired"?'<button type="button" class="dash-act" data-job-act="reopen" data-job-id="'+E(j.id)+'">Reopen</button>':"");
+        return '<div class="dash-row">'+left+ctl+'</div>';
+      }).join("");
+    }).catch(function(err){if(document.body.contains(box))box.innerHTML='<p class="dash-note">We could not load your jobs. '+E(err.message)+'</p>';});
+  }
+  if(box.getAttribute("data-bound"))return;
+  box.setAttribute("data-bound","1");
+  box.addEventListener("click",function(e){
+    var btn=e.target.closest("[data-job-act]");
+    if(!btn||btn.disabled)return;
+    btn.disabled=true;
+    var act=btn.getAttribute("data-job-act"),id=btn.getAttribute("data-job-id");
+    (act==="close"?AAOApi.closeJob(id):AAOApi.reopenJob(id)).then(function(){
+      showDashToast(act==="close"?"<strong>Job closed.</strong>It is no longer listed.":"<strong>Job reopened.</strong>It is listed again for 30 days.");
+      return reloadCatalog().then(paint);
+    }).catch(function(err){btn.disabled=false;showDashToast("<strong>We could not do that.</strong>"+E(err.status===403?"This job was hidden by an administrator.":err.message));});
+  });
+  paint();
+};
 V.dashboard = function(){
+  if(API_ON)return V.dashboardLive();
   var u=getDemoUser();
   if(!u)return V.login();
   if(u.role==="va"){
@@ -4312,6 +4379,7 @@ V.dashboard = function(){
     '</div></div></section>';
 };
 V.dashboard.init = function(){
+  if(API_ON){V.dashboardLive.init();return;}
   if(!getDemoUser()){go("login");return;}
   var root=$(".dash");
   if(!root)return;
@@ -4596,6 +4664,24 @@ V.vaProfile.init = function(){
     if(on)window.scrollTo(0,0);
   }
   fill();
+  if(API_ON){
+    /* Live mode: profile photo. Needs an existing profile; uploads straight to storage through a signed URL, then registers the file. */
+    var avatarEl=root.querySelector(".vap-avatar");
+    function showPhoto(url){if(avatarEl&&url)avatarEl.innerHTML='<img src="'+url+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">';}
+    showPhoto(AAOApi.myPhotoUrl());
+    var photoField=document.createElement("label");
+    photoField.className="field";
+    photoField.innerHTML='Profile photo<input type="file" id="vp-photo" accept="image/jpeg,image/png,image/webp"><small id="vp-photo-note" class="muted">JPEG, PNG or WebP, up to 2 MB.</small>';
+    form.insertBefore(photoField,form.querySelector(".app-actions"));
+    $("#vp-photo").addEventListener("change",function(){
+      var input=this,f=input.files[0],pn=$("#vp-photo-note");
+      if(!f)return;
+      if(!AAOApi.hasTalentProfile()){pn.textContent="Save your profile first, then add a photo.";input.value="";return;}
+      pn.textContent="Uploading…";
+      AAOApi.uploadPhoto(f).then(function(url){pn.textContent="Photo saved.";showPhoto(url);return reloadCatalog();}).catch(function(err){pn.textContent=err.message;});
+      input.value="";
+    });
+  }
   var editBtn=$("#vap-edit-btn"),cancel=$("#vap-cancel");
   if(editBtn)editBtn.addEventListener("click",function(){setEditing(true);});
   Array.prototype.forEach.call(document.querySelectorAll("[data-vap-edit]"),function(btn){
@@ -5010,6 +5096,40 @@ function go(r){
   try{if(location.hash!=="#"+r)history.pushState(null,"","#"+r);}catch(e){}
   render();
 }
+/* Live mode: a "Report" box on assistant and job pages. Anyone may report; a signed-in reporter's token is sent. */
+function attachReport(h){
+  if(!API_ON)return;
+  var type=h.indexOf("talent-")===0?"talent_profile":(h.indexOf("job-")===0?"job_post":"");
+  var id=type==="talent_profile"?h.slice(7):h.slice(4);
+  var aside=document.querySelector("#app .aside");
+  if(!type||!aside||document.getElementById("rpt"))return;
+  var what=type==="job_post"?"job":"profile";
+  var box=document.createElement("div");
+  box.className="panel";box.id="rpt";
+  box.innerHTML='<h3>Report this '+what+'</h3><p class="muted" style="margin:0 0 12px">Something wrong? Tell us and our team will take a look.</p>'+
+    '<button class="btn btn-line-dark btn-block" type="button" id="rpt-open">Report</button>'+
+    '<form id="rpt-form" class="form" hidden novalidate>'+
+      '<label class="field">Reason<select id="rpt-reason"><option value="spam">Spam</option><option value="scam">Scam or fraud</option><option value="inappropriate">Inappropriate content</option><option value="other">Something else</option></select></label>'+
+      '<label class="field">Details<textarea id="rpt-details" maxlength="2000" placeholder="What should we know?"></textarea></label>'+
+      '<button class="btn btn-gold btn-block" type="submit">Send report</button></form>'+
+    '<div class="notice" id="rpt-note" role="status"></div>';
+  aside.appendChild(box);
+  var form=box.querySelector("#rpt-form"),note=box.querySelector("#rpt-note"),open=box.querySelector("#rpt-open"),sending=false;
+  open.addEventListener("click",function(){form.hidden=false;open.hidden=true;});
+  form.addEventListener("submit",function(e){
+    e.preventDefault();
+    if(sending)return;
+    var reason=box.querySelector("#rpt-reason").value,details=box.querySelector("#rpt-details").value.trim();
+    note.classList.add("show");
+    if(reason==="other"&&details.length<5){note.innerHTML="<strong>Add a few details.</strong>Please tell us what is wrong.";return;}
+    sending=true;
+    note.innerHTML="<strong>Sending…</strong>";
+    AAOApi.report({type:type,id:id,reason:reason,details:details}).then(function(){
+      form.hidden=true;
+      note.innerHTML="<strong>Thank you.</strong>Your report was sent. Our team will review it.";
+    }).catch(function(err){sending=false;note.innerHTML="<strong>We could not send that.</strong>"+AAOApi.esc(err.message);});
+  });
+}
 function currentRoute(){return (current!==null?current:(location.hash||"").replace(/^#/,""))||"home";}
 function render(){
   var h=currentRoute();
@@ -5044,6 +5164,7 @@ function render(){
   if(highlightStackOff){highlightStackOff();highlightStackOff=null;}
   $("#app").innerHTML=view(arg);
   if(view.init)view.init();
+  attachReport(h);
   var ap=$("#app");ap.classList.remove("vin");if(h!=="home"){void ap.offsetWidth;ap.classList.add("vin");}
   motion();
   if(API_ON){var dt=document.createElement("textarea");dt.innerHTML=title;title=dt.value;} /* titles contain API text that was HTML-escaped for the page body */
