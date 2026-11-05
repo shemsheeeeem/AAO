@@ -1,0 +1,139 @@
+<!-- AAO · GHL Custom Footer
+     Paste into Settings → Custom Footer.
+     Set window.AAO_SITE once (same value as header) to your live SPA URL. -->
+<script>window.AAO_SITE=window.AAO_SITE||"";</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Marcellus&display=swap" rel="stylesheet">
+<style data-aao-ghl>
+.aao-wrap{width:min(1180px,calc(100% - 48px));margin-inline:auto;box-sizing:border-box}
+.aao-brand{display:flex;align-items:center;gap:12px;text-decoration:none;min-width:0;color:inherit}
+.aao-brand img{height:38px;width:auto;aspect-ratio:1/1;flex:none;display:block;border-radius:8px;background:#fff}
+.aao-brand-name{font-family:"Marcellus",Georgia,serif;font-size:1.15rem;line-height:1.05;letter-spacing:.01em;white-space:nowrap}
+.aao-brand-name small{display:block;font-size:.78rem;letter-spacing:.34em;margin-top:3px;font-weight:400}
+
+/* Header */
+.aao-header{background:#fff;border-bottom:1px solid #DAE1EE;position:relative;z-index:50;font-family:"Hanken Grotesk",system-ui,sans-serif}
+.aao-header .aao-bar{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:72px}
+.aao-header .aao-brand-name{color:#0B1A33}
+.aao-header .aao-brand-name small{color:#A88232}
+.aao-nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.aao-nav a{color:#51617C;text-decoration:none;font-weight:500;font-size:.95rem;padding:10px 14px;border-radius:8px}
+.aao-nav a:hover{color:#0B1A33;background:#E8EEF8}
+.aao-nav a[aria-current="page"]{color:#0B1A33;background:#DCE8FA}
+.aao-nav .aao-sep{width:1px;height:22px;background:#DAE1EE;margin:0 8px}
+.aao-menu-btn{display:none;appearance:none;background:transparent;border:1px solid #DAE1EE;color:#0B1A33;border-radius:999px;width:44px;height:44px;cursor:pointer;place-items:center;flex:none;padding:0}
+.aao-menu-btn svg{width:22px;height:22px}
+
+/* Hero */
+.aao-hero{position:relative;overflow:hidden;color:#EAF0FA;font-family:"Hanken Grotesk",system-ui,sans-serif;
+  background:radial-gradient(ellipse 70% 80% at 85% 20%,rgba(47,107,194,.28),transparent 55%),
+    radial-gradient(ellipse 50% 60% at 10% 90%,rgba(196,155,63,.16),transparent 50%),
+    linear-gradient(165deg,#020F20 0%,#031A36 48%,#06244A 100%);
+  padding:clamp(48px,7vw,88px) 0}
+.aao-hero::after{content:"";position:absolute;right:max(4vw,16px);top:50%;width:min(320px,42vw);aspect-ratio:1/1;transform:translateY(-42%);
+  background:url("https://assets.cdn.filesafe.space/rERzEZ1vvNKnEqyjaJXX/media/6aec4e170c8a41402ceb405e.png") center/contain no-repeat;opacity:.1;pointer-events:none}
+.aao-hero .aao-wrap{position:relative;z-index:1;display:grid;gap:clamp(18px,2.5vw,28px);max-width:720px}
+.aao-hero-brand{margin:0;font-family:"Marcellus",Georgia,serif;font-size:clamp(1.85rem,3.6vw,2.75rem);line-height:1.08;letter-spacing:-.01em;color:#fff;max-width:14ch}
+.aao-hero-brand small{display:block;margin-top:.2em;font-size:.42em;letter-spacing:.28em;color:#DDBB68;font-weight:400}
+.aao-hero h1{margin:0;font-family:"Hanken Grotesk",system-ui,sans-serif;font-weight:600;font-size:clamp(1.15rem,1.6vw,1.35rem);line-height:1.35;color:#EAF0FA;max-width:28ch}
+.aao-hero .aao-lede{margin:0;color:#A8B9D6;font-size:clamp(1.02rem,.3vw + .98rem,1.15rem);line-height:1.55;max-width:38em}
+.aao-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px}
+.aao-price .aao-amt{font-family:"Marcellus",Georgia,serif;font-size:clamp(2.4rem,4vw,3.4rem);line-height:1;color:#DDBB68}
+.aao-price .aao-meta{color:#A8B9D6;font-size:.98rem}
+
+/* Order */
+.aao-order{padding:clamp(40px,6vw,72px) 0 clamp(56px,8vw,96px);background:#F3F6FB;border-top:1px solid #DAE1EE;font-family:"Hanken Grotesk",system-ui,sans-serif}
+.aao-order .aao-wrap{display:grid;gap:clamp(20px,3vw,32px)}
+.aao-order-head h2{margin:0 0 10px;font-family:"Marcellus",Georgia,serif;font-weight:400;font-size:clamp(1.75rem,2.8vw,2.4rem);color:#0B1A33;max-width:16ch;line-height:1.15}
+.aao-order-head p{margin:0;color:#51617C;max-width:42em;font-size:1.05rem;line-height:1.55}
+.aao-form-slot{min-height:120px;width:min(720px,100%);margin-inline:auto;padding:clamp(12px,2vw,24px);border:1px dashed #DAE1EE;border-radius:14px;background:#fff;box-shadow:0 2px 4px rgba(11,26,51,.05),0 18px 34px -18px rgba(11,26,51,.35)}
+.aao-form-slot.aao-form-slot--empty{display:grid;place-items:center;min-height:280px}
+.aao-form-placeholder{margin:0;color:#51617C;font-size:1.02rem;text-align:center;max-width:28em}
+.aao-note{margin:0;color:#51617C;font-size:.95rem;text-align:center}
+.aao-note a{color:#1B4B91}
+
+/* Footer */
+.aao-foot{background:#020F20;color:#A8B9D6;padding:64px 0 40px;font-family:"Hanken Grotesk",system-ui,sans-serif}
+.aao-foot-grid{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(0,1fr));gap:28px}
+.aao-foot .aao-brand{margin-bottom:16px}
+.aao-foot .aao-brand-name{color:#fff}
+.aao-foot .aao-brand-name small{color:#DDBB68}
+.aao-foot .aao-tag{margin:0;max-width:28ch;font-size:.875rem;line-height:1.45}
+.aao-foot h3{margin:0 0 12px;font-family:"Hanken Grotesk",system-ui,sans-serif;font-size:.875rem;font-weight:600;color:#EAF0FA;letter-spacing:0}
+.aao-foot ul{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.aao-foot a{color:#A8B9D6;text-decoration:none;font-size:.875rem}
+.aao-foot a:hover{color:#DDBB68}
+.aao-foot-copy{margin:40px 0 0;padding-top:24px;border-top:1px solid rgba(234,240,250,.12);font-size:.8125rem}
+
+@media (max-width:1100px){
+  .aao-menu-btn{display:grid}
+  .aao-nav{display:none;position:absolute;left:0;right:0;top:100%;flex-direction:column;align-items:stretch;gap:0;background:#fff;padding:8px 24px 22px;border-bottom:1px solid #DAE1EE}
+  .aao-nav.is-open{display:flex}
+  .aao-nav a{padding:14px 4px;border-radius:0;border-bottom:1px solid #E8EEF8;min-height:44px;display:flex;align-items:center}
+  .aao-nav .aao-sep{display:none}
+  .aao-nav a[aria-current="page"]{background:transparent;color:#A88232}
+}
+@media (max-width:900px){
+  .aao-wrap{width:calc(100% - 32px)}
+  .aao-foot-grid{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  .aao-hero::after{width:min(220px,60vw);opacity:.08;top:auto;bottom:8%;right:-4%;transform:none}
+  .aao-brand-name{display:none}
+}
+</style>
+
+<footer class="aao-foot" data-aao="footer">
+  <div class="aao-wrap">
+    <div class="aao-foot-grid">
+      <div>
+        <a class="aao-brand" data-aao="#home" href="../../AAO_Website_hallmark.html#home">
+          <img src="https://assets.cdn.filesafe.space/rERzEZ1vvNKnEqyjaJXX/media/6aec4e170c8a41402ceb405e.png" alt="" width="80" height="80">
+          <span class="aao-brand-name">Amazing Assistants<small>Online</small></span>
+        </a>
+        <p class="aao-tag">Your Partner in Turning Business Goals into Results.</p>
+      </div>
+      <div>
+        <h3>For business owners</h3>
+        <ul>
+          <li><a data-aao="#talent" href="../../AAO_Website_hallmark.html#talent">Find assistants</a></li>
+          <li><a data-aao="#how" href="../../AAO_Website_hallmark.html#how">How it works</a></li>
+          <li><a data-aao="#pricing" href="../../AAO_Website_hallmark.html#pricing">Pricing</a></li>
+          <li><a href="#">Membership</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Company</h3>
+        <ul>
+          <li><a data-aao="#about" href="../../AAO_Website_hallmark.html#about">About AAO</a></li>
+          <li><a data-aao="#standards" href="../../AAO_Website_hallmark.html#standards">Trust and standards</a></li>
+          <li><a data-aao="#faq" href="../../AAO_Website_hallmark.html#faq">FAQs</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3>Account</h3>
+        <ul>
+          <li><a data-aao="#login" href="../../AAO_Website_hallmark.html#login">Log in</a></li>
+          <li><a data-aao="#help" href="../../AAO_Website_hallmark.html#help">Help and support</a></li>
+          <li><a data-aao="#join" href="../../AAO_Website_hallmark.html#join">Create an account</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="aao-foot-copy">© Amazing Assistants Online. Membership billing is processed securely through GoHighLevel.</p>
+  </div>
+</footer>
+<script>
+(function(){
+  var base=window.AAO_SITE||"";
+  if(!base){try{base=new URL("../../AAO_Website_hallmark.html",location.href).href.split("#")[0];}catch(e){base="";}}
+  base=String(base).replace(/\/$/,"");
+  if(!base||/YOUR-AAO-SITE/i.test(base))return;
+  document.querySelectorAll("a[data-aao]").forEach(function(a){
+    var h=a.getAttribute("data-aao")||"#home";
+    if(h.charAt(0)!=="#")h="#"+h;
+    a.setAttribute("href",base+h);
+  });
+})();
+</script>

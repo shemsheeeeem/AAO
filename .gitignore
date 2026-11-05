@@ -1,0 +1,12 @@
+# Local config (do not commit secrets)
+payments-config.js
+messaging-config.js
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+*.log
+node_modules/
+.vscode/
+.idea/

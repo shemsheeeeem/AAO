@@ -1,0 +1,114 @@
+/* AAO Membership — self-contained (no @import). Use for section previews + membership.html */
+@import url("https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Marcellus&display=swap");
+
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;overflow-x:clip}
+body{background:#F3F6FB;color:#0B1A33;font:400 1.0625rem/1.55 "Hanken Grotesk",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+img{max-width:100%;display:block}
+a{color:#1B4B91}
+ul{margin:0;padding:0;list-style:none}
+h1,h2,h3{margin:0;font-weight:400}
+
+.skip{position:absolute;left:-999px;top:8px;z-index:100;background:#DDBB68;color:#020F20;padding:10px 16px;border-radius:6px;font-weight:600}
+.skip:focus{left:8px}
+.wrap{width:min(1180px,calc(100% - 48px));margin-inline:auto}
+
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;min-width:0;color:inherit}
+.brand img{height:38px;width:auto;aspect-ratio:1/1;flex:none;border-radius:8px;background:#fff}
+.brand-name{font-family:"Marcellus",Georgia,serif;font-size:1.15rem;line-height:1.05;letter-spacing:.01em;white-space:nowrap}
+.brand-name small{display:block;font-size:.78rem;letter-spacing:.34em;margin-top:3px;font-weight:400}
+
+/* Header */
+.site-header.mem-header{position:relative;background:#fff;border-bottom:1px solid #DAE1EE;z-index:50}
+.mem-header .bar{display:flex;align-items:center;justify-content:space-between;gap:24px;width:min(1180px,calc(100% - 48px));margin-inline:auto;min-height:72px}
+.mem-header .brand-name{color:#0B1A33}
+.mem-header .brand-name small{color:#A88232}
+.nav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.nav a{color:#51617C;text-decoration:none;font-weight:500;font-size:.95rem;padding:10px 14px;border-radius:8px}
+.nav a:hover{color:#0B1A33;background:#E8EEF8}
+.nav a[aria-current="page"]{color:#0B1A33;background:#DCE8FA}
+.nav .sep{width:1px;height:22px;background:#DAE1EE;margin:0 8px}
+.menu-btn{display:none;appearance:none;background:transparent;border:1px solid #DAE1EE;color:#0B1A33;border-radius:999px;width:44px;height:44px;cursor:pointer;place-items:center;padding:0}
+.menu-btn svg{width:22px;height:22px}
+
+/* Hero */
+.mem-hero{position:relative;overflow:hidden;color:#EAF0FA;
+  background:radial-gradient(ellipse 70% 80% at 85% 20%,rgba(47,107,194,.28),transparent 55%),
+    radial-gradient(ellipse 50% 60% at 10% 90%,rgba(196,155,63,.16),transparent 50%),
+    linear-gradient(165deg,#020F20 0%,#031A36 48%,#06244A 100%);
+  padding:clamp(48px,7vw,88px) 0}
+.mem-hero::after{content:"";position:absolute;right:max(4vw,16px);top:50%;width:min(320px,42vw);aspect-ratio:1/1;transform:translateY(-42%);
+  background:url("https://assets.cdn.filesafe.space/rERzEZ1vvNKnEqyjaJXX/media/6aec4e170c8a41402ceb405e.png") center/contain no-repeat;opacity:.1;pointer-events:none}
+.mem-hero .wrap{position:relative;z-index:1;display:grid;gap:clamp(18px,2.5vw,28px);max-width:720px}
+.mem-brand{margin:0;font-family:"Marcellus",Georgia,serif;font-size:clamp(1.85rem,3.6vw,2.75rem);line-height:1.08;letter-spacing:-.01em;color:#fff;max-width:14ch}
+.mem-brand small{display:block;margin-top:.2em;font-size:.42em;letter-spacing:.28em;color:#DDBB68;font-weight:400}
+.mem-hero h1{margin:0;font-family:"Hanken Grotesk",system-ui,sans-serif;font-weight:600;font-size:clamp(1.15rem,1.6vw,1.35rem);line-height:1.35;color:#EAF0FA;max-width:28ch}
+.mem-hero .lede{margin:0;color:#A8B9D6;font-size:clamp(1.02rem,.3vw + .98rem,1.15rem);line-height:1.55;max-width:38em}
+.mem-price{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px 16px}
+.mem-price .amt{font-family:"Marcellus",Georgia,serif;font-size:clamp(2.4rem,4vw,3.4rem);line-height:1;color:#DDBB68}
+.mem-price .meta{color:#A8B9D6;font-size:.98rem}
+
+/* Order */
+.mem-order{padding:clamp(40px,6vw,72px) 0 clamp(56px,8vw,96px);background:#F3F6FB;border-top:1px solid #DAE1EE}
+.mem-order .wrap{display:grid;gap:clamp(20px,3vw,32px)}
+.mem-order-head h2{margin:0 0 10px;font-family:"Marcellus",Georgia,serif;font-size:clamp(1.75rem,2.8vw,2.4rem);color:#0B1A33;max-width:16ch;line-height:1.15}
+.mem-order-head p{margin:0;color:#51617C;max-width:42em;font-size:1.05rem}
+.mem-form-slot{min-height:280px;width:min(720px,100%);margin-inline:auto;padding:clamp(20px,3vw,32px);border:1px dashed #DAE1EE;border-radius:14px;background:#fff;box-shadow:0 2px 4px rgba(11,26,51,.05),0 18px 34px -18px rgba(11,26,51,.35);display:grid;place-items:center}
+.mem-form-placeholder{margin:0;color:#51617C;font-size:1.02rem;text-align:center;max-width:28em}
+.mem-note{margin:0;color:#51617C;font-size:.95rem;text-align:center}
+.mem-note a{color:#1B4B91}
+
+/* Footer */
+.foot{background:#020F20;color:#A8B9D6;padding:64px 0 40px}
+.foot-grid{display:grid;grid-template-columns:minmax(0,1.4fr) repeat(3,minmax(0,1fr));gap:28px}
+.foot .brand{margin-bottom:16px}
+.foot .brand-name{color:#fff}
+.foot .brand-name small{color:#DDBB68}
+.foot .tag-line{margin:0;max-width:28ch;font-size:.875rem}
+.foot h3{margin:0 0 12px;font-family:"Hanken Grotesk",system-ui,sans-serif;font-size:.875rem;font-weight:600;color:#EAF0FA}
+.foot ul{display:grid;gap:8px}
+.foot a{color:#A8B9D6;text-decoration:none;font-size:.875rem}
+.foot a:hover{color:#DDBB68}
+.foot-copy{margin:40px 0 0;padding-top:24px;border-top:1px solid rgba(234,240,250,.12);font-size:.8125rem}
+
+@media (max-width:1100px){
+  .menu-btn{display:grid}
+  .nav{display:none;position:absolute;left:0;right:0;top:100%;flex-direction:column;align-items:stretch;gap:0;background:#fff;padding:8px 24px 22px;border-bottom:1px solid #DAE1EE}
+  .nav.open{display:flex}
+  .nav a{padding:14px 4px;border-radius:0;border-bottom:1px solid #E8EEF8;min-height:44px;display:flex;align-items:center}
+  .nav .sep{display:none}
+  .nav a[aria-current="page"]{background:transparent;color:#A88232}
+}
+@media (max-width:900px){
+  .wrap,.mem-header .bar{width:calc(100% - 32px)}
+  .foot-grid{grid-template-columns:1fr}
+}
+/* Thank you */
+.mem-thanks-hero .mem-brand{max-width:18ch}
+.mem-thanks-hero h1{max-width:22ch}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;padding:.9em 1.45em;border-radius:6px;border:1px solid transparent;font:600 1rem/1.1 "Hanken Grotesk",system-ui,sans-serif;text-decoration:none;cursor:pointer}
+.btn-gold{background:#DDBB68;color:#020F20}
+.btn-gold:hover{background:#EBD08F}
+.btn-light{background:#EAF0FA;color:#020F20}
+.btn-navy{background:#06244A;color:#EAF0FA}
+.btn-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+.mem-next{padding:clamp(40px,6vw,72px) 0 clamp(56px,8vw,96px);background:#F3F6FB;border-top:1px solid #DAE1EE}
+.mem-next .wrap{display:grid;gap:clamp(24px,3vw,36px)}
+.mem-next-head h2{margin:0 0 10px;font-family:"Marcellus",Georgia,serif;font-size:clamp(1.75rem,2.8vw,2.4rem);color:#0B1A33;max-width:18ch;line-height:1.15}
+.mem-next-head p{margin:0;color:#51617C;max-width:42em;font-size:1.05rem}
+.mem-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;border-top:1px solid #DAE1EE}
+.mem-step{padding:28px 8px 0 0;min-width:0}
+.mem-step + .mem-step{padding-left:28px;border-left:1px solid #DAE1EE}
+.mem-step .num{display:block;font-family:"Marcellus",Georgia,serif;font-size:1.5rem;color:#A88232;margin-bottom:10px;line-height:1}
+.mem-step h3{margin:0 0 8px;font-family:"Hanken Grotesk",system-ui,sans-serif;font-size:1.02rem;font-weight:700;color:#0B1A33}
+.mem-step p{margin:0;color:#51617C;font-size:.98rem;line-height:1.5}
+.mem-thanks-note{margin:0;padding:16px 18px;border-left:2px solid #C49B3F;background:#fff;color:#51617C;font-size:.98rem;max-width:48em}
+.mem-thanks-note strong{color:#0B1A33}
+
+@media (max-width:760px){
+  .mem-hero::after{width:min(220px,60vw);opacity:.08;top:auto;bottom:8%;right:-4%;transform:none}
+  .brand-name{display:none}
+  .mem-header .brand-name{display:none}
+  .mem-steps{grid-template-columns:1fr}
+  .mem-step + .mem-step{padding-left:0;border-left:0;padding-top:22px;border-top:1px solid #DAE1EE}
+}

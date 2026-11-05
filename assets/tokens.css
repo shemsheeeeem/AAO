@@ -1,0 +1,38 @@
+:root {
+  --space-3xs: 2px; --space-2xs: 4px; --space-xs: 8px; --space-sm: 12px; --space-md: 16px; --space-lg: 24px; --space-xl: 40px; --space-2xl: 64px; --space-3xl: 96px; --space-4xl: 144px;
+  --text-xs: 0.8125rem; --text-sm: 0.875rem; --text-md: 1rem; --text-lg: 1.25rem; --text-xl: 1.5625rem; --text-2xl: 1.953rem; --text-3xl: 2.441rem;
+  --text-display-s: clamp(2.25rem, 4vw + 0.5rem, 3.75rem); --text-display: clamp(2.75rem, 5vw + 1rem, 5.25rem);
+  --text-section: clamp(2rem, 2.5vw + 1rem, 3.5rem); --text-title: clamp(1.25rem, 0.75vw + 0.875rem, 1.625rem); --text-lead: clamp(1.125rem, 0.35vw + 1rem, 1.375rem);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1); --ease-in: cubic-bezier(0.7, 0, 0.84, 0); --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-micro: 120ms; --dur-short: 220ms; --dur-long: 420ms;
+  --color-error: oklch(52% 0.19 27); --color-success: oklch(50% 0.12 150);
+  --container: 1180px; --gutter: 24px; --gap-columns: 28px; --section-gap-s: 80px; --section-gap: 96px; --section-gap-l: 120px;
+  --z-base: 1; --z-raised: 10; --z-dropdown: 100; --z-sticky: 200; --z-sticky-nav: 300; --z-modal: 400; --z-toast: 500; --z-tooltip: 600;
+
+  /* AAO brand lock (from AAO_Website (7).html :root) */
+  --navy-950: #020F20; --navy-900: #031A36; --navy-800: #06244A; --navy-700: #0B3262;
+  --blue-600: #1B4B91; --blue-500: #2F6BC2; --blue-300: #8DB4EA;
+  --gold-600: #A88232; --gold-500: #C49B3F; --gold-400: #DDBB68; --gold-300: #EBD08F;
+  --on-navy: #EAF0FA; --on-navy-muted: #A8B9D6;
+  --bg: #F3F6FB; --surface: #FFFFFF; --surface-2: #E8EEF8; --sky: #DCE8FA; --sand: #F6E8C2;
+  --ink: #0B1A33; --muted: #51617C; --line: #DAE1EE; --accent-ink: #7A5C14; --link: #1B4B91;
+  --display: "Marcellus", "Trajan Pro", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --body: "Hanken Grotesk", "Segoe UI", system-ui, -apple-system, Helvetica, Arial, sans-serif;
+  --shadow: 0 2px 4px rgba(11, 26, 51, 0.05), 0 18px 34px -18px rgba(11, 26, 51, 0.35);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  --color-paper: var(--bg); --color-paper-2: var(--surface); --color-paper-3: var(--surface-2);
+  --color-ink: var(--ink); --color-ink-2: var(--navy-800); --color-muted: var(--muted);
+  --color-rule: var(--line);
+  --color-accent: var(--gold-500); --color-accent-ink: var(--navy-950); --color-focus: var(--blue-500);
+  --color-cool: var(--blue-500); --color-cool-soft: var(--sky);
+  --color-ok: #2F6B4A; --color-ok-soft: #E2F0E8; --color-bad: #8B2E2E; --color-bad-soft: #F5E4E4;
+  --color-panel: var(--navy-900); --color-panel-2: var(--navy-800); --color-panel-3: var(--navy-950);
+  --color-on-panel: var(--on-navy); --color-on-panel-muted: var(--on-navy-muted);
+  --color-white: #FFFFFF; --color-black-ink: #010C18;
+  --color-sep-light: rgba(255, 255, 255, 0.14); --color-sep-ink: rgba(11, 26, 51, 0.12);
+  --font-display: var(--display); --font-body: var(--body); --font-outlier: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --radius-card: 10px; --radius-control: 6px; --radius-pill: 6px; --rule-hair: 1px;
+  --shadow-card: var(--shadow); --shadow-lift: 0 1px 2px rgba(11, 26, 51, 0.08), 0 18px 36px -20px rgba(11, 26, 51, 0.4);
+  --tracking-display: -0.02em; --display-weight: 400;
+}

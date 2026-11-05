@@ -1,0 +1,261 @@
+﻿/* AAO Membership purchase shell
+ * stamp: brand AAO · paper/navy · Marcellus + Hanken Grotesk
+ * sections: header · hero · order · footer (also as membership-*.html snippets)
+ */
+@import url("./talent.css");
+
+.mem-main {
+  background: var(--color-paper);
+}
+
+.mem-preview {
+  margin: 0;
+  background: var(--color-paper);
+  min-height: 100dvh;
+}
+
+/* ---------- Section 1: Header (light band, separate from navy hero) ---------- */
+.mem-header.mem-header-static {
+  position: relative;
+  top: auto;
+  background: var(--surface);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  padding: 0;
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 1px 0 rgba(11, 26, 51, 0.04);
+}
+.mem-header.mem-header-static .bar {
+  width: min(1180px, calc(100% - 48px));
+  margin-inline: auto;
+  min-height: 72px;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding-inline: 0;
+}
+.mem-header.mem-header-static .brand-name {
+  display: block;
+  color: var(--ink);
+}
+.mem-header.mem-header-static .brand-name small {
+  color: var(--gold-600);
+}
+.mem-header.mem-header-static .nav a {
+  color: var(--muted);
+}
+.mem-header.mem-header-static .nav a:hover {
+  color: var(--ink);
+  background: var(--surface-2);
+}
+.mem-header.mem-header-static .nav a[aria-current="page"] {
+  color: var(--ink);
+  background: var(--sky);
+}
+.mem-header.mem-header-static .nav .sep {
+  background: var(--line);
+}
+.mem-header.mem-header-static .menu-btn {
+  border-color: var(--line);
+  color: var(--ink);
+}
+@media (max-width: 1100px) {
+  .mem-header.mem-header-static .nav {
+    background: var(--surface);
+    border-bottom-color: var(--line);
+  }
+  .mem-header.mem-header-static .nav a {
+    border-bottom-color: var(--line);
+  }
+  .mem-header.mem-header-static .nav a[aria-current="page"] {
+    color: var(--gold-600);
+    background: transparent;
+  }
+}
+
+/* ---------- Section 2: Hero ---------- */
+.mem-hero {
+  position: relative;
+  overflow: clip;
+  color: var(--on-navy);
+  background:
+    radial-gradient(ellipse 70% 80% at 85% 20%, color-mix(in srgb, var(--blue-500) 28%, transparent), transparent 55%),
+    radial-gradient(ellipse 50% 60% at 10% 90%, color-mix(in srgb, var(--gold-500) 16%, transparent), transparent 50%),
+    linear-gradient(165deg, var(--navy-950) 0%, var(--navy-900) 48%, var(--navy-800) 100%);
+  padding: clamp(48px, 7vw, 88px) 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-white) 6%, transparent);
+}
+.mem-hero::after {
+  content: "";
+  position: absolute;
+  right: max(4vw, 16px);
+  top: 50%;
+  width: min(420px, 48vw);
+  aspect-ratio: 1 / 1;
+  transform: translateY(-42%);
+  background: url("https://assets.cdn.filesafe.space/rERzEZ1vvNKnEqyjaJXX/media/6aec4e170c8a41402ceb405e.png") center / contain no-repeat;
+  opacity: 0.1;
+  pointer-events: none;
+}
+.mem-hero .wrap {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: clamp(18px, 2.5vw, 28px);
+  max-width: 720px;
+}
+.mem-brand {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 3.6vw, 2.75rem);
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: var(--color-white);
+  max-width: 14ch;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+.mem-brand small {
+  display: block;
+  margin-top: 0.2em;
+  font-size: 0.42em;
+  letter-spacing: 0.28em;
+  color: var(--gold-400);
+  font-weight: 400;
+}
+.mem-hero h1 {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: clamp(1.15rem, 1.6vw, 1.35rem);
+  line-height: 1.35;
+  letter-spacing: 0;
+  color: var(--on-navy);
+  max-width: 28ch;
+}
+.mem-hero .lede {
+  margin: 0;
+  color: var(--on-navy-muted);
+  font-size: clamp(1.02rem, 0.3vw + 0.98rem, 1.15rem);
+  line-height: 1.55;
+  max-width: 38em;
+}
+.mem-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px 16px;
+  color: var(--on-navy);
+}
+.mem-price .amt {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 4vw, 3.4rem);
+  line-height: 1;
+  color: var(--gold-400);
+}
+.mem-price .meta {
+  color: var(--on-navy-muted);
+  font-size: 0.98rem;
+}
+
+/* ---------- Section 3: Order form ---------- */
+.mem-order {
+  padding: clamp(40px, 6vw, 72px) 0 clamp(56px, 8vw, 96px);
+  background: var(--color-paper);
+  border-top: 1px solid var(--line);
+}
+.mem-order .wrap {
+  display: grid;
+  gap: clamp(20px, 3vw, 32px);
+}
+.mem-order-head h2 {
+  margin: 0 0 10px;
+  color: var(--ink);
+  font-size: clamp(1.75rem, 2.8vw, 2.4rem);
+  max-width: 16ch;
+}
+.mem-order-head p {
+  margin: 0;
+  color: var(--muted);
+  max-width: 42em;
+  font-size: 1.05rem;
+}
+.mem-form-slot {
+  min-height: 420px;
+  width: min(720px, 100%);
+  margin-inline: auto;
+  padding: clamp(20px, 3vw, 32px);
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  display: grid;
+  place-items: center;
+}
+.mem-form-placeholder {
+  margin: 0;
+  color: var(--muted);
+  font-size: 1.02rem;
+  text-align: center;
+  padding: 24px;
+  max-width: 28em;
+}
+.mem-form-slot:has(iframe),
+.mem-form-slot:has(form),
+.mem-form-slot:has(> div:not(.mem-form-placeholder)) {
+  border-style: solid;
+  place-items: stretch;
+}
+.mem-form-slot:has(iframe) .mem-form-placeholder,
+.mem-form-slot:has(form) .mem-form-placeholder,
+.mem-form-slot:has(> div:not(.mem-form-placeholder)) .mem-form-placeholder {
+  display: none;
+}
+.mem-form-slot iframe,
+.mem-form-slot form,
+.mem-form-slot > div:not(.mem-form-placeholder) {
+  width: 100%;
+  max-width: 100%;
+}
+.mem-note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  max-width: 48em;
+  text-align: center;
+}
+.mem-note a {
+  color: var(--link);
+}
+
+/* ---------- Section 4: Footer uses .foot from talent.css ---------- */
+.foot[data-section="footer"] {
+  border-top: 1px solid color-mix(in srgb, var(--color-white) 10%, transparent);
+}
+
+@media (max-width: 900px) {
+  .mem-header.mem-header-static .bar {
+    width: calc(100% - 32px);
+  }
+}
+
+@media (max-width: 760px) {
+  .mem-hero::after {
+    width: min(280px, 70vw);
+    opacity: 0.08;
+    top: auto;
+    bottom: 8%;
+    right: -4%;
+    transform: none;
+  }
+  .mem-form-slot {
+    min-height: 360px;
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-header .btn:hover {
+    transform: none;
+  }
+}
