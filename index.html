@@ -5439,6 +5439,20 @@ function go(r){
   try{if(location.hash!=="#"+r)history.pushState(null,"","#"+r);}catch(e){}
   render();
 }
+/* Cloudflare Turnstile (only when a site key is configured): the script is fetched the first time a visitor opens the report form. */
+var turnstileLoading=null;
+function loadTurnstile(){
+  if(window.turnstile)return Promise.resolve(window.turnstile);
+  if(!turnstileLoading)turnstileLoading=new Promise(function(resolve,reject){
+    var s=document.createElement("script");
+    s.src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    s.async=true;s.defer=true;
+    s.onload=function(){resolve(window.turnstile);};
+    s.onerror=function(){turnstileLoading=null;reject(new Error("The verification could not be loaded."));};
+    document.head.appendChild(s);
+  });
+  return turnstileLoading;
+}
 /* Live mode: a "Report" box on assistant and job pages. Anyone may report; a signed-in reporter's token is sent. */
 function attachReport(h){
   if(!API_ON)return;
@@ -5456,23 +5470,35 @@ function attachReport(h){
     '<form id="rpt-form" class="'+(dark?"jd-form":"form")+'" hidden novalidate>'+
       '<label class="field">Reason<select id="rpt-reason"><option value="spam">Spam</option><option value="scam">Scam or fraud</option><option value="inappropriate">Inappropriate content</option><option value="other">Something else</option></select></label>'+
       '<label class="field">Details<textarea id="rpt-details" maxlength="2000" placeholder="What should we know?"></textarea></label>'+
+      '<div id="rpt-ts" style="margin:4px 0 8px"></div>'+
       '<button class="btn btn-gold btn-block" type="submit">Send report</button></form>'+
     '<div class="notice" id="rpt-note" role="status"></div>';
   aside.appendChild(box);
   var form=box.querySelector("#rpt-form"),note=box.querySelector("#rpt-note"),open=box.querySelector("#rpt-open"),sending=false;
-  open.addEventListener("click",function(){form.hidden=false;open.hidden=true;});
+  var siteKey=AAOApi.turnstileSiteKey(),tsId=null,tsToken="";
+  open.addEventListener("click",function(){
+    form.hidden=false;open.hidden=true;
+    if(!siteKey)return;
+    loadTurnstile().then(function(ts){
+      if(tsId!==null||!document.body.contains(form))return;
+      tsId=ts.render(box.querySelector("#rpt-ts"),{sitekey:siteKey,action:"report",callback:function(t){tsToken=t;},"expired-callback":function(){tsToken="";},"error-callback":function(){tsToken="";}});
+    }).catch(function(err){note.classList.add("show");note.innerHTML="<strong>We could not load the verification.</strong>"+AAOApi.esc(err.message);});
+  });
+  function resetTs(){tsToken="";if(tsId!==null&&window.turnstile){try{window.turnstile.reset(tsId);}catch(e){}}}
   form.addEventListener("submit",function(e){
     e.preventDefault();
     if(sending)return;
     var reason=box.querySelector("#rpt-reason").value,details=box.querySelector("#rpt-details").value.trim();
     note.classList.add("show");
     if(reason==="other"&&details.length<5){note.innerHTML="<strong>Add a few details.</strong>Please tell us what is wrong.";return;}
+    if(siteKey&&!tsToken){note.innerHTML="<strong>One quick check.</strong>Please complete the verification, then send your report.";return;}
     sending=true;
     note.innerHTML="<strong>Sending…</strong>";
-    AAOApi.report({type:type,id:id,reason:reason,details:details}).then(function(){
+    var used=tsToken;
+    AAOApi.report({type:type,id:id,reason:reason,details:details,turnstileToken:used}).then(function(){
       form.hidden=true;
       note.innerHTML="<strong>Thank you.</strong>Your report was sent. Our team will review it.";
-    }).catch(function(err){sending=false;note.innerHTML="<strong>We could not send that.</strong>"+AAOApi.esc(err.message);});
+    }).catch(function(err){sending=false;resetTs();note.innerHTML="<strong>We could not send that.</strong>"+AAOApi.esc(err.message);});
   });
 }
 function currentRoute(){return (current!==null?current:(location.hash||"").replace(/^#/,""))||"home";}

@@ -379,11 +379,14 @@
   async function report(o) {
     var body = { target_type: o.type, target_id: o.id, reason: o.reason };
     if (o.details) body.details = o.details;
+    if (o.turnstileToken) body.turnstile_token = o.turnstileToken; /* single-use token from the Cloudflare Turnstile widget */
     try {
       await call("POST", "/reports", body, { optionalAuth: true });
     } catch (e) {
       if (e.status === 429) throw ApiError(429, "RATE_LIMITED", "You have sent several reports recently. Please try again later.");
       if (e.status === 404) throw ApiError(404, "NOT_FOUND", "That listing is no longer available.");
+      if (e.status === 400 && e.code === "BAD_REQUEST") throw ApiError(400, "VERIFICATION", "The verification did not pass. Please try again.");
+      if (e.status === 503) throw ApiError(503, "UNAVAILABLE", "Reporting is temporarily unavailable. Please try again in a few minutes.");
       throw e;
     }
   }
@@ -437,6 +440,7 @@
     applyToJob: applyToJob, myApplications: myApplications, withdrawApplication: withdrawApplication, jobApplicants: jobApplicants,
     myJobs: myJobs, closeJob: closeJob, reopenJob: reopenJob,
     report: report,
+    turnstileSiteKey: function () { return cfg.turnstileSiteKey || ""; },
     uploadPhoto: uploadPhoto, myPhotoUrl: myPhotoUrl,
     hasTalentProfile: function () { return !!(mine && mine.kind === "talent" && mine.data); },
     jobFromOwn: jobFromOwn,
