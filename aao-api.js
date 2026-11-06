@@ -409,7 +409,32 @@
     return mine && mine.kind === "talent" && mine.data ? safeUrl(mine.data.photo_url) : "";
   }
 
+  /* ---------- job applications ---------- */
+  var START_FROM_LABEL = { "Immediately": "immediately", "Within a week": "within_week", "In 2 weeks": "in_two_weeks", "In a month": "in_a_month" };
+
+  async function applyToJob(jobId, o) {
+    var body = { letter: o.letter, start_when: START_FROM_LABEL[o.start] || "immediately" };
+    var amount = parseFloat(o.amount);
+    if (amount > 0) body.proposed_amount = Math.round(amount * 100) / 100;
+    if (o.link) body.link_url = o.link;
+    var r = await call("POST", "/jobs/" + encodeURIComponent(jobId) + "/applications", body, { auth: true });
+    return r.data;
+  }
+  async function myApplications() {
+    var r = await call("GET", "/me/applications?limit=50", undefined, { auth: true, fresh: true });
+    return r.data || [];
+  }
+  async function withdrawApplication(id) {
+    var r = await call("POST", "/me/applications/" + encodeURIComponent(id) + "/withdraw", undefined, { auth: true });
+    return r.data;
+  }
+  async function jobApplicants(jobId) {
+    var r = await call("GET", "/me/jobs/" + encodeURIComponent(jobId) + "/applications?limit=50", undefined, { auth: true, fresh: true });
+    return r.data || [];
+  }
+
   window.AAOApi = {
+    applyToJob: applyToJob, myApplications: myApplications, withdrawApplication: withdrawApplication, jobApplicants: jobApplicants,
     myJobs: myJobs, closeJob: closeJob, reopenJob: reopenJob,
     report: report,
     uploadPhoto: uploadPhoto, myPhotoUrl: myPhotoUrl,

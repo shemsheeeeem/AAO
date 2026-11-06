@@ -3786,7 +3786,17 @@ V.jobLive = function(j){
   var budget='<dl class="jd-sum"><div><dt>Budget</dt><dd>'+payLabel(j)+" "+paySuffix(j)+'</dd></div><div><dt>Type</dt><dd>'+j.type+'</dd></div></dl>';
   var panel;
   if(u&&u.role==="va"){
-    panel='<div class="jd-apply jd-gate"><h2>Interested?</h2>'+budget+'<p>Applying through the site is not available yet. Keep your profile complete: clients can find you and contact you directly.</p><div class="stack"><a class="btn btn-gold btn-block" href="#va-profile">Review my profile</a><a class="btn btn-line-dark btn-block" href="#talent">Back to openings</a></div></div>';
+    /* The designed "Send a letter" form, unchanged; only the made-up applicant count in the summary is left out. */
+    var defPay=j.pay||"";
+    panel='<div class="jd-apply"><h2>Send a letter.</h2>'+budget+'<div class="jd-ask"><strong>How to stand out</strong>In your letter, name one similar project and how soon you can start.</div>'+
+      '<form class="jd-form" id="japf">'+
+        '<label class="field">Your price for the project<div class="jd-price"><span class="cur">$</span><input id="jap-pay" name="pay" type="number" min="1" step="1" value="'+defPay+'" required><span class="unit">'+(j.payUnit==="hr"?"USD / hr":(j.payUnit==="mo"?"USD / mo":"USD total"))+'</span></div></label>'+
+        '<label class="field">Can start<select id="jap-start" name="start"><option>Immediately</option><option>Within a week</option><option>In 2 weeks</option><option>In a month</option></select></label>'+
+        '<label class="field">Link to similar work<input id="jap-link" name="link" type="url" placeholder="https://"></label>'+
+        '<label class="field">Letter<textarea id="jap-letter" name="letter" required minlength="20" placeholder="Say why you fit this role. At least 20 characters."></textarea></label>'+
+        '<button class="btn btn-gold btn-block" type="submit">Submit application</button>'+
+        '<div class="notice" id="jnote" role="status"></div>'+
+      '</form></div>';
   }else if(u&&u.role==="client"){
     panel='<div class="jd-apply jd-gate"><h2>Client desk</h2><p>You are signed in as a client. Open roles for assistants live on the board; manage your jobs from your desk.</p><div class="stack"><a class="btn btn-gold btn-block" href="#dashboard">Open client desk</a><a class="btn btn-line-dark btn-block" href="#talent">Browse assistants</a></div></div>';
   }else{
@@ -3846,6 +3856,36 @@ V.job = function(id){
 V.job.init = function(){
   var form=$("#japf"),note=$("#jnote");
   if(!form||!note)return;
+  if(API_ON){
+    /* Live mode: the same form sends the application to the backend. */
+    var jobId=(location.hash||"").replace(/^#job-/,""),sending=false,E=AAOApi.esc;
+    function lock(){form.querySelectorAll("input,select,textarea,button[type=submit]").forEach(function(el){el.disabled=true;});}
+    AAOApi.myApplications().then(function(list){
+      var a=list.filter(function(x){return x.job.id===jobId;})[0];
+      if(!a||!document.body.contains(form))return;
+      note.classList.add("show");
+      note.innerHTML="<strong>"+(a.status==="withdrawn"?"You withdrew your application.":"You already applied to this job.")+"</strong> <a href='#va-applications'>View your applications</a>";
+      lock();
+    }).catch(function(){});
+    form.addEventListener("submit",function(e){
+      e.preventDefault();
+      if(sending)return;
+      var letter=(($("#jap-letter")||{}).value||"").trim();
+      note.classList.add("show");
+      if(letter.length<20){note.innerHTML="<strong>Add a longer letter.</strong> Use at least 20 characters.";return;}
+      if(letter.length>2000){note.innerHTML="<strong>That letter is too long.</strong> Please keep it under 2,000 characters.";return;}
+      sending=true;
+      note.innerHTML="<strong>Sending…</strong>";
+      AAOApi.applyToJob(jobId,{letter:letter,amount:($("#jap-pay")||{}).value,start:($("#jap-start")||{}).value,link:(($("#jap-link")||{}).value||"").trim()}).then(function(){
+        note.innerHTML="<strong>Application sent.</strong> <a href='#va-applications'>View your applications</a>";
+        lock();
+      }).catch(function(err){
+        sending=false;
+        note.innerHTML="<strong>We could not send your application.</strong> "+E(err.status===409&&/profile/i.test(err.message)?"Create your profile first, then apply. ":"")+E(err.message)+(err.status===409&&/profile/i.test(err.message)?" <a href='#va-profile'>Create profile</a>":"");
+      });
+    });
+    return;
+  }
   form.addEventListener("submit",function(e){
     e.preventDefault();
     var letter=($("#jap-letter")||{}).value||"";
@@ -4547,10 +4587,11 @@ V.dashboardLive.init = function(){
       var o=$("#dl-open");if(o)o.textContent=open;
       if(!list.length){box.innerHTML='<p class="dash-note">You have not posted a job yet.</p><div class="dash-row"><div><strong>Post your first job</strong><span>It goes live right away</span></div><a class="dash-act" href="#post-job">Post a job</a></div>';return;}
       box.innerHTML=list.map(function(j){
-        var st=j.status==="open"?"Open · expires "+when(j.expires_at):(j.status==="closed"?"Closed":(j.status==="expired"?"Expired · reopen to list it again":"Hidden by an administrator"));
+        var n=j.application_count||0;
+        var st=(j.status==="open"?"Open · expires "+when(j.expires_at):(j.status==="closed"?"Closed":(j.status==="expired"?"Expired · reopen to list it again":"Hidden by an administrator")))+" · "+n+(n===1?" applicant":" applicants");
         var left=j.status==="open"?'<a class="dash-person" href="#job-'+E(j.id)+'"><strong>'+E(j.title)+'</strong><span>'+E(st)+'</span></a>':'<div><strong>'+E(j.title)+'</strong><span>'+E(st)+'</span></div>';
-        var ctl=j.status==="open"?'<button type="button" class="dash-act" data-job-act="close" data-job-id="'+E(j.id)+'">Close</button>':(j.status==="closed"||j.status==="expired"?'<button type="button" class="dash-act" data-job-act="reopen" data-job-id="'+E(j.id)+'">Reopen</button>':"");
-        return '<div class="dash-row">'+left+ctl+'</div>';
+        var ctl=(n?'<button type="button" class="dash-act" data-job-act="applicants" data-job-id="'+E(j.id)+'">Applicants</button> ':"")+(j.status==="open"?'<button type="button" class="dash-act" data-job-act="close" data-job-id="'+E(j.id)+'">Close</button>':(j.status==="closed"||j.status==="expired"?'<button type="button" class="dash-act" data-job-act="reopen" data-job-id="'+E(j.id)+'">Reopen</button>':""));
+        return '<div class="dash-row">'+left+'<span>'+ctl+'</span></div><div class="dash-note" data-apps-for="'+E(j.id)+'" hidden></div>';
       }).join("");
     }).catch(function(err){if(document.body.contains(box))box.innerHTML='<p class="dash-note">We could not load your jobs. '+E(err.message)+'</p>';});
   }
@@ -4561,6 +4602,24 @@ V.dashboardLive.init = function(){
     if(!btn||btn.disabled)return;
     btn.disabled=true;
     var act=btn.getAttribute("data-job-act"),id=btn.getAttribute("data-job-id");
+    if(act==="applicants"){
+      /* Show or hide the applicants of this job under its row (name and headline from the public profile, plus what they sent). */
+      var panel=box.querySelector('[data-apps-for="'+id+'"]');
+      if(!panel){btn.disabled=false;return;}
+      if(!panel.hidden){panel.hidden=true;btn.disabled=false;return;}
+      panel.hidden=false;panel.innerHTML="Loading…";
+      AAOApi.jobApplicants(id).then(function(list){
+        btn.disabled=false;
+        if(!list.length){panel.innerHTML="No applicants yet.";return;}
+        var start={immediately:"Immediately",within_week:"Within a week",in_two_weeks:"In 2 weeks",in_a_month:"In a month"};
+        panel.innerHTML=list.map(function(a){
+          var who=a.applicant.available?'<a href="#talent-'+E(a.applicant.id)+'"><strong>'+E(a.applicant.display_name)+'</strong></a>'+(a.applicant.headline?" · "+E(a.applicant.headline):""):"<strong>Profile no longer available</strong>";
+          var link=a.link_url?' · <a href="'+E(a.link_url)+'" target="_blank" rel="noopener noreferrer">Sample work</a>':"";
+          return '<div style="margin:10px 0 14px">'+who+(a.status==="withdrawn"?" · <em>Withdrawn</em>":"")+'<br>'+E(a.letter).replace(/\n/g,"<br>")+'<br><small>'+(a.proposed_amount!=null?"Price: $"+E(a.proposed_amount)+" · ":"")+"Can start: "+E(start[a.start_when]||"")+link+" · "+E(when(a.created_at))+'</small></div>';
+        }).join("");
+      }).catch(function(err){btn.disabled=false;panel.innerHTML="We could not load the applicants. "+E(err.message);});
+      return;
+    }
     (act==="close"?AAOApi.closeJob(id):AAOApi.reopenJob(id)).then(function(){
       showDashToast(act==="close"?"<strong>Job closed.</strong>It is no longer listed.":"<strong>Job reopened.</strong>It is listed again for 30 days.");
       return reloadCatalog().then(paint);
@@ -4992,6 +5051,7 @@ function vaAppShell(o){
 V.vaApplications = function(){
   var u=getDemoUser();
   if(!u)return V.login();
+  if(API_ON)return vaAppShell({h1:"Job applications",p:"Track roles you’ve applied to.",cta:"Browse openings",ctaHref:"#talent",body:'<div class="dash-panels" style="margin-top:8px"><div class="dash-panel"><div id="va-apps"><p class="dash-note">Loading…</p></div></div></div>'});
   var rows=[
     ["Executive assistant · health clinic","Interview scheduled Thursday","In review"],
     ["Customer support · SaaS","Client reviewing your sample replies","Submitted"],
@@ -5005,7 +5065,37 @@ V.vaApplications = function(){
     body:'<div class="dash-panels" style="margin-top:8px"><div class="dash-panel">'+dashRows(rows.map(function(r){return [r[0],r[1],r[2],"#talent"];}))+'</div></div>'
   });
 };
-V.vaApplications.init = function(){requireVaPage();};
+V.vaApplications.init = function(){
+  var u=requireVaPage();
+  if(!u||!API_ON)return;
+  var box=$("#va-apps"),E=AAOApi.esc;
+  if(!box)return;
+  var demoNote=document.querySelector(".app-note");if(demoNote)demoNote.remove(); /* "frontend only" note does not apply to live data */
+  function when(s){try{return new Date(s).toLocaleDateString([],{dateStyle:"medium"});}catch(e){return "";}}
+  function paint(){
+    return AAOApi.myApplications().then(function(list){
+      if(!document.body.contains(box))return;
+      if(!list.length){box.innerHTML='<p class="dash-note">You have not applied to a job yet.</p><div class="dash-row"><div><strong>Browse openings</strong><span>Find a role that fits</span></div><a class="dash-act" href="#talent">View jobs</a></div>';return;}
+      box.innerHTML=list.map(function(a){
+        var st=(a.status==="withdrawn"?"Withdrawn":"Submitted")+" · "+when(a.created_at)+(a.job.is_open?"":" · Job closed");
+        var title=E(a.job.title)+" · "+E(a.job.company_name);
+        var left=a.job.is_open?'<a class="dash-person" href="#job-'+E(a.job.id)+'"><strong>'+title+'</strong><span>'+E(st)+'</span></a>':'<div><strong>'+title+'</strong><span>'+E(st)+'</span></div>';
+        var ctl=(a.status==="submitted"||a.status==="shortlisted")?'<button type="button" class="dash-act" data-app-withdraw="'+E(a.id)+'">Withdraw</button>':"";
+        return '<div class="dash-row">'+left+ctl+'</div>';
+      }).join("");
+    }).catch(function(err){if(document.body.contains(box))box.innerHTML='<p class="dash-note">We could not load your applications. '+E(err.message)+'</p>';});
+  }
+  if(box.getAttribute("data-bound"))return;
+  box.setAttribute("data-bound","1");
+  box.addEventListener("click",function(e){
+    var btn=e.target.closest("[data-app-withdraw]");
+    if(!btn||btn.disabled)return;
+    if(!window.confirm("Withdraw this application? You will not be able to apply to this job again."))return;
+    btn.disabled=true;
+    AAOApi.withdrawApplication(btn.getAttribute("data-app-withdraw")).then(paint).catch(function(err){btn.disabled=false;alert("We could not withdraw that. "+err.message);});
+  });
+  paint();
+};
 V.vaSaved = function(){
   var u=getDemoUser();
   if(!u)return V.login();
