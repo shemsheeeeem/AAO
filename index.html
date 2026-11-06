@@ -3766,9 +3766,51 @@ function jobApplyPanel(j,m){
   }
   return '<div class="jd-apply jd-gate"><h2>Send a letter.</h2>'+sums+ask+'<p>Log in with a virtual assistant account to apply for this role.</p><div class="stack"><a class="btn btn-gold btn-block" href="#login">Log in to apply</a><a class="btn btn-line-dark btn-block" href="#join">Create a free profile</a></div></div>';
 }
+/* Live mode: the job page shows only facts the backend actually has. The demo page invents applicant counts, ratings, client history and
+   generic duties; those are left out here so real employers are never described with made-up numbers. */
+function agoLabel(iso){
+  var t=Date.parse(iso);
+  if(!t)return "";
+  var d=Math.floor((Date.now()-t)/86400000);
+  if(d<=0)return "Posted today";
+  if(d===1)return "Posted yesterday";
+  if(d<14)return "Posted "+d+" days ago";
+  try{return "Posted "+new Date(t).toLocaleDateString([],{dateStyle:"medium"});}catch(e){return "";}
+}
+V.jobLive = function(j){
+  var u=getDemoUser();
+  var payMain=payLabel(j)+(j.payUnit==="fixed"?" fixed.":(j.payUnit==="mo"?" /mo.":" /hr."));
+  var paySub=j.payUnit==="fixed"?"Fixed project":(j.payUnit==="mo"?"Monthly":"Hourly");
+  var skills=(j.skills&&j.skills.length)?j.skills.map(function(s){return '<span class="jd-tag">'+s+"</span>";}).join(""):"";
+  var posted=agoLabel(j.created);
+  var budget='<dl class="jd-sum"><div><dt>Budget</dt><dd>'+payLabel(j)+" "+paySuffix(j)+'</dd></div><div><dt>Type</dt><dd>'+j.type+'</dd></div></dl>';
+  var panel;
+  if(u&&u.role==="va"){
+    panel='<div class="jd-apply jd-gate"><h2>Interested?</h2>'+budget+'<p>Applying through the site is not available yet. Keep your profile complete: clients can find you and contact you directly.</p><div class="stack"><a class="btn btn-gold btn-block" href="#va-profile">Review my profile</a><a class="btn btn-line-dark btn-block" href="#talent">Back to openings</a></div></div>';
+  }else if(u&&u.role==="client"){
+    panel='<div class="jd-apply jd-gate"><h2>Client desk</h2><p>You are signed in as a client. Open roles for assistants live on the board; manage your jobs from your desk.</p><div class="stack"><a class="btn btn-gold btn-block" href="#dashboard">Open client desk</a><a class="btn btn-line-dark btn-block" href="#talent">Browse assistants</a></div></div>';
+  }else{
+    panel='<div class="jd-apply jd-gate"><h2>Interested?</h2>'+budget+'<p>Create a free assistant profile so clients can find you.</p><div class="stack"><a class="btn btn-gold btn-block" href="#join">Create a free profile</a><a class="btn btn-line-dark btn-block" href="#login">Log in</a></div></div>';
+  }
+  return '<section class="jd"><div class="wrap"><div class="jd-layout"><div class="jd-main">'+
+    '<div class="jd-badges"><span class="jd-pill open">Open</span><span class="jd-pill cat">'+(j.cat||"Role")+"</span></div>"+
+    '<h1 class="jd-title">'+j.title+"</h1>"+
+    '<p class="jd-payline">'+payMain+"</p>"+
+    '<p class="jd-meta"><span>'+j.company+"</span><span>"+j.loc+"</span>"+(posted?"<span>"+posted+"</span>":"")+"</p>"+
+    '<dl class="jd-facts">'+
+      "<div><dt>Pay</dt><dd>"+payLabel(j)+" "+paySuffix(j)+"<small>"+paySub+"</small></dd></div>"+
+      "<div><dt>Job type</dt><dd>"+j.type+"</dd></div>"+
+      "<div><dt>Location</dt><dd>"+j.loc+"</dd></div>"+
+    "</dl>"+
+    '<div class="jd-sec"><h2>About the job</h2><div class="prose"><p>'+(j.body||"Details coming soon.").replace(/\n/g,"<br>")+"</p></div></div>"+
+    (skills?'<div class="jd-sec"><h2>Skills and tools</h2><div class="jd-tags">'+skills+"</div></div>":"")+
+    '<div class="jd-client"><div class="jd-client-top"><span class="jd-avatar" aria-hidden="true">'+init(j.company||j.title||"A")+'</span><div><h3>'+j.company+'</h3><p class="who">Employer</p></div></div></div>'+
+  '</div><aside class="jd-aside">'+panel+"</aside></div></div></section>";
+};
 V.job = function(id){
   var j=findJob(id);
   if(!j)return V.notfound();
+  if(API_ON)return V.jobLive(j);
   var m=jobDetailMeta(j);
   var payMain=payLabel(j)+(j.payUnit==="fixed"?" fixed.":(j.payUnit==="mo"?" /mo.":" /hr."));
   var paySub=j.payUnit==="fixed"?"Fixed project":(j.payUnit==="mo"?"Monthly":"Hourly");
@@ -5312,14 +5354,16 @@ function attachReport(h){
   if(!API_ON)return;
   var type=h.indexOf("talent-")===0?"talent_profile":(h.indexOf("job-")===0?"job_post":"");
   var id=type==="talent_profile"?h.slice(7):h.slice(4);
-  var aside=document.querySelector("#app .aside");
+  var aside=document.querySelector("#app .aside,#app .jd-aside");
   if(!type||!aside||document.getElementById("rpt"))return;
   var what=type==="job_post"?"job":"profile";
+  var dark=aside.classList.contains("jd-aside"); /* the job page uses the dark panel style */
   var box=document.createElement("div");
-  box.className="panel";box.id="rpt";
+  box.className=dark?"jd-apply jd-gate":"panel";box.id="rpt";
+  if(dark)box.style.marginTop="16px";
   box.innerHTML='<h3>Report this '+what+'</h3><p class="muted" style="margin:0 0 12px">Something wrong? Tell us and our team will take a look.</p>'+
     '<button class="btn btn-line-dark btn-block" type="button" id="rpt-open">Report</button>'+
-    '<form id="rpt-form" class="form" hidden novalidate>'+
+    '<form id="rpt-form" class="'+(dark?"jd-form":"form")+'" hidden novalidate>'+
       '<label class="field">Reason<select id="rpt-reason"><option value="spam">Spam</option><option value="scam">Scam or fraud</option><option value="inappropriate">Inappropriate content</option><option value="other">Something else</option></select></label>'+
       '<label class="field">Details<textarea id="rpt-details" maxlength="2000" placeholder="What should we know?"></textarea></label>'+
       '<button class="btn btn-gold btn-block" type="submit">Send report</button></form>'+

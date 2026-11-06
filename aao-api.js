@@ -166,6 +166,7 @@
       loc: esc(j.location || "Remote"),
       skills: (j.skills || []).map(esc),
       body: esc(j.description || j.description_excerpt || ""),
+      created: j.created_at || "",
       _full: j.description != null
     };
   }
@@ -193,7 +194,7 @@
   function jobFromOwn(j) {
     return jobFromApi({
       id: j.id, title: j.title, description: j.description, job_type: j.job_type, talent_type: j.talent_type, location: j.location,
-      skills: j.skills, pay_amount: j.pay_amount, pay_unit: j.pay_unit,
+      skills: j.skills, pay_amount: j.pay_amount, pay_unit: j.pay_unit, created_at: j.created_at,
       company: { name: (mine && mine.kind === "employer" && mine.data && mine.data.company_name) || "Employer" }
     });
   }
