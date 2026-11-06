@@ -133,9 +133,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 }
 
 /* ---------- Buttons ---------- */
-.btn{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:.6em;padding:.9em 1.55em;border-radius:8px;border:1px solid transparent;font:600 1rem/1.1 var(--body);text-decoration:none;cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s,background .2s,color .2s,border-color .2s}
-.btn::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:rgba(255,255,255,.35);transform:skewX(-20deg);transition:left .6s var(--ease)}
-.btn:hover::after{left:130%}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6em;padding:.9em 1.55em;border-radius:8px;border:1px solid transparent;font:600 1rem/1.1 var(--body);text-decoration:none;cursor:pointer;transition:transform .25s var(--ease),box-shadow .25s,background .2s,color .2s,border-color .2s}
 .btn:hover{transform:translateY(-2px)}
 .btn:active{transform:translateY(0) scale(.98)}
 .btn-gold{background:#DDBB68;color:var(--navy-950);box-shadow:0 10px 22px -12px rgba(196,155,63,.9)}
@@ -1039,6 +1037,103 @@ ul,ol{margin:0;padding:0;list-style:none}
 .profile-hero .hl{font-size:1.15rem;color:var(--on-navy-muted);margin:6px 0 14px}
 @media (max-width:640px){.profile-hero{grid-template-columns:1fr}}
 @media (max-width:980px){.detail{grid-template-columns:1fr}.aside{position:static}.facts{grid-template-columns:1fr 1fr}.facts div:nth-child(3n+1){border-left:1px solid var(--line)}.facts div:nth-child(2n+1){border-left:0}.facts div:nth-child(-n+3){border-top:1px solid var(--line)}.facts div:nth-child(-n+2){border-top:0}}
+
+/* Job detail · navy + gold */
+.jd{
+  --jd-gold-600:#A88232;--jd-gold-500:#C49B3F;--jd-gold-400:#DDBB68;--jd-gold-300:#EBD08F;--jd-gold-100:#F7E9C4;--jd-gold-50:#FBF4E3;
+  --jd-ink:#EAF0FA;--jd-muted:#A8B9D6;--jd-line:rgba(234,240,250,.14);--jd-bg:#020F21;--jd-surface:#0C1D3B;
+  --jd-card-ink:#EAF0FA;--jd-card-muted:#A8B9D6;--jd-card-line:rgba(234,240,250,.12);
+  --jd-shadow:0 2px 4px rgba(0,0,0,.25),0 18px 34px -18px rgba(0,0,0,.7);
+  padding:clamp(20px,3vw,36px) 0 clamp(56px,8vw,96px);
+  background-color:var(--jd-bg);
+  background-image:linear-gradient(rgba(234,240,250,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(234,240,250,.04) 1px,transparent 1px);
+  background-size:22px 22px;
+  color:var(--jd-ink);
+}
+.jd .wrap{width:min(1180px,calc(100% - 32px))}
+.jd-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(300px,.82fr);gap:clamp(20px,3vw,36px);align-items:start}
+.jd-main{min-width:0;display:grid;gap:0}
+.jd-badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.jd-pill{display:inline-flex;align-items:center;padding:5px 10px;border-radius:999px;font:700 .72rem/1 var(--body);letter-spacing:.04em;text-transform:uppercase}
+.jd-pill.open{background:var(--jd-gold-100);color:#6A5214}
+.jd-pill.cat{background:rgba(221,187,104,.16);color:var(--jd-gold-300);border:1px solid rgba(221,187,104,.28)}
+.jd-title{margin:0;font-family:var(--body);font-weight:700;font-size:clamp(1.55rem,2.8vw,2.05rem);line-height:1.2;color:#fff;letter-spacing:-.01em}
+.jd-payline{margin:10px 0 0;font-family:var(--body);font-weight:700;font-size:1.12rem;color:var(--jd-gold-400)}
+.jd-meta{margin:10px 0 0;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;color:var(--jd-muted);font-size:.92rem}
+.jd-meta a{color:var(--jd-gold-400);font-weight:700;text-decoration:underline;text-underline-offset:2px}
+.jd-meta a:hover{color:var(--jd-gold-300)}
+.jd-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--jd-card-line);border-radius:14px;background:var(--jd-surface);margin:22px 0 8px;overflow:hidden;color:var(--jd-card-ink)}
+.jd-facts div{padding:16px 18px;border-left:1px solid var(--jd-card-line);border-top:1px solid var(--jd-card-line)}
+.jd-facts div:nth-child(-n+3){border-top:0}
+.jd-facts div:nth-child(3n+1){border-left:0}
+.jd-facts dt{color:var(--jd-card-muted);font-size:.82rem;font-weight:600}
+.jd-facts dd{margin:4px 0 0;font-weight:700;color:#fff;font-size:.98rem}
+.jd-facts small{display:block;margin-top:2px;font-weight:400;color:var(--jd-card-muted);font-size:.82rem;line-height:1.35}
+.jd-sec{padding:26px 0 4px;border-top:1px solid var(--jd-line);margin-top:22px}
+.jd-sec:first-of-type{border-top:0;margin-top:10px;padding-top:8px}
+.jd-sec h2{margin:0 0 12px;font-family:var(--body);font-weight:700;font-size:1.05rem;color:#fff}
+.jd-sec .prose{color:var(--jd-muted);max-width:48em;line-height:1.6}
+.jd-list{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.jd-list li{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;color:var(--jd-ink);line-height:1.45;font-size:.98rem}
+.jd-check{width:20px;height:20px;margin-top:2px;flex:none;color:var(--jd-gold-400)}
+.jd-check.gold{color:var(--jd-gold-500)}
+.jd-check svg{display:block;width:20px;height:20px}
+.jd-tags{display:flex;flex-wrap:wrap;gap:8px}
+.jd-tag{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;background:rgba(221,187,104,.14);border:1px solid rgba(221,187,104,.32);color:var(--jd-gold-300);font:600 .88rem var(--body)}
+.jd-tip{margin-top:22px;padding:18px 20px;border-radius:14px;background:rgba(221,187,104,.14);border:1px solid rgba(221,187,104,.35)}
+.jd-tip h3{margin:0 0 6px;font-family:var(--body);font-weight:700;font-size:.98rem;color:var(--jd-gold-400)}
+.jd-tip p{margin:0;color:var(--jd-gold-300);font-size:.95rem;line-height:1.5}
+.jd-client{margin-top:22px;padding:20px 22px;border-radius:14px;background:var(--jd-surface);border:1px solid var(--jd-card-line);box-shadow:var(--jd-shadow);color:var(--jd-card-ink)}
+.jd-client-top{display:flex;gap:14px;align-items:center;margin-bottom:16px}
+.jd-avatar{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--jd-gold-400);color:#020F21;font:700 1.15rem var(--display);flex:none}
+.jd-client h3{margin:0;font-family:var(--body);font-weight:700;font-size:1.02rem;color:#fff}
+.jd-client .who{margin:2px 0 0;color:var(--jd-card-muted);font-size:.9rem}
+.jd-stars{color:var(--jd-gold-400);letter-spacing:.06em;font-size:.92rem;margin-top:4px}
+.jd-client-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 18px;padding-top:14px;border-top:1px solid var(--jd-card-line)}
+.jd-client-stats div{display:grid;gap:2px}
+.jd-client-stats dt{font-size:.78rem;color:var(--jd-card-muted);text-transform:uppercase;letter-spacing:.03em}
+.jd-client-stats dd{margin:0;font-weight:600;color:#fff;font-size:.95rem}
+.jd-aside{position:sticky;top:calc(92px + env(safe-area-inset-top,0px))}
+.jd-apply{background:var(--jd-surface);border:1px solid var(--jd-card-line);border-radius:16px;padding:22px 22px 20px;box-shadow:var(--jd-shadow);display:grid;gap:14px;color:var(--jd-card-ink)}
+.jd-apply h2{margin:0;font-family:var(--display);font-weight:400;font-size:1.55rem;color:#fff}
+.jd-sum{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.jd-sum div{padding:12px 14px;border-radius:12px;background:rgba(2,15,33,.28);border:1px solid var(--jd-card-line)}
+.jd-sum dt{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--jd-card-muted)}
+.jd-sum dd{margin:4px 0 0;font-weight:700;color:#fff;font-size:1.02rem}
+.jd-ask{padding:12px 14px;border-radius:12px;background:rgba(221,187,104,.14);border:1px solid rgba(221,187,104,.35);color:var(--jd-gold-300);font-size:.92rem;line-height:1.45}
+.jd-ask strong{display:block;margin-bottom:4px;font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--jd-gold-400)}
+.jd-form{display:grid;gap:12px}
+.jd-form .field{color:var(--jd-card-ink)}
+.jd-form .field input,.jd-form .field select,.jd-form .field textarea{background:rgba(2,15,33,.35);border:1.5px solid var(--jd-card-line);border-radius:10px;color:#fff}
+.jd-form .field input::placeholder,.jd-form .field textarea::placeholder{color:rgba(181,223,228,.65)}
+.jd-form .field input:focus,.jd-form .field select:focus,.jd-form .field textarea:focus{border-color:var(--jd-gold-400);box-shadow:0 0 0 4px rgba(221,187,104,.18);background:rgba(2,15,33,.5)}
+.jd-price{position:relative}
+.jd-price input{padding-left:1.6em}
+.jd-price .cur{position:absolute;left:14px;bottom:13px;color:var(--jd-card-muted);font-weight:600;pointer-events:none}
+.jd-price .unit{position:absolute;right:14px;bottom:13px;color:var(--jd-card-muted);font-size:.86rem;pointer-events:none}
+.jd-apply .btn-block{width:100%;justify-content:center}
+.jd-apply .btn-gold{box-shadow:0 10px 22px -12px rgba(196,155,63,.85)}
+.jd-apply .notice{background:rgba(2,15,33,.35);color:#fff;border:1px solid var(--jd-card-line)}
+.jd-apply .notice a{color:var(--jd-gold-400);font-weight:700}
+.jd-apply .btn-line-dark{color:#fff;border-color:rgba(234,247,248,.35)}
+.jd-apply .btn-line-dark:hover{background:rgba(2,15,33,.28);border-color:#fff;color:#fff}
+.jd-gate p{margin:0;color:var(--jd-card-muted);font-size:.95rem;line-height:1.5}
+.jd-gate .stack{display:grid;gap:10px;margin-top:4px}
+@media (max-width:980px){
+  .jd-layout{grid-template-columns:1fr}
+  .jd-aside{position:static}
+  .jd-facts{grid-template-columns:1fr 1fr}
+  .jd-facts div:nth-child(3n+1){border-left:1px solid var(--jd-line)}
+  .jd-facts div:nth-child(2n+1){border-left:0}
+  .jd-facts div:nth-child(-n+3){border-top:1px solid var(--jd-line)}
+  .jd-facts div:nth-child(-n+2){border-top:0}
+}
+@media (max-width:560px){
+  .jd-facts{grid-template-columns:1fr}
+  .jd-facts div{border-left:0!important}
+  .jd-sum{grid-template-columns:1fr}
+  .jd-client-stats{grid-template-columns:1fr}
+}
 
 /* FAQ */
 .faq details{border-top:1px solid var(--line)}
@@ -2524,7 +2619,7 @@ function publishedJobs(){
       pay:Number(d.amount)||0,
       payUnit:unit,
       type:d.availability||"Part-time",
-      loc:"Remote",
+      loc:d.location||"Remote",
       skills:String(d.skills||"").split(",").map(function(s){return s.trim();}).filter(Boolean),
       body:d.body||"",
       fromClient:true
@@ -2583,6 +2678,8 @@ function ribbon(){
 function ico(){return '';}
 var CAT_ICON={"Admin":"list","Customer support":"chat","Marketing":"globe","Writing":"post","Design":"pen","Development":"code","Video":"play","AI services":"spark","Finance & accounting":"coin","Legal":"scale"};
 function closing(){
+  var u=typeof getDemoUser==="function"?getDemoUser():null;
+  if(u&&u.role==="client")return "";
   return '<section class="closing"><div class="wrap closing-in"><h2><span>You don’t have to</span><span>carry it alone.</span></h2><div><p>Meet pre-vetted virtual assistants who understand the weight you carry, interview the ones you like, and start handing it off.</p><div class="stack"><a class="btn btn-gold" href="#join">Get started</a><a class="btn btn-light" href="#talent">Meet our assistants</a></div></div></div></section>';
 }
 function duo(){
@@ -3595,29 +3692,133 @@ V.talent.init = function(){
   });
   run(false);
 };
+function jobCheck(gold){
+  return '<span class="jd-check'+(gold?" gold":"")+'" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" stroke="currentColor" stroke-width="1.6"/><path d="M6 10.2l2.4 2.4L14 7.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
+}
+function jobDetailMeta(j){
+  var idx=Math.max(0,publishedJobs().findIndex(function(x){return x.id===j.id;}));
+  var fixed=j.payUnit==="fixed";
+  var duties=j.duties||[
+    "Deliver the core work described in the brief on an agreed schedule",
+    "Keep the client updated with clear progress notes",
+    "Flag blockers early and propose a simple next step"
+  ];
+  var looking=j.lookingFor||[
+    "Proven work in "+(j.cat||"this field"),
+    (j.skills&&j.skills[0]?j.skills[0]+" fluency":"Tool fluency for the role"),
+    "Clear written English and reliable weekday overlap"
+  ];
+  var nice=j.niceToHave||["A short sample or link to similar work","Experience with remote US or EU clients"];
+  var tip=j.tip||"In your letter, name one similar project and how soon you can start.";
+  var posted=["today","yesterday","2d ago","3d ago","1w ago","2w ago","22d ago"][idx%7];
+  var applicants=j.applicants!=null?j.applicants:((idx*3)%9)+1;
+  return {
+    experience:j.experience||(j.pay>=22?"Intermediate":"Entry level"),
+    length:j.length||(j.type==="Project-based"||fixed?"Less than a month":(j.type==="Full-time"?"3 to 6 months":"1 to 3 months")),
+    hours:j.hours||(j.type==="Full-time"?"30+ hrs/week":(fixed?"Under 10 hrs/week":"Under 20 hrs/week")),
+    start:j.start||"Immediately",
+    timezone:j.timezone||(String(j.loc||"").toLowerCase().indexOf("remote")>=0?"Any":"—"),
+    duties:duties,
+    looking:looking,
+    nice:nice,
+    tip:tip,
+    posted:posted,
+    applicants:applicants,
+    rating:j.rating||(4+(idx%2?0:0.5)),
+    contact:j.contact||"Hiring manager",
+    team:j.team||(["1-10","11-50","2-10"][idx%3]),
+    jobsPosted:j.jobsPosted||((idx%5)+1),
+    hires:j.hires||Math.max(0,idx%4),
+    memberSince:j.memberSince||(["Jan 2024","Mar 2025","Sept 2023","Jun 2024"][idx%4]),
+    clientLoc:j.clientLoc||(String(j.loc||"Remote").split("·")[0].trim()||"Remote")
+  };
+}
+function jobApplyPanel(j,m){
+  var u=getDemoUser();
+  var budget=payLabel(j)+" "+paySuffix(j);
+  var ask='<div class="jd-ask"><strong>How to stand out</strong>'+m.tip+"</div>";
+  var sums='<dl class="jd-sum"><div><dt>Client budget</dt><dd>'+budget+'</dd></div><div><dt>Applicants</dt><dd>'+m.applicants+'</dd></div></dl>';
+  if(u&&u.role==="va"){
+    var defPay=j.pay||"";
+    return '<div class="jd-apply"><h2>Send a letter.</h2>'+sums+ask+
+      '<form class="jd-form" id="japf">'+
+        '<label class="field">Your price for the project<div class="jd-price"><span class="cur">$</span><input id="jap-pay" name="pay" type="number" min="1" step="1" value="'+defPay+'" required><span class="unit">'+(j.payUnit==="hr"?"USD / hr":(j.payUnit==="mo"?"USD / mo":"USD total"))+'</span></div></label>'+
+        '<label class="field">Can start<select id="jap-start" name="start"><option>Immediately</option><option>Within a week</option><option>In 2 weeks</option><option>In a month</option></select></label>'+
+        '<label class="field">Link to similar work<input id="jap-link" name="link" type="url" placeholder="https://"></label>'+
+        '<label class="field">Letter<textarea id="jap-letter" name="letter" required minlength="20" placeholder="Say why you fit this role. At least 20 characters."></textarea></label>'+
+        '<button class="btn btn-gold btn-block" type="submit">Submit application</button>'+
+        '<div class="notice" id="jnote" role="status"></div>'+
+      '</form></div>';
+  }
+  if(u&&u.role==="client"){
+    return '<div class="jd-apply jd-gate"><h2>Client desk</h2><p>You are signed in as a client. Open roles for assistants live on the board; manage hires from your desk.</p><div class="stack"><a class="btn btn-gold btn-block" href="#dashboard">Open client desk</a><a class="btn btn-line-dark btn-block" href="#talent">Browse assistants</a></div></div>';
+  }
+  return '<div class="jd-apply jd-gate"><h2>Send a letter.</h2>'+sums+ask+'<p>Log in with a virtual assistant account to apply for this role.</p><div class="stack"><a class="btn btn-gold btn-block" href="#login">Log in to apply</a><a class="btn btn-line-dark btn-block" href="#join">Create a free profile</a></div></div>';
+}
 V.job = function(id){
   var j=findJob(id);
   if(!j)return V.notfound();
-  var u=getDemoUser();
-  var apply=u&&u.role==="va"
-    ?'<button class="btn btn-gold btn-block" type="button" id="japply">Apply for this role</button><a class="btn btn-line-dark btn-block" href="#talent">Back to openings</a><div class="notice" id="jnote" role="status"></div>'
-    :(u&&u.role==="client"
-      ?'<a class="btn btn-gold btn-block" href="#dashboard">Open client desk</a><a class="btn btn-line-dark btn-block" href="#talent">Browse assistants</a>'
-      :'<a class="btn btn-gold btn-block" href="#join">Create an account</a><a class="btn btn-line-dark btn-block" href="#login">Log in</a>');
-  return '<section class="page-head"><div class="wrap"><a class="crumb" href="#talent">Back to openings</a>'+
-   '<h1>'+j.title+'</h1><p>'+j.company+' · '+j.loc+' · '+j.type+'</p><div class="tags" style="margin-top:14px">'+tag(j.cat,"gold on-navy")+tag(payLabel(j)+" "+paySuffix(j),"on-navy")+(j.fromClient?tag("Client post","on-navy"):"")+'</div></div></section>'+
-   '<section class="sec" style="padding-top:clamp(40px,5vw,64px)"><div class="wrap detail"><div>'+
-    '<div class="dsec"><h2>About the role</h2><div class="prose"><p>'+(j.body||"Details coming soon.")+'</p></div></div>'+
-    ((j.skills&&j.skills.length)?'<div class="dsec"><h2>Skills</h2><div class="tags">'+j.skills.map(function(s){return tag(s);}).join("")+'</div></div>':"")+
-   '</div><aside class="aside"><div class="panel navy"><h3>Ready to apply?</h3><p style="margin-bottom:18px">Frontend only for now — applications will connect to your backend later.</p><div class="stack">'+apply+'</div></div>'+
-   '<div class="panel"><h3>Details</h3><dl class="dl"><div><dt>Company</dt><dd>'+j.company+'</dd></div><div><dt>Pay</dt><dd>'+payLabel(j)+" "+paySuffix(j)+'</dd></div><div><dt>Type</dt><dd>'+j.type+'</dd></div><div><dt>Location</dt><dd>'+j.loc+'</dd></div></dl></div></aside></div></section>';
+  var m=jobDetailMeta(j);
+  var payMain=payLabel(j)+(j.payUnit==="fixed"?" fixed.":(j.payUnit==="mo"?" /mo.":" /hr."));
+  var paySub=j.payUnit==="fixed"?"Fixed project":(j.payUnit==="mo"?"Monthly":"Hourly");
+  var duties=m.duties.map(function(t){return "<li>"+jobCheck(false)+"<span>"+t+"</span></li>";}).join("");
+  var looking=m.looking.map(function(t){return "<li>"+jobCheck(false)+"<span>"+t+"</span></li>";}).join("");
+  var nice=m.nice.map(function(t){return "<li>"+jobCheck(true)+"<span>"+t+"</span></li>";}).join("");
+  var skills=(j.skills&&j.skills.length)?j.skills.map(function(s){return '<span class="jd-tag">'+s+"</span>";}).join(""):"";
+  var companyInit=init(j.company||j.title||"A");
+  return '<section class="jd"><div class="wrap"><div class="jd-layout"><div class="jd-main">'+
+    '<div class="jd-badges"><span class="jd-pill open">Open</span><span class="jd-pill cat">'+(j.cat||"Role")+"</span>"+(j.fromClient?'<span class="jd-pill cat">Client post</span>':"")+"</div>"+
+    "<h1 class=\"jd-title\">"+j.title+"</h1>"+
+    '<p class="jd-payline">'+payMain+"</p>"+
+    '<p class="jd-meta"><a href="#talent">'+j.company+"</a><span>"+j.loc+'</span><span>'+m.applicants+" applied · "+m.posted+"</span></p>"+
+    '<dl class="jd-facts">'+
+      "<div><dt>Pay</dt><dd>"+payLabel(j)+" "+paySuffix(j)+"<small>"+paySub+"</small></dd></div>"+
+      "<div><dt>Experience</dt><dd>"+m.experience+"</dd></div>"+
+      "<div><dt>Project length</dt><dd>"+m.length+"</dd></div>"+
+      "<div><dt>Hours</dt><dd>"+m.hours+"</dd></div>"+
+      "<div><dt>Start</dt><dd>"+m.start+"</dd></div>"+
+      "<div><dt>Location</dt><dd>"+j.loc+"<small>Time zone: "+m.timezone+"</small></dd></div>"+
+    "</dl>"+
+    '<div class="jd-sec"><h2>About the job</h2><div class="prose"><p>'+(j.body||"Details coming soon.")+"</p></div></div>"+
+    '<div class="jd-sec"><h2>What you\'ll do</h2><ul class="jd-list">'+duties+"</ul></div>"+
+    '<div class="jd-sec"><h2>What we\'re looking for</h2><ul class="jd-list">'+looking+"</ul></div>"+
+    '<div class="jd-sec"><h2>Nice to have</h2><ul class="jd-list">'+nice+"</ul></div>"+
+    (skills?'<div class="jd-sec"><h2>Skills and tools</h2><div class="jd-tags">'+skills+"</div></div>":"")+
+    '<div class="jd-tip"><h3>How to stand out</h3><p>'+m.tip+"</p></div>"+
+    '<div class="jd-client"><div class="jd-client-top"><span class="jd-avatar" aria-hidden="true">'+companyInit+"</span><div><h3>"+j.company+'</h3><p class="who">'+m.contact+'</p><div class="jd-stars" aria-label="'+m.rating+' out of 5">'+("★★★★★".slice(0,Math.floor(m.rating))+(m.rating%1?"½":""))+" · "+m.rating.toFixed(1)+"</div></div></div>"+
+      '<dl class="jd-client-stats"><div><dt>Location</dt><dd>'+m.clientLoc+"</dd></div><div><dt>Team size</dt><dd>"+m.team+"</dd></div><div><dt>Jobs posted</dt><dd>"+m.jobsPosted+"</dd></div><div><dt>Hires made</dt><dd>"+m.hires+"</dd></div><div><dt>Member since</dt><dd>"+m.memberSince+"</dd></div></dl>"+
+    "</div>"+
+  '</div><aside class="jd-aside">'+jobApplyPanel(j,m)+"</aside></div></div></section>";
 };
 V.job.init = function(){
-  var btn=$("#japply"),note=$("#jnote");
-  if(!btn||!note)return;
-  btn.addEventListener("click",function(){
+  var form=$("#japf"),note=$("#jnote");
+  if(!form||!note)return;
+  form.addEventListener("submit",function(e){
+    e.preventDefault();
+    var letter=($("#jap-letter")||{}).value||"";
+    if(letter.trim().length<20){
+      note.classList.add("show");
+      note.innerHTML="<strong>Add a longer letter.</strong> Use at least 20 characters.";
+      return;
+    }
+    try{
+      var all=JSON.parse(localStorage.getItem("aao_job_apps")||"[]");
+      if(!Array.isArray(all))all=[];
+      var u=getDemoUser();
+      all.unshift({
+        jobId:(location.hash||"").replace(/^#job-/,""),
+        pay:($("#jap-pay")||{}).value||"",
+        start:($("#jap-start")||{}).value||"",
+        link:($("#jap-link")||{}).value||"",
+        letter:letter.trim(),
+        email:u&&u.email||"",
+        at:new Date().toISOString()
+      });
+      localStorage.setItem("aao_job_apps",JSON.stringify(all.slice(0,40)));
+    }catch(err){}
     note.classList.add("show");
-    note.innerHTML="<strong>Application saved on this device.</strong>Wire this button to your API when ready. <a href='#dashboard'>Back to VA desk</a>";
+    note.innerHTML="<strong>Application saved on this device.</strong> <a href='#dashboard'>Back to VA desk</a>";
+    form.querySelectorAll("input,select,textarea,button[type=submit]").forEach(function(el){el.disabled=true;});
   });
 };
 
@@ -3625,7 +3826,7 @@ function profileMeetPanel(t){
   var u=getDemoUser(),first=t.name.split(" ")[0],hired=isHired(t.id);
   if(u&&u.role==="client"){
     if(!isAaOMember()){
-      return '<div class="panel navy"><h3>Membership unlocks messaging</h3><p style="margin-bottom:18px">Browse is free. To message or hire '+first+', unlock '+membershipPlanLabel()+' ('+membershipPlanPrice()+') via GoHighLevel checkout.</p><div class="stack">'+membershipLink("btn btn-gold btn-block","Unlock membership")+'<a class="btn btn-line-dark btn-block" href="#membership">Membership details</a><a class="btn btn-line-dark btn-block" href="#dashboard">Open client desk</a></div></div>';
+      return '<div class="panel navy"><h3>Membership unlocks messaging</h3><p style="margin-bottom:18px">Browse is free. To message or hire '+first+', unlock '+membershipPlanLabel()+' ('+membershipPlanPrice()+').</p><div class="stack">'+membershipLink("btn btn-gold btn-block","Unlock membership")+'<a class="btn btn-line-dark btn-block" href="#membership">Membership details</a><a class="btn btn-line-dark btn-block" href="#dashboard">Open client desk</a></div></div>';
     }
     if(hired){
       return '<div class="panel navy"><h3>Hired</h3><p style="margin-bottom:18px">You’ve marked '+first+' as hired. Message them anytime from your desk.</p><div class="stack"><a class="btn btn-gold btn-block" href="#messages-'+t.id+'">Message '+first+'</a><button class="btn btn-line-dark btn-block" type="button" id="phire-undo" data-hire-id="'+t.id+'">Undo hire</button><a class="btn btn-line-dark btn-block" href="#dashboard">Open client desk</a><div class="notice" id="phire-note" role="status"></div></div></div>';
@@ -3817,7 +4018,7 @@ function plansHtml(){
    '<article class="pcard glow">'+
      '<div class="pcard-top"><header class="pcard-head"><h3 class="pcard-name">'+memIco+'AAO membership</h3><p class="pcard-desc">For when you’re ready to message, interview and hire</p></header>'+
      '<div class="pcard-price"><div class="pcard-amt"><span class="cur">$</span><span class="num">69–99</span></div><div class="pcard-meta"><span>per month</span><span>no upfront fee</span></div></div>'+
-     membershipLink("btn btn-navy","Unlock membership")+'<p class="pcard-note">A monthly membership instead of an upfront fee, with the full member toolkit. Checkout runs in GoHighLevel.</p><hr class="pcard-rule"></div>'+
+     membershipLink("btn btn-navy","Unlock membership")+'<p class="pcard-note">A monthly membership instead of an upfront fee, with the full member toolkit.</p><hr class="pcard-rule"></div>'+
      feats(["Messaging and interviews","More job posts","Job tracker for up to 200 openings","Full member tools"])+
    '</article>'+
   '</div>'+
@@ -4255,7 +4456,7 @@ V.dashboard = function(){
   }
   var memOn=isAaOMember();
   var memAct=memOn
-    ? '<a class="btn btn-line" href="#messages">Messages</a>'
+    ? '<a class="btn btn-line" href="#messages">Messages</a><button class="btn btn-line" type="button" id="dash-mem-off">Turn off membership</button>'
     : membershipLink("btn btn-gold","Unlock membership")+'<a class="btn btn-line" href="#membership">Membership</a>';
   return '<section class="dash"><div class="wrap">'+
     '<div class="dash-head"><div><div class="dash-badge">Demo · <em>Client desk</em></div><h1>Welcome back, '+u.name.split(" ")[0]+'.</h1><p>'+(memOn?"Membership is active. Message assistants and hire when you’re ready.":"Browse is free. Unlock membership to message, interview, and hire.")+'</p></div>'+
@@ -4275,7 +4476,7 @@ V.dashboard = function(){
       '<div class="dash-panel"><h2>Hiring pipeline</h2>'+dashRows([
         ["Part-time EA","3 assistants invited","Open role","#post-job"],
         ["Customer support","Draft role — not posted yet","Edit draft","#post-job"],
-        ["Membership",memOn?"Active on this device":"Unlock messaging when you’re ready",memOn?"Details":"Unlock",memOn?"#membership":"#membership"]
+        ["Membership",memOn?"Active on this device":"Unlock messaging when you’re ready",memOn?"Turn off":"Unlock",memOn?null:"#membership",memOn?"memoff":null]
       ])+'<p class="dash-note">Signed in as '+u.email+(memOn?" · member":" · free browse")+'</p></div>'+
     '</div></div></section>';
 };
@@ -4283,7 +4484,24 @@ V.dashboard.init = function(){
   if(!getDemoUser()){go("login");return;}
   var root=$(".dash");
   if(!root)return;
+  var off=$("#dash-mem-off");
+  if(off)off.addEventListener("click",function(){
+    var u=getDemoUser();
+    if(!u||u.role!=="client")return;
+    setMembershipStatus(u.email,"none",{source:"demo-clear"});
+    go("dashboard");
+  });
   root.addEventListener("click",function(e){
+    var memBtn=e.target.closest("[data-dash-act=\"memoff\"]");
+    if(memBtn){
+      e.preventDefault();
+      var u=getDemoUser();
+      if(u&&u.role==="client"){
+        setMembershipStatus(u.email,"none",{source:"demo-clear"});
+        go("dashboard");
+      }
+      return;
+    }
     var btn=e.target.closest("[data-dash-act]");
     if(!btn)return;
     var act=btn.getAttribute("data-dash-act");
@@ -4438,7 +4656,7 @@ function applyMembershipPaidFromHash(){
     if(params.get("paid")!=="1")return;
     var u=getDemoUser();
     if(u&&u.role==="client"){
-      setMembershipStatus(u.email,"active",{source:"ghl-redirect"});
+      setMembershipStatus(u.email,"active",{source:"checkout-return"});
     }
     if(history.replaceState)history.replaceState(null,"",location.pathname+location.search+"#membership");
   }catch(err){}
@@ -4718,30 +4936,23 @@ V.membership = function(){
     ? '<div class="notice show" role="status"><strong>Membership active.</strong>Messaging and hire are unlocked on this device for '+u.email+'.</div>'
     : '<div class="notice show" role="status"><strong>Browse is free.</strong>Membership unlocks messaging, interviews, and hire.</div>';
   var actions=member
-    ? '<div class="btn-row"><a class="btn btn-gold" href="#talent">Meet assistants</a><a class="btn btn-line-dark" href="#messages">Open messages</a><button class="btn btn-line" type="button" id="mem-clear">Clear demo membership</button></div>'
+    ? '<div class="btn-row"><a class="btn btn-gold" href="#talent">Meet assistants</a><a class="btn btn-line-dark" href="#messages">Open messages</a><button class="btn btn-line" type="button" id="mem-clear">Turn off membership</button></div>'
     : '<div class="btn-row">'+membershipLink("btn btn-gold",checkout?"Continue to checkout":"Open membership checkout")+
-      (u&&u.role==="client"?'<button class="btn btn-navy" type="button" id="mem-sim">Simulate GHL payment</button>':'<a class="btn btn-navy" href="#login">Log in as client first</a>')+
+      (u&&u.role==="client"?"":'<a class="btn btn-navy" href="#login">Log in as client first</a>')+
       '<a class="btn btn-line-dark" href="#pricing">Back to pricing</a></div>';
   return pageHead({
     h1:"Unlock AAO membership.",
-    p:membershipPlanLabel()+" is "+membershipPlanPrice()+". Checkout runs in GoHighLevel. After payment, return here so we can unlock messaging and hire.",
+    p:membershipPlanLabel()+" is "+membershipPlanPrice()+". After checkout, return here signed in so messaging and hire unlock.",
     btns:actions
   })+
   '<section class="sec glow"><div class="wrap lead-grid"><div class="sec-head"><h2>What membership opens.</h2>'+statusHtml+'</div><div class="prose">'+
-    '<p>Membership is platform access for clients: message assistants, interview, hire, and use the member toolkit. Assistant hourly pay is separate and paid to the VA outside GHL (Wise or Payoneer).</p>'+
-    '<p>Set your live GHL payment link in <code>payments-config.js</code>. Point the GHL thank-you page to <code>#membership?paid=1</code> so this browser marks you active until the webhook is live.</p>'+
+    '<p>Membership is platform access for clients: message assistants, interview, hire, and use the member toolkit. Assistant hourly pay is separate and paid directly to the VA (Wise or Payoneer).</p>'+
     '<ul style="list-style:disc;padding-left:1.2em;color:var(--muted)"><li>Messaging and interviews</li><li>Hire from profiles and message threads</li><li>More job posts and member tools</li></ul>'+
   '</div></div></section>'+closing();
 };
 V.membership.init = function(){
   applyMembershipPaidFromHash();
-  var sim=$("#mem-sim"),clear=$("#mem-clear");
-  if(sim)sim.addEventListener("click",function(){
-    var u=getDemoUser();
-    if(!u||u.role!=="client"){go("login");return;}
-    setMembershipStatus(u.email,"active",{source:"demo-simulate"});
-    go("membership");
-  });
+  var clear=$("#mem-clear");
   if(clear)clear.addEventListener("click",function(){
     var u=getDemoUser();
     if(!u)return;
