@@ -1,8 +1,7 @@
-/* Copy to payments-config.js and paste your GHL membership checkout URL.
-   GHL: Payments → product “AAO Membership” → Order Form / Payment Link.
+/* Copy to payments-config.js and paste your membership checkout URL.
    See hanap/payments/README.md for the full setup. */
 window.AAO_PAYMENTS = {
-  /* Full https URL to the GHL checkout. Leave "" to use in-app #membership. */
+  /* Full https checkout URL. Leave "" to use in-app #membership. */
   membershipCheckoutUrl: "",
   /* Shown on the membership page */
   planLabel: "AAO Membership",
