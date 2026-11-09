@@ -5345,6 +5345,8 @@ V.messagesLive.init = function(){
 V.messages.init = function(){
   var u=requireAuthPage();
   if(!u)return;
+  /* View swaps to membership for non-member clients; skip thread setup so we don't touch missing #msg-stream. */
+  if(u.role==="client"&&!isAaOMember())return;
   var hash=(location.hash||"").replace(/^#/,"");
   var slug=hash.indexOf("messages-")===0?hash.slice(9):"";
   if(!slug){
@@ -5356,6 +5358,7 @@ V.messages.init = function(){
   if(!threads[slug])threads[slug]=[{id:1,from:"them",body:"Hi — thanks for reaching out. Happy to chat about how I can help.",at:new Date().toISOString()}];
   localSave("aao_message_threads",threads);
   var stream=$("#msg-stream"),form=$("#msg-form"),input=$("#msg-input");
+  if(!stream)return;
   function paint(){
     var msgs=threads[slug]||[];
     stream.innerHTML=msgs.map(function(m){return '<div class="app-bubble '+(m.from==="me"?"me":"them")+'">'+String(m.body).replace(/</g,"&lt;")+'</div>';}).join("");
