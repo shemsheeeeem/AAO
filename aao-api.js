@@ -31,6 +31,10 @@
     return String(v == null ? "" : v)
       .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
   }
+  /* Attribute-safe: escape quotes and brackets without assuming the string is raw (avoids breaking pre-escaped API text). */
+  function escAttr(v) {
+    return String(v == null ? "" : v).replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
   function safeUrl(u) {
     return /^https?:\/\//i.test(String(u || "")) ? esc(u) : "";
   }
@@ -87,6 +91,7 @@
     try {
       res = await fetch(cfg.apiBase.replace(/\/+$/, "") + path, {
         method: method, headers: headers, body: body === undefined ? undefined : JSON.stringify(body),
+        credentials: "omit",
         /* "fresh" bypasses the browser cache (public listings are cacheable for up to a minute) */
         cache: opts.fresh ? "no-store" : "default"
       });
@@ -453,8 +458,8 @@
     postJob: postJob,
     enabled: enabled,
     ready: function () { return loaded; },
-    call: call,
     esc: esc,
+    escAttr: escAttr,
     loadCatalog: loadCatalog,
     loadTalent: loadTalent,
     loadJob: loadJob,

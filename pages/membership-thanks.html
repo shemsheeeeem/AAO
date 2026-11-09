@@ -72,7 +72,7 @@
         </article>
       </div>
       <p class="mem-thanks-note" id="thanks-status" role="status">
-        <strong>Tip.</strong> If you already have a demo client session open in this browser, refresh your desk — membership unlocks messaging and hire on this device.
+        <strong>Next.</strong> Sign in with the email you used at checkout. Live membership unlocks from the server after payment confirmation — a return link alone does not grant access.
       </p>
       <div class="btn-row">
         <a class="btn btn-navy" data-spa="#dashboard" href="../AAO_Website_hallmark.html#dashboard">Open client desk</a>
@@ -135,23 +135,34 @@
     });
   }
 
+  function escHtml(v) {
+    return String(v == null ? "" : v)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
   try {
     var params = new URLSearchParams(location.search);
     if (params.get("paid") === "1") {
+      var liveApi = false;
+      try {
+        liveApi = !!(window.AAO_API_CONFIG && window.AAO_API_CONFIG.apiBase && window.AAO_API_CONFIG.supabaseUrl && window.AAO_API_CONFIG.supabaseAnonKey);
+      } catch (e0) {}
       var user = null;
       try { user = JSON.parse(sessionStorage.getItem("aao_demo_user") || "null"); } catch (e) {}
-      if (user && user.role === "client" && user.email) {
+      var note = document.getElementById("thanks-status");
+      if (liveApi) {
+        if (note) note.innerHTML = "<strong>Payment received.</strong> Sign in so the server can confirm membership. This page does not unlock messaging by itself.";
+      } else if (user && user.role === "client" && user.email) {
         var all = {};
         try { all = JSON.parse(localStorage.getItem("aao_membership") || "{}"); } catch (e2) {}
         all[user.email] = {
           status: "active",
           plan: "AAO Membership",
-          source: "thanks-page",
+          source: "demo-thanks-page",
           updatedAt: new Date().toISOString()
         };
         localStorage.setItem("aao_membership", JSON.stringify(all));
-        var note = document.getElementById("thanks-status");
-        if (note) note.innerHTML = "<strong>Membership active on this device.</strong> Messaging and hire are unlocked for " + user.email + ".";
+        if (note) note.innerHTML = "<strong>Demo membership active on this device.</strong> Messaging and hire are unlocked for " + escHtml(user.email) + ".";
       }
       if (history.replaceState) {
         history.replaceState(null, "", location.pathname + location.hash);

@@ -122,6 +122,11 @@
     }
     if (!demo || !demo.email) return null;
 
+    /* Never auto-sign with the demo password when the Job Board live API is configured. */
+    if (window.AAOApi && typeof AAOApi.enabled === "function" && AAOApi.enabled()) {
+      return null;
+    }
+
     var signed = await client.auth.signInWithPassword({
       email: demo.email,
       password: "demo123"
@@ -149,7 +154,9 @@
     var body = String(msg.body || "")
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;");
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
     return (
       '<div class="aao-chat-bubble ' +
       (mine ? "me" : "them") +
@@ -286,6 +293,7 @@
 
   async function syncAuthWithDemo(demoUser) {
     if (!ready() || !demoUser || !demoUser.email) return;
+    if (window.AAOApi && typeof AAOApi.enabled === "function" && AAOApi.enabled()) return;
     try {
       var client = getClient();
       await client.auth.signInWithPassword({
