@@ -1232,10 +1232,12 @@ ul,ol{margin:0;padding:0;list-style:none}
 .login-card .role input:checked+span{border-color:#1B4B91;background:#EAF0FA}
 .login-pass{position:relative;display:block}
 .login-pass input{padding-right:48px;width:100%}
-.login-eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border:0;border-radius:8px;background:transparent;color:#51617C;cursor:pointer;display:grid;place-items:center}
+.login-pass input::-ms-reveal,.login-pass input::-ms-clear{display:none}
+.login-eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:2;width:36px;height:36px;border:0;border-radius:8px;background:transparent;color:#51617C;cursor:pointer;display:grid;place-items:center;padding:0}
 .login-eye:hover{color:#0B1A33;background:#EAF0FA}
 .login-eye:focus-visible{outline:2px solid #1B4B91;outline-offset:1px}
-.login-eye svg{width:18px;height:18px}
+.login-eye[aria-pressed="true"]{color:#0B1A33}
+.login-eye svg{width:18px;height:18px;display:block;pointer-events:none}
 .login-card .btn-block{margin-top:4px}
 .login-card .note{text-align:center;margin:0;color:#51617C}
 .login-card .note a{color:#1B4B91;font-weight:600}
@@ -2611,6 +2613,40 @@ function $(s,r){return (r||document).querySelector(s);}
 function availShort(a){a=a.replace("Available ","");return a.charAt(0).toUpperCase()+a.slice(1);}
 function init(n){return n.charAt(0);}
 function tag(t,c){return '<span class="tag'+(c?' '+c:'')+'">'+t+'</span>';}
+var EYE_OPEN_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+var EYE_OFF_SVG='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 10.6a2.8 2.8 0 0 0 3.8 3.8"/><path d="M9.9 5.1A10.4 10.4 0 0 1 12 5c6.5 0 10 7 10 7a17.6 17.6 0 0 1-3.1 4.1"/><path d="M6.1 6.1C3.9 7.8 2 12 2 12s3.5 7 10 7c1.2 0 2.3-.2 3.3-.6"/></svg>';
+function passwordFieldHtml(opts){
+  opts=opts||{};
+  var id=opts.id||"pw", btnId=opts.btnId||(id+"-eye");
+  var ac=opts.autocomplete||"current-password";
+  var ph=opts.placeholder?(' placeholder="'+String(opts.placeholder).replace(/"/g,"&quot;")+'"'):"";
+  var extra=opts.extra||"";
+  var req=opts.required===false?"":" required";
+  return '<span class="login-pass"><input type="password" id="'+id+'" autocomplete="'+ac+'"'+ph+extra+req+'><button class="login-eye" type="button" id="'+btnId+'" aria-label="Show password" aria-pressed="false" aria-controls="'+id+'">'+EYE_OPEN_SVG+'</button></span>';
+}
+function initPasswordToggles(root){
+  var scope=root||document;
+  Array.prototype.forEach.call(scope.querySelectorAll(".login-eye"),function(eye){
+    if(eye.getAttribute("data-bound"))return;
+    var wrap=eye.closest(".login-pass");
+    var pass=wrap&&wrap.querySelector('input[type="password"], input[type="text"]');
+    if(!pass){
+      var cid=eye.getAttribute("aria-controls");
+      pass=cid?document.getElementById(cid):null;
+    }
+    if(!pass)return;
+    eye.setAttribute("data-bound","1");
+    eye.addEventListener("click",function(e){
+      e.preventDefault();
+      e.stopPropagation();
+      var show=pass.type==="password";
+      pass.type=show?"text":"password";
+      eye.setAttribute("aria-pressed",show?"true":"false");
+      eye.setAttribute("aria-label",show?"Hide password":"Show password");
+      eye.innerHTML=show?EYE_OFF_SVG:EYE_OPEN_SVG;
+    });
+  });
+}
 
 function portViz(kind){
   var k=kind||"doc",n="#031A36",g="#C49B3F",b="#1B4B91",s="#DCE8FA",w="#FFFFFF",m="#8DB4EA",ink="#0B1A33",mut="#51617C";
@@ -4475,7 +4511,7 @@ V.join = function(){
           '</fieldset>'+
           '<label class="field">Full name<input type="text" id="jn" autocomplete="name" required></label>'+
           '<label class="field">Email<input type="email" id="je" autocomplete="email" required></label>'+
-          (API_ON?'<label class="field">Password<input type="password" id="jpw" autocomplete="new-password" minlength="8" placeholder="At least 8 characters" required></label>':'')+
+          '<label class="field">Password'+passwordFieldHtml({id:"jpw",autocomplete:"new-password",placeholder:"At least 8 characters",btnId:"jeye",extra:' minlength="8"'})+'</label>'+
           '<div class="jpath" id="jpath-find" hidden>'+
             '<label class="field">What work do you do?<textarea id="jskills" placeholder="Skills, tools, and the kind of roles you want"></textarea></label>'+
             '<label class="field">Availability<input type="text" id="javail" placeholder="Full-time, part-time, or hours per week" autocomplete="off"></label>'+
@@ -4494,6 +4530,7 @@ V.join = function(){
 };
 V.join.init = function(){
   var form=$("#jf2"),note=$("#jnote"),sideH=$("#auth-h"),sideP=$("#auth-p"),g=$("#jgoogle");
+  initPasswordToggles(form||document);
   var findPath=$("#jpath-find"),postPath=$("#jpath-post");
   var copy={
     find:["Find work that fits.","Set up your profile and browse openings. We’ll help you meet clients who value solid partners."],
@@ -4674,7 +4711,7 @@ V.login = function(){
             '<label class="role"><input type="radio" name="lrole" value="va"><span><strong>Virtual assistant</strong><small>Find work and manage jobs</small></span></label>'+
           '</fieldset>'+
           '<label class="field">Email<input type="email" id="le" autocomplete="username" placeholder="'+(API_ON?'you@example.com':'client@aao.demo')+'" required></label>'+
-          '<label class="field">Password<span class="login-pass"><input type="password" id="lp" autocomplete="current-password" placeholder="'+(API_ON?'Your password':'demo123')+'" required><button class="login-eye" type="button" id="leye" aria-label="Show password"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></span></label>'+
+          '<label class="field">Password'+passwordFieldHtml({id:"lp",autocomplete:"current-password",placeholder:(API_ON?"Your password":"demo123"),btnId:"leye"})+'</label>'+
           '<button class="btn btn-navy btn-block" type="submit">Sign in →</button>'+
           '<p class="note">New to AAO? <a href="#join">Get started</a></p>'+
           '<div class="notice" id="lnote" role="status"></div>'+
@@ -4684,7 +4721,8 @@ V.login = function(){
   '</div>';
 };
 V.login.init = function(){
-  var form=$("#lf"),note=$("#lnote"),eye=$("#leye"),pass=$("#lp"),demo=$("#ldemo");
+  var form=$("#lf"),note=$("#lnote"),pass=$("#lp"),demo=$("#ldemo");
+  initPasswordToggles(form||document);
   function role(){
     var el=form.querySelector('input[name="lrole"]:checked');
     return el?el.value:"client";
@@ -4702,11 +4740,6 @@ V.login.init = function(){
     var btn=e.target.closest("[data-demo]");
     if(!btn)return;
     fillDemo(btn.getAttribute("data-demo"));
-  });
-  if(eye&&pass)eye.addEventListener("click",function(){
-    var show=pass.type==="password";
-    pass.type=show?"text":"password";
-    eye.setAttribute("aria-label",show?"Hide password":"Show password");
   });
   form.addEventListener("submit",function(e){
     e.preventDefault();
