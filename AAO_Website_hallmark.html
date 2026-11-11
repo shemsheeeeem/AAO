@@ -1322,7 +1322,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 }
 
 /* Footer */
-.foot{position:relative;isolation:isolate;background:var(--navy-950);color:var(--on-navy-muted);padding:clamp(48px,6vw,80px) 0 0;border-top:1px solid rgba(255,255,255,.08);overflow:hidden}
+.foot{position:relative;isolation:isolate;background:var(--navy-950);color:var(--on-navy-muted);padding:clamp(48px,6vw,80px) 0 clamp(36px,5vw,56px);border-top:1px solid rgba(255,255,255,.08);overflow:hidden}
 .foot-top{display:grid;grid-template-columns:minmax(200px,.85fr) minmax(0,2.15fr);gap:clamp(28px,4vw,56px);align-items:start}
 .foot-brand{display:grid;gap:14px;max-width:18rem}
 .foot-brand .brand{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:#fff}
@@ -1336,7 +1336,6 @@ ul,ol{margin:0;padding:0;list-style:none}
 .foot li+li{margin-top:10px}
 .foot a{color:rgba(168,185,214,.92);text-decoration:none;transition:color .2s var(--ease)}
 .foot-cols a:hover{color:#fff}
-.foot-mark{margin-top:clamp(36px,5vw,64px);padding-bottom:.08em;font-family:var(--display);font-weight:400;font-size:clamp(4.5rem,18vw,12rem);line-height:.86;letter-spacing:.04em;text-align:center;white-space:nowrap;overflow:hidden;user-select:none;pointer-events:none;background:linear-gradient(180deg,var(--gold-300) 0%,var(--gold-400) 28%,var(--gold-500) 55%,rgba(168,130,50,.18) 78%,transparent 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}
 @media (max-width:900px){
   .foot-top{grid-template-columns:1fr}
   .foot-cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 24px}
@@ -2191,7 +2190,6 @@ p{text-wrap:pretty}
         </div>
       </div>
     </div>
-    <div class="foot-mark" aria-hidden="true">AAO</div>
   </div>
 </footer>
 
