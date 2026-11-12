@@ -23,7 +23,36 @@
     client = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
       auth: { flowType: "pkce", persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: "aao-job-board-auth" }
     });
+    /* Registered right away, before the library finishes reading the ?code= in the address: that is when it announces a password reset. Only a flag is set here (no auth calls inside the callback). */
+    client.auth.onAuthStateChange(function (event) {
+      if (event === "PASSWORD_RECOVERY") { markRecovery(); return; }
+      /* Safety net: arriving from an email link (?code= in the address) within an hour of asking for a reset also counts, in case the library's announcement is missed. */
+      if (event === "SIGNED_IN" && ARRIVED_WITH_CODE && resetRequestedRecently()) markRecovery();
+    });
     return client;
+  }
+
+  /* ---------- password reset ---------- */
+  var RECOVERY_KEY = "aao_password_recovery";
+  var REQUESTED_KEY = "aao_reset_requested";
+  var ARRIVED_WITH_CODE = /[?&]code=/.test(window.location.search); /* read now, before the library removes the code from the address */
+  function markRecovery() {
+    try { sessionStorage.setItem(RECOVERY_KEY, "1"); } catch (e) { /* ignore */ }
+    try { window.dispatchEvent(new Event("aao-recovery")); } catch (e) { /* ignore */ }
+  }
+  function resetRequestedRecently() {
+    try {
+      var t = parseInt(localStorage.getItem(REQUESTED_KEY) || "0", 10);
+      return t > 0 && Date.now() - t < 60 * 60 * 1000;
+    } catch (e) { return false; }
+  }
+  /* True from the moment a visitor arrives from a reset email until they have chosen a new password (or given up). */
+  function recoveryPending() {
+    try { return sessionStorage.getItem(RECOVERY_KEY) === "1"; } catch (e) { return false; }
+  }
+  function clearRecovery() {
+    try { sessionStorage.removeItem(RECOVERY_KEY); } catch (e) { /* ignore */ }
+    try { localStorage.removeItem(REQUESTED_KEY); } catch (e) { /* ignore */ }
   }
 
   /* ---------- text safety: the app writes these strings into innerHTML, so escape everything that came from the API ---------- */
@@ -253,6 +282,31 @@
   }
 
   async function signOut() {
+    clearRecovery(); /* signing out also ends a pending password reset */
+    try { await sb().auth.signOut(); } catch (err) { /* ignore */ }
+  }
+
+  /* Sends the reset email. The answer is the same whether or not an account exists, so the page never reveals who has an account. */
+  async function requestPasswordReset(email) {
+    var r = await sb().auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + "/" });
+    if (r.error && /rate limit|too many|seconds/i.test(String(r.error.message || ""))) throw ApiError(429, "AUTH", authMessage(r.error));
+    /* Any other error (for example an unknown address) is deliberately not shown. */
+    try { localStorage.setItem(REQUESTED_KEY, String(Date.now())); } catch (e) { /* ignore */ }
+    return true;
+  }
+
+  /* Sets the new password for the person who arrived from the reset email, then signs them out so they log in with it. */
+  async function updatePassword(newPassword) {
+    var r = await sb().auth.updateUser({ password: newPassword });
+    if (r.error) throw ApiError(400, "AUTH", authMessage(r.error));
+    clearRecovery();
+    try { await sb().auth.signOut(); } catch (err) { /* ignore */ }
+    return true;
+  }
+
+  /* The visitor gave up on the reset: forget the flag and the temporary session. */
+  async function cancelRecovery() {
+    clearRecovery();
     try { await sb().auth.signOut(); } catch (err) { /* ignore */ }
   }
 
@@ -262,7 +316,7 @@
     if (/email not confirmed/i.test(m)) return "Please confirm your email first. Check your inbox for the link.";
     if (/already registered|already been registered/i.test(m)) return "An account with that email already exists. Try logging in.";
     if (/password/i.test(m)) return m;
-    if (/rate limit|too many/i.test(m)) return "Too many attempts. Please wait a bit and try again.";
+    if (/rate limit|too many|only request this after|seconds/i.test(m)) return "Too many attempts. Please wait a minute and try again.";
     return "We could not complete that. Please try again.";
   }
 
@@ -467,6 +521,10 @@
     signUp: signUp,
     signIn: signIn,
     signOut: signOut,
+    requestPasswordReset: requestPasswordReset,
+    updatePassword: updatePassword,
+    recoveryPending: recoveryPending,
+    cancelRecovery: cancelRecovery,
     typeIdForCat: typeIdForCat,
     maps: { AVAIL_BACK: AVAIL_BACK, JOBTYPE_BACK: JOBTYPE_BACK, UNIT_BACK: UNIT_BACK, CAT_TO_TYPE: CAT_TO_TYPE }
   };

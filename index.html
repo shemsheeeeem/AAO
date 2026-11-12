@@ -4713,6 +4713,7 @@ V.login = function(){
           '<label class="field">Email<input type="email" id="le" autocomplete="username" placeholder="'+(API_ON?'you@example.com':'client@aao.demo')+'" required></label>'+
           '<label class="field">Password'+passwordFieldHtml({id:"lp",autocomplete:"current-password",placeholder:(API_ON?"Your password":"demo123"),btnId:"leye"})+'</label>'+
           '<button class="btn btn-navy btn-block" type="submit">Sign in →</button>'+
+          (API_ON?'<p class="note"><a href="#forgot-password">Forgot your password?</a></p>':'')+
           '<p class="note">New to AAO? <a href="#join">Get started</a></p>'+
           '<div class="notice" id="lnote" role="status"></div>'+
         '</form>'+
@@ -4770,6 +4771,90 @@ V.login.init = function(){
     go("dashboard");
   });
   initLoginLogoKey();
+};
+/* Password reset (live mode). The same card as the login screen. Flow: "Forgot your password?" -> #forgot-password (asks for the email, the backend of the login provider sends a link)
+   -> the link opens the site with ?code=... and the library announces a recovery (see aao-api.js) -> #reset-password (choose a new password) -> back to the login. */
+function authShell(inner){
+  return '<div class="login-shell">'+
+    '<div class="login-aurora" aria-hidden="true"><div class="login-aurora-glow"></div></div>'+
+    '<div class="login-card">'+
+      '<aside class="login-brand">'+
+        '<div class="login-logo-wrap"><video class="login-logo" src="'+LOGIN_LOGO_VIDEO+'" crossorigin="anonymous" autoplay muted loop playsinline aria-label="Amazing Assistants Online"></video></div>'+
+        '<div class="login-brand-copy"><h2 class="login-brand-name">Amazing Assistants Online</h2><p class="login-brand-sub">Choose a new password and get back to work.</p></div>'+
+      '</aside>'+
+      '<div class="login-body">'+inner+'</div>'+
+    '</div>'+
+  '</div>';
+}
+V["forgot-password"] = function(){
+  if(!API_ON)return authShell('<div><h1>Reset your password</h1><p class="login-sub">Password reset is available on the live site. In this demo, use the sample accounts on the login page.</p></div><p class="note"><a href="#login">Back to log in</a></p>');
+  return authShell(
+    '<div><h1>Reset your password</h1><p class="login-sub">Enter your email and we will send you a link to choose a new password.</p></div>'+
+    '<form class="form" id="ff" novalidate>'+
+      '<label class="field">Email<input type="email" id="fe" autocomplete="username" placeholder="you@example.com" required></label>'+
+      '<button class="btn btn-navy btn-block" type="submit" id="fbtn">Send reset link</button>'+
+      '<p class="note"><a href="#login">Back to log in</a></p>'+
+      '<div class="notice" id="fnote" role="status"></div>'+
+    '</form>');
+};
+V["forgot-password"].init = function(){
+  var form=$("#ff");
+  if(!form)return;
+  var note=$("#fnote"),btn=$("#fbtn"),busy=false;
+  form.addEventListener("submit",function(e){
+    e.preventDefault();
+    if(busy)return;
+    note.classList.add("show");
+    var email=($("#fe").value||"").trim().toLowerCase();
+    if(!/\S+@\S+\.\S+/.test(email)){note.innerHTML="<strong>Check your email.</strong>Enter the email address you signed up with.";return;}
+    busy=true;btn.disabled=true;
+    note.innerHTML="<strong>Sending…</strong>";
+    AAOApi.requestPasswordReset(email).then(function(){
+      /* The same message whether or not an account exists, so this page never reveals who has an account. */
+      note.innerHTML="<strong>Check your email.</strong>If an account exists for "+AAOApi.esc(email)+", we sent a link to choose a new password. Open it in <strong>this same browser</strong>. It expires in 1 hour.";
+      setTimeout(function(){busy=false;btn.disabled=false;},60000);
+    }).catch(function(err){
+      busy=false;btn.disabled=false;
+      note.innerHTML="<strong>We could not send that.</strong>"+AAOApi.esc(err.message);
+    });
+  });
+};
+V["reset-password"] = function(){
+  if(!API_ON||!AAOApi.recoveryPending())return authShell(
+    '<div><h1>This link has expired</h1><p class="login-sub">The password reset link is not valid any more, or it was opened in a different browser. Request a new one and open it in the same browser.</p></div>'+
+    '<p class="note"><a href="#forgot-password">Send me a new link</a> · <a href="#login">Back to log in</a></p>');
+  return authShell(
+    '<div><h1>Choose a new password</h1><p class="login-sub">Use at least 8 characters.</p></div>'+
+    '<form class="form" id="rf" novalidate>'+
+      '<label class="field">New password'+passwordFieldHtml({id:"rp1",autocomplete:"new-password",placeholder:"At least 8 characters",btnId:"rp1eye"})+'</label>'+
+      '<label class="field">Confirm new password'+passwordFieldHtml({id:"rp2",autocomplete:"new-password",placeholder:"Type it again",btnId:"rp2eye"})+'</label>'+
+      '<button class="btn btn-navy btn-block" type="submit" id="rbtn">Save new password</button>'+
+      '<p class="note"><a href="#login" id="rcancel">Cancel</a></p>'+
+      '<div class="notice" id="rnote" role="status"></div>'+
+    '</form>');
+};
+V["reset-password"].init = function(){
+  var form=$("#rf");
+  if(!form)return;
+  initPasswordToggles(form);
+  var note=$("#rnote"),btn=$("#rbtn"),busy=false;
+  $("#rcancel").addEventListener("click",function(){AAOApi.cancelRecovery();clearDemoUser();});
+  form.addEventListener("submit",function(e){
+    e.preventDefault();
+    if(busy)return;
+    note.classList.add("show");
+    var a=$("#rp1").value||"",b=$("#rp2").value||"";
+    if(a.length<8){note.innerHTML="<strong>Too short.</strong>Use at least 8 characters.";return;}
+    if(a!==b){note.innerHTML="<strong>The passwords do not match.</strong>Type the same password twice.";return;}
+    busy=true;btn.disabled=true;
+    note.innerHTML="<strong>Saving…</strong>";
+    AAOApi.updatePassword(a).then(function(){
+      clearDemoUser();
+      try{history.replaceState(null,"",location.pathname+"#reset-password");}catch(err){} /* drop the used ?code= from the address */
+      var body=form.closest(".login-body");
+      if(body)body.innerHTML='<div><h1>Password updated</h1><p class="login-sub">Your password was changed. Log in with your new password.</p></div><p><a class="btn btn-navy btn-block" href="#login">Log in</a></p>';
+    }).catch(function(err){busy=false;btn.disabled=false;note.innerHTML="<strong>We could not save that.</strong>"+AAOApi.esc(err.message);});
+  });
 };
 /* Live mode: the desks show the signed-in user's real data instead of the sample content. */
 V.dashboardLive = function(){
@@ -5668,7 +5753,7 @@ var hdr=$(".site-header");
 function onScroll(){var y=window.scrollY,on=hdr.classList.contains("scrolled");if(!on&&y>60)hdr.classList.add("scrolled");else if(on&&y<10)hdr.classList.remove("scrolled");}
 window.addEventListener("scroll",onScroll,{passive:true});onScroll();
 
-var TITLES = {pricing:"Pricing | AAO",faq:"FAQs | AAO",home:"Amazing Assistants Online | You weren’t meant to build alone",how:"How AAO works | AAO",standards:"Trust and standards | AAO",about:"About AAO | AAO",talent:"Find virtual assistants | AAO",help:"Help and support | AAO",join:"Create your account | AAO",login:"Log in | AAO",dashboard:"Dashboard | AAO","post-job":"Post a job | AAO",messages:"Messages | AAO",membership:"Membership | AAO","va-profile":"Your profile | AAO","va-applications":"Job applications | AAO","va-saved":"Saved jobs | AAO","va-settings":"Account settings | AAO"};
+var TITLES = {pricing:"Pricing | AAO",faq:"FAQs | AAO",home:"Amazing Assistants Online | You weren’t meant to build alone",how:"How AAO works | AAO",standards:"Trust and standards | AAO",about:"About AAO | AAO",talent:"Find virtual assistants | AAO",help:"Help and support | AAO",join:"Create your account | AAO",login:"Log in | AAO",dashboard:"Dashboard | AAO","post-job":"Post a job | AAO",messages:"Messages | AAO",membership:"Membership | AAO","va-profile":"Your profile | AAO","va-applications":"Job applications | AAO","va-saved":"Saved jobs | AAO","va-settings":"Account settings | AAO","forgot-password":"Reset your password | AAO","reset-password":"Choose a new password | AAO"};
 var current=null;
 function go(r){
   if(r==="logout"){
@@ -5747,6 +5832,8 @@ function currentRoute(){return (current!==null?current:(location.hash||"").repla
 function render(){
   var h=currentRoute();
   if(h==="logout"){clearDemoUser();if(API_ON)AAOApi.signOut();h="home";current="home";try{history.replaceState(null,"","#home");}catch(e){}}
+  /* Live mode: someone who arrived from a password-reset email must choose a new password before using the site (signing out or cancelling ends this). */
+  if(API_ON&&AAOApi.recoveryPending()&&h!=="reset-password"){h="reset-password";current="reset-password";try{history.replaceState(null,"","#reset-password");}catch(e){}}
   var view,arg,key=h,title;
   var needsAuth=h==="dashboard"||h==="post-job"||h==="va-profile"||h==="va-applications"||h==="va-saved"||h==="va-settings"||h==="messages"||h.indexOf("messages-")===0;
   if(needsAuth&&!getDemoUser()){h="login";key="login";}
@@ -5818,6 +5905,8 @@ function onNav(){
 }
 window.addEventListener("hashchange",onNav);
 window.addEventListener("popstate",onNav);
+/* Live mode: the reset email's link is recognised a moment after the page loads; redraw so the new-password screen appears. */
+if(API_ON)window.addEventListener("aao-recovery",function(){current=null;render();});
 initAcctMenu();
 if(API_ON){
   /* Live mode: restore the real session and load real data first (never block the page for more than 4 seconds). */
