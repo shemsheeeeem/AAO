@@ -1122,6 +1122,11 @@ ul,ol{margin:0;padding:0;list-style:none}
 .jd-apply .notice a{color:var(--jd-gold-400);font-weight:700}
 .jd-apply .btn-line-dark{color:#fff;border-color:rgba(234,247,248,.35)}
 .jd-apply .btn-line-dark:hover{background:rgba(2,15,33,.28);border-color:#fff;color:#fff}
+.jd-save{display:inline-flex;align-items:center;justify-content:center;gap:10px}
+.jd-save svg{width:18px;height:18px;flex:none}
+.jd-save[aria-pressed="true"]{border-color:rgba(221,187,104,.55);color:var(--jd-gold-400);background:rgba(221,187,104,.12)}
+.jd-save[aria-pressed="true"]:hover{border-color:var(--jd-gold-400);background:rgba(221,187,104,.18);color:var(--jd-gold-300)}
+.jd-save[aria-pressed="true"] svg{fill:currentColor}
 .jd-gate p{margin:0;color:var(--jd-card-muted);font-size:.95rem;line-height:1.5}
 .jd-gate .stack{display:grid;gap:10px;margin-top:4px}
 @media (max-width:980px){
@@ -1153,6 +1158,20 @@ ul,ol{margin:0;padding:0;list-style:none}
 .faq h3{font-size:1.45rem;margin:38px 0 6px}
 .faq h3:first-child{margin-top:0}
 
+
+/* Legal documents */
+.legal-doc{max-width:46rem}
+.legal-updated{margin:0 0 28px;color:var(--muted);font-size:.95rem}
+.legal-sec{padding:22px 0;border-top:1px solid var(--line)}
+.legal-sec:first-of-type{border-top:0;padding-top:0}
+.legal-sec h2{margin:0 0 12px;font-family:var(--body);font-weight:700;font-size:clamp(1.15rem,2vw,1.35rem);color:var(--ink);line-height:1.3}
+.legal-sec p{margin:0 0 12px;color:var(--muted);font-size:1.02rem;line-height:1.65}
+.legal-sec p:last-child{margin-bottom:0}
+.legal-sec ul{margin:0 0 12px;padding-left:1.2em;color:var(--muted);font-size:1.02rem;line-height:1.65}
+.legal-sec li{margin:0 0 8px}
+.legal-sec li:last-child{margin-bottom:0}
+.legal-sec strong{color:var(--ink);font-weight:700}
+.legal-nav{display:flex;flex-wrap:wrap;gap:12px;margin-top:36px;padding-top:24px;border-top:1px solid var(--line)}
 /* Auth */
 .auth{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);min-height:600px}
 .auth-side{position:relative;overflow:hidden;background:#031A36;color:var(--on-navy);padding:clamp(36px,5vw,72px) clamp(24px,5vw,64px);display:flex;flex-direction:column;justify-content:center;gap:18px}
@@ -1192,7 +1211,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 .login-aurora-glow{pointer-events:none;position:absolute;inset:-10px;opacity:.6;filter:blur(10px);will-change:transform;background-image:var(--dark-gradient),var(--aurora);background-size:300% 200%;background-position:50% 50%,50% 50%;-webkit-mask-image:radial-gradient(ellipse at 100% 0%,#000 10%,transparent 70%);mask-image:radial-gradient(ellipse at 100% 0%,#000 10%,transparent 70%)}
 .login-aurora-glow::after{content:"";position:absolute;inset:0;background-image:var(--dark-gradient),var(--aurora);background-size:200% 100%;background-attachment:fixed;mix-blend-mode:difference;animation:login-aurora 60s linear infinite}
 .login-shell::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 50% 45%,transparent 30%,rgba(2,15,32,.62) 100%)}
-.login-card{position:relative;z-index:2;width:min(920px,100%);--ink:#0B1A33;--muted:#51617C;--line:#DAE1EE;--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#EAF0FA;--sky:#EAF0FA;--link:#1B4B91;background:#fff;color:#0B1A33;border-radius:22px;padding:0;overflow:hidden;box-shadow:0 28px 60px -28px rgba(0,0,0,.55);display:grid;grid-template-columns:minmax(260px,.92fr) minmax(300px,1.08fr);align-items:stretch}
+.login-card{position:relative;z-index:2;width:min(920px,100%);--ink:#0B1A33;--muted:#51617C;--line:#DAE1EE;--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#EAF0FA;--sky:#EAF0FA;--link:#1B4B91;background:#fff;color:#0B1A33;color-scheme:light;border-radius:22px;padding:0;overflow:hidden;box-shadow:0 28px 60px -28px rgba(0,0,0,.55);display:grid;grid-template-columns:minmax(260px,.92fr) minmax(300px,1.08fr);align-items:stretch}
 .login-card.login-card-join{width:min(980px,100%)}
 .login-brand{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:18px;padding:clamp(32px,4.5vw,52px) clamp(24px,3.5vw,40px);text-align:center;background:linear-gradient(165deg,#F3F6FB 0%,#EAF0FA 42%,#DCE8FA 100%);color:#0B1A33;isolation:isolate}
 .login-brand::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(rgba(27,75,145,.16) 1.1px,transparent 1.2px);background-size:18px 18px;opacity:.55}
@@ -1221,9 +1240,10 @@ ul,ol{margin:0;padding:0;list-style:none}
 .login-or::before,.login-or::after{content:"";height:1px;background:#DAE1EE}
 .login-card .form{width:100%;gap:14px;color:#0B1A33}
 .login-card .field{gap:6px;color:#0B1A33}
-.login-card .field input,.login-card .field textarea,.login-card .field select{color:#0B1A33;background:#fff;border:1.5px solid #DAE1EE}
-.login-card .field input::placeholder,.login-card .field textarea::placeholder{color:#7A8AA3}
-.login-card .field input:focus,.login-card .field textarea:focus,.login-card .field select:focus{border-color:#1B4B91;box-shadow:0 0 0 4px rgba(27,75,145,.18)}
+.login-card .field input,.login-card .field textarea,.login-card .field select{color:#0B1A33;-webkit-text-fill-color:#0B1A33;caret-color:#0B1A33;background:#fff;border:1.5px solid #DAE1EE;color-scheme:light}
+.login-card .field input::placeholder,.login-card .field textarea::placeholder{color:#7A8AA3;-webkit-text-fill-color:#7A8AA3;opacity:1}
+.login-card .field input:focus,.login-card .field textarea:focus,.login-card .field select:focus{border-color:#1B4B91;box-shadow:0 0 0 4px rgba(27,75,145,.18);color:#0B1A33;-webkit-text-fill-color:#0B1A33;background:#fff}
+.login-card .field input:-webkit-autofill,.login-card .field input:-webkit-autofill:hover,.login-card .field input:-webkit-autofill:focus,.login-card .field textarea:-webkit-autofill,.login-card .field textarea:-webkit-autofill:hover,.login-card .field textarea:-webkit-autofill:focus{color:#0B1A33;-webkit-text-fill-color:#0B1A33;caret-color:#0B1A33;border:1.5px solid #DAE1EE;box-shadow:0 0 0 1000px #fff inset;transition:background-color 99999s ease-out}
 .login-card .field textarea{min-height:96px}
 .login-card .roles{color:#0B1A33}
 .login-card .roles legend{color:#0B1A33}
@@ -2247,8 +2267,8 @@ p{text-wrap:pretty}
         <div>
           <h4>Legal</h4>
           <ul>
-            <li><a href="#help">Privacy Policy</a></li>
-            <li><a href="#help">Terms of Service</a></li>
+            <li><a href="#privacy">Privacy Policy</a></li>
+            <li><a href="#terms">Terms and Conditions</a></li>
             <li><a href="#standards">Trust and standards</a></li>
           </ul>
         </div>
@@ -3081,7 +3101,7 @@ V.home = function(){
       '<div class="hw-title">'+
         '<div class="hw-title-copy">'+
           '<h1 class="hero-h1"><span class="ln ln-one"><i>You weren’t meant to build alone.</i></span><span class="ln"><i>Rally your <span class="ctf" data-ctf-words="Army|VA\'s|Team" aria-live="polite"><span class="ctf-inner"><span class="ctf-word">Army</span></span></span>.</i></span></h1>'+
-          '<p class="lede">Pre-vetted virtual assistants who care about your goals, think in systems, and stay in it with you.</p>'+
+          '<p class="lede">At AAO, self-leadership is our culture. Hire virtual assistants who care about your goals, think in systems, and solve problems before they cost you.</p>'+
         '</div>'+
       '</div>'+
       '<div class="btn-row"><a class="btn btn-gold" href="#how">Find jobs</a><a class="btn btn-light" href="#join" data-jintent="post">Post a job</a></div>'+
@@ -3925,11 +3945,50 @@ function jobDetailMeta(j){
     clientLoc:j.clientLoc||(String(j.loc||"Remote").split("·")[0].trim()||"Remote")
   };
 }
+function isJobSaved(id){
+  var saved=localStore("aao_va_saved_jobs",[]);
+  if(!Array.isArray(saved))return false;
+  var sid=String(id||"");
+  return saved.some(function(row){return String(row&&row.id)===sid;});
+}
+function toggleSavedJob(j){
+  var saved=localStore("aao_va_saved_jobs",[]);
+  if(!Array.isArray(saved))saved=[];
+  var sid=String(j&&j.id||"");
+  var idx=-1;
+  for(var i=0;i<saved.length;i++){if(String(saved[i]&&saved[i].id)===sid){idx=i;break;}}
+  var on=false;
+  if(idx>=0){saved.splice(idx,1);}
+  else{
+    saved.unshift({id:sid,title:j.title||"Saved role",company:j.company||"AAO client",loc:j.loc||"",pay:j.pay||"",payUnit:j.payUnit||"",at:new Date().toISOString()});
+    saved=saved.slice(0,40);
+    on=true;
+  }
+  localSave("aao_va_saved_jobs",saved);
+  return on;
+}
+function jobSaveButtonHtml(j){
+  var on=isJobSaved(j&&j.id);
+  return '<button class="btn btn-line-dark btn-block jd-save" type="button" id="jsave" data-job-id="'+String(j&&j.id||"").replace(/"/g,"&quot;")+'" aria-pressed="'+(on?"true":"false")+'"><svg viewBox="0 0 24 24" fill="'+(on?"currentColor":"none")+'" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 19.4 5.6 13A4.2 4.2 0 0 1 12 7.2 4.2 4.2 0 0 1 18.4 13L12 19.4z"/></svg><span>'+(on?"Saved":"Save job")+'</span></button>';
+}
+function bindJobSaveButton(j){
+  var btn=$("#jsave");
+  if(!btn||!j)return;
+  btn.addEventListener("click",function(){
+    var on=toggleSavedJob(j);
+    btn.setAttribute("aria-pressed",on?"true":"false");
+    var label=btn.querySelector("span");
+    var icon=btn.querySelector("svg");
+    if(label)label.textContent=on?"Saved":"Save job";
+    if(icon)icon.setAttribute("fill",on?"currentColor":"none");
+  });
+}
 function jobApplyPanel(j,m){
   var u=getDemoUser();
   var budget=payLabel(j)+" "+paySuffix(j);
   var ask='<div class="jd-ask"><strong>How to stand out</strong>'+m.tip+"</div>";
   var sums='<dl class="jd-sum"><div><dt>Client budget</dt><dd>'+budget+'</dd></div><div><dt>Applicants</dt><dd>'+m.applicants+'</dd></div></dl>';
+  var saveBtn=jobSaveButtonHtml(j);
   if(u&&u.role==="va"){
     var defPay=j.pay||"";
     return '<div class="jd-apply"><h2>Send a letter.</h2>'+sums+ask+
@@ -3939,13 +3998,14 @@ function jobApplyPanel(j,m){
         '<label class="field">Link to similar work<input id="jap-link" name="link" type="url" placeholder="https://"></label>'+
         '<label class="field">Letter<textarea id="jap-letter" name="letter" required minlength="20" placeholder="Say why you fit this role. At least 20 characters."></textarea></label>'+
         '<button class="btn btn-gold btn-block" type="submit">Submit application</button>'+
+        saveBtn+
         '<div class="notice" id="jnote" role="status"></div>'+
       '</form></div>';
   }
   if(u&&u.role==="client"){
-    return '<div class="jd-apply jd-gate"><h2>Client desk</h2><p>You are signed in as a client. Open roles for assistants live on the board; manage hires from your desk.</p><div class="stack"><a class="btn btn-gold btn-block" href="#dashboard">Open client desk</a><a class="btn btn-line-dark btn-block" href="#talent">Browse assistants</a></div></div>';
+    return '<div class="jd-apply jd-gate"><h2>Client desk</h2><p>You are signed in as a client. Open roles for assistants live on the board; manage hires from your desk.</p><div class="stack"><a class="btn btn-gold btn-block" href="#dashboard">Open client desk</a><a class="btn btn-line-dark btn-block" href="#talent">Browse assistants</a>'+saveBtn+'</div></div>';
   }
-  return '<div class="jd-apply jd-gate"><h2>Send a letter.</h2>'+sums+ask+'<p>Log in with a virtual assistant account to apply for this role.</p><div class="stack"><a class="btn btn-gold btn-block" href="#login">Log in to apply</a><a class="btn btn-line-dark btn-block" href="#join">Create a free profile</a></div></div>';
+  return '<div class="jd-apply jd-gate"><h2>Send a letter.</h2>'+sums+ask+'<p>Log in with a virtual assistant account to apply for this role.</p><div class="stack"><a class="btn btn-gold btn-block" href="#login">Log in to apply</a><a class="btn btn-line-dark btn-block" href="#join">Create a free profile</a>'+saveBtn+'</div></div>';
 }
 V.job = function(id){
   var j=findJob(id);
@@ -3983,6 +4043,9 @@ V.job = function(id){
   '</div><aside class="jd-aside">'+jobApplyPanel(j,m)+"</aside></div></div></section>";
 };
 V.job.init = function(){
+  var id=(location.hash||"").replace(/^#job-/,"");
+  var j=findJob(id);
+  if(j)bindJobSaveButton(j);
   var form=$("#japf"),note=$("#jnote");
   if(!form||!note)return;
   form.addEventListener("submit",function(e){
@@ -4280,7 +4343,7 @@ var FAQ_GROUPS=[
   ["What does “pre-vetted” mean?","Before assistants are matched with clients, they build a professional profile, add their skills and portfolio, complete the assessments that apply to their field, and have their profile reviewed against AAO’s marketplace standards. You’re choosing from people who have been through that process, not from anyone who simply signed up."],
   ["What does “pretrained on empathy” mean?","Our assistants are trained to understand the pressure of running a business on your own. They’re encouraged to look past the task list to what you’re actually trying to achieve, and to bring care for the outcome to the work, not just tick a task off."],
   ["Can I get to know an assistant before I reach out?","Yes. Profiles show skills, experience, portfolio, languages and availability, and featured assistants share short video introductions so you can get a feel for who you could be working with."],
-  ["How is my information protected?","Personal information is visible only to the team members whose duties require it, and sensitive changes are recorded in audit logs. You can read more on our <a href=\"#standards\">Trust and standards</a> page."]
+  ["How is my information protected?","Personal information is visible only to the team members whose duties require it, and sensitive changes are recorded in audit logs. You can read more in our <a href=\"#privacy\">Privacy Policy</a> and on our <a href=\"#standards\">Trust and standards</a> page."]
  ]],
  ["Support",[
   ["What if I need help, or something isn’t working?","Send a request to our support team. It’s logged, assigned to the right person, investigated, then resolved or escalated, documented, and followed up on so you know the outcome. You can reach us from the <a href=\"#help\">Help and support</a> page."]
@@ -4299,6 +4362,24 @@ V.faq = function(){
    FAQ_GROUPS.map(function(g){return '<h3>'+g[0]+'</h3>'+faqItems(g[1]);}).join("")+'</div></div></section>'+
   closing();
 };
+V.terms = function(){
+  return pageHead({h1:"Terms and Conditions",p:"The agreement that governs your use of Amazing Assistants Online.",btns:"<a class=\"btn btn-gold\" href=\"#privacy\">Privacy Policy</a><a class=\"btn btn-light\" href=\"#help\">Contact support</a>"})+
+  '<section class="sec legal"><div class="wrap legal-doc">'+
+  '<p class="legal-updated">Effective date: Nov 12, 2026</p>'+
+  "<section class=\"legal-sec\"><h2>1. Acceptance and nature of the Platform</h2><p>These Terms and Conditions (\"Terms\") are a binding agreement between you and Amazing Assistants Online (\"AAO,\" \"we,\" \"us\"), operated by [Legal Entity Name] of [Business Address]. They govern your use of findmyaao.com and related services (the \"Platform\"). By creating an account, clicking \"Get started\" or using the Platform, you agree to these Terms and to our Privacy Policy. If you do not agree, do not use the Platform.</p><p><strong>What AAO does.</strong> AAO is an online marketplace that helps small business owners and service professionals (\"Clients\") find and hire pre-vetted virtual assistants (\"VAs\"). Clients can browse assistants, post jobs and shortlist VAs. VAs can build a profile, apply for jobs and save jobs through their VA desk.</p><p><strong>Our role.</strong> AAO introduces Clients and VAs and provides tools for the relationship. Unless a separate written agreement says otherwise, AAO is not the employer, agent, partner or joint employer of any VA, and is not a party to the services agreed between a Client and a VA.</p></section><section class=\"legal-sec\"><h2>2. Eligibility and accounts</h2><p>You must be at least 18 years old and legally able to enter a contract. If you register for a business, you confirm you have authority to bind it.</p><p>You must give accurate, current and complete information, and keep it updated in Account Settings.</p><p>You are responsible for all activity under your account and for keeping your password secure. Tell us promptly if you suspect unauthorised use.</p><p>One person may hold one account of each type (Client or VA) unless we agree otherwise. Accounts cannot be sold or transferred.</p><p>We may refuse, suspend or close an account where these Terms are breached or we reasonably suspect fraud or misuse.</p></section><section class=\"legal-sec\"><h2>3. Terms for Clients</h2><p>If you use the Platform as a Client, you agree to:</p><ul><li>post accurate job descriptions, hours, budgets and expectations;</li><li>treat VAs with respect, and comply with applicable labour, tax, data-protection and anti-discrimination laws;</li><li>agree scope, pay rate, payment schedule and working arrangements with your VA in writing before work begins;</li><li>pay all agreed fees on time, including any AAO fees under section 6;</li><li>give VAs only the access and information they need, and keep their personal data secure;</li><li>not ask a VA to do anything unlawful, unsafe or deceptive.</li></ul><p>You are responsible for managing, directing and reviewing the work you receive, and for choosing the VA who suits your business. Any shortlist or match we provide is a recommendation, not a promise of results.</p></section><section class=\"legal-sec\"><h2>4. Terms for virtual assistants</h2><p>If you use the Platform as a VA, you agree to:</p><ul><li>provide a truthful profile, including your identity, skills, experience, certifications, rates and availability, and keep it current;</li><li>submit only genuine documents and references during vetting, and consent to the checks described in our Trust and standards;</li><li>apply only for jobs you are qualified for and can commit to, and meet the deadlines and quality you agree to with the Client;</li><li>keep Client information confidential and use it only for the agreed work;</li><li>not misrepresent your location, qualifications or work samples, or use another person's identity or work;</li><li>not subcontract or pass the work to a third party without the Client's written consent.</li></ul><p>You are an independent contractor, not an employee of AAO. You are responsible for your own taxes, equipment, internet connection, insurance and any registrations or permits required in your country.</p></section><section class=\"legal-sec\"><h2>5. Vetting, trust and standards</h2><p>AAO describes its VAs as pre-vetted and publishes standards on our Trust and standards page. Vetting means we have applied the screening steps listed there at the time of review. It is not a guarantee of any VA's performance, honesty, availability, qualifications or fitness for a particular task.</p><p>We may update our vetting process at any time. VAs agree to cooperate with re-verification, and we may remove a VA from the Platform if they fall below our standards.</p><p>Nothing in these Terms creates an employment, agency, partnership or joint-venture relationship between AAO and any VA or Client. The working relationship is between the Client and the VA. Clients should do their own checks that suit the sensitivity of the work, such as interviews, trial tasks and reference calls.</p></section><section class=\"legal-sec\"><h2>6. Fees, payments and refunds</h2><p><strong>Fees.</strong> AAO's fees are set out on the Pricing section of the Platform at the time you purchase. Prices are stated in [currency] and may exclude taxes, which you are responsible for. We may change prices on notice, and changes do not affect fees you have already paid.</p><p><strong>Payment.</strong> You authorise us and our payment processor to charge your chosen payment method for fees due. Where a recurring fee applies, it renews automatically until you cancel in Account Settings or by contacting us. Late or failed payments may lead to suspension.</p><p><strong>Refunds and replacements.</strong> [Describe AAO's policy here: for example, a replacement or refund window for a VA who does not work out, and whether any fee is non-refundable.] Unless this policy or the law says otherwise, fees already paid are non-refundable.</p><p><strong>Payments between Client and VA.</strong> [Choose one: payments to VAs are made through AAO / payments are agreed and made directly between the Client and the VA.] AAO is not responsible for disputes over wages, hours or deliverables that the parties agree between themselves.</p><p><strong>Non-circumvention.</strong> For [12] months after an introduction through the Platform, a Client or VA must not deliberately bypass AAO to avoid fees owed on that introduction.</p></section><section class=\"legal-sec\"><h2>7. Confidentiality, intellectual property and content</h2><p><strong>Confidentiality.</strong> Clients and VAs must keep each other's non-public business information confidential and use it only for the work. This duty continues after the relationship ends. It does not cover information that is public, already known, or required to be disclosed by law.</p><p><strong>Work product.</strong> Unless the Client and VA agree otherwise in writing, work a VA creates for a Client belongs to the Client once the Client has paid for it. AAO claims no ownership of that work.</p><p><strong>Our property.</strong> The Platform, including its design, text, logos, software and the AAO name, is owned by AAO or its licensors and protected by intellectual property laws. You may use it only as these Terms allow.</p><p><strong>Your content.</strong> You keep ownership of the profiles, job posts, messages and other content you submit. You give AAO a worldwide, non-exclusive, royalty-free licence to host, display and use that content to run, promote and improve the Platform. You confirm you have the right to submit it and that it does not infringe anyone's rights.</p><p><strong>Feedback.</strong> If you send us ideas or suggestions, we may use them without obligation to you.</p></section><section class=\"legal-sec\"><h2>8. Prohibited conduct, suspension and termination</h2><p>You must not:</p><ul><li>break any law or third-party right, or use the Platform for fraud, money laundering or deceptive practices;</li><li>post false, misleading, harassing, discriminatory, defamatory or sexually explicit content;</li><li>ask VAs to carry out unlawful tasks, such as fake reviews, impersonation, or breaking another platform's rules;</li><li>scrape, copy or harvest data from the Platform, or contact users for purposes unrelated to hiring;</li><li>upload malware, interfere with the Platform's security or attempt unauthorised access;</li><li>share your login with others, or create accounts to evade a suspension.</li></ul><p><strong>Suspension and termination.</strong> We may suspend or end your access at any time, with or without notice, if you breach these Terms, create risk or legal exposure for AAO or others, or stop using the Platform for an extended period. You may close your account at any time in Account Settings. Sections that by their nature should survive (such as payment obligations, confidentiality, intellectual property, liability and disputes) continue after termination.</p></section><section class=\"legal-sec\"><h2>9. Disclaimers, liability and indemnity</h2><p><strong>Disclaimer.</strong> The Platform is provided \"as is\" and \"as available.\" To the fullest extent the law allows, AAO disclaims all warranties, express or implied, including merchantability, fitness for a particular purpose and non-infringement. We do not warrant that the Platform will be uninterrupted or error-free, or that any VA or Client will meet your expectations. We are not responsible for the conduct, work or statements of any user.</p><p><strong>Limitation of liability.</strong> To the fullest extent the law allows, AAO and its owners, officers and staff are not liable for indirect, incidental, special, consequential or punitive damages, or for lost profits, revenue, data or goodwill. Our total liability for any claim relating to the Platform is limited to the greater of the fees you paid AAO in the [12] months before the claim or [amount]. Nothing in these Terms limits liability that cannot be limited by law, such as for fraud or for death or personal injury caused by negligence.</p><p><strong>Indemnity.</strong> You agree to defend and compensate AAO and its owners, officers and staff against claims, losses and costs (including reasonable legal fees) arising from your content, your breach of these Terms, your violation of law or third-party rights, or your dealings with another user.</p></section><section class=\"legal-sec\"><h2>10. Governing law, disputes, changes and contact</h2><p><strong>Governing law.</strong> These Terms are governed by the laws of [Republic of the Philippines / other jurisdiction], without regard to conflict-of-law rules.</p><p><strong>Disputes.</strong> Please contact us first so we can try to resolve the matter informally within [30] days. If that fails, disputes will be resolved by [the courts of City, Country / binding arbitration under rules of ___]. Where the law gives you a right to bring a claim in your home court, that right is not affected.</p><p><strong>Changes.</strong> We may update these Terms from time to time. We will post the revised version with a new date and, for material changes, notify you by email or on the Platform. Continued use after the effective date means you accept the changes.</p><p><strong>General.</strong> These Terms and the Privacy Policy are the entire agreement between you and AAO about the Platform. If a provision is unenforceable, the rest stays in force. Our failure to enforce a right is not a waiver. You may not assign these Terms without our consent, but we may assign them in a merger or sale of our business.</p><p><strong>Contact.</strong> [Legal Entity Name], [Business Address], [support email], or through Help and support on findmyaao.com.</p></section>"+
+  '<div class="legal-nav"><a class="btn btn-navy" href="#help">Help and support</a><a class="btn btn-line" href="#home">Back to home</a></div>'+
+  '</div></section>';
+};
+
+V.privacy = function(){
+  return pageHead({h1:"Privacy Policy",p:"How Amazing Assistants Online collects, uses, shares and protects personal information.",btns:"<a class=\"btn btn-gold\" href=\"#terms\">Terms and Conditions</a><a class=\"btn btn-light\" href=\"#help\">Contact support</a>"})+
+  '<section class="sec legal"><div class="wrap legal-doc">'+
+  '<p class="legal-updated">Effective date: Nov 12, 2026</p>'+
+  "<section class=\"legal-sec\"><h2>1. Introduction and scope</h2><p>This policy explains how Amazing Assistants Online (\"AAO,\" \"we,\" \"us\"), operated by [Legal Entity Name] of [Business Address], collects, uses, shares and protects personal information when you use findmyaao.com and related services (the \"Platform\").</p><p>AAO helps small business owners and service professionals (\"Clients\") find and hire pre-vetted virtual assistants (\"VAs\"). The Platform includes public pages, Client and VA accounts, VA profiles, job applications, saved jobs, account settings and a help and support channel. This policy applies to visitors, Clients and VAs.</p><p>By using the Platform, you acknowledge this policy. If you do not agree with it, please do not use the Platform.</p></section><section class=\"legal-sec\"><h2>2. Information we collect</h2><p><strong>Information you give us</strong></p><p><strong>Account details:</strong> name, email address, password, phone number, business name, country and time zone.</p><p><strong>Client information:</strong> the type of support you need, job posts, hiring preferences, budget and working hours.</p><p><strong>VA profile and application information:</strong> r\u00e9sum\u00e9 or work history, skills, tools, education, certifications, rates, availability, profile photo, portfolio links, language ability and job applications.</p><p><strong>Vetting and verification information:</strong> identity documents, background or reference checks, skills assessment results and interview notes, where our Trust and standards process requires them.</p><p><strong>Communications:</strong> messages between you and us, and messages or shortlists exchanged with other users through the Platform.</p><p><strong>Payment information:</strong> billing name, billing address, transaction records and payout details. Card and bank details are handled by our payment processor, and we do not store full card numbers.</p><p><strong>Information we collect automatically</strong></p><p>Device and browser type, IP address, approximate location, pages viewed, links clicked, referring page and session times.</p><p>Cookies and similar technologies (see section 5).</p><p><strong>Information from others</strong></p><p>References, former employers or verification providers for VAs.</p><p>Social media platforms, such as Facebook, when you contact or interact with our page.</p><p>Please do not send us sensitive information we do not ask for, such as health, religious or political information. Where vetting requires government ID, we collect it only for verification.</p></section><section class=\"legal-sec\"><h2>3. How we use information</h2><p>We use personal information to:</p><ul><li>create and manage accounts, and let you log in;</li><li>build VA profiles and match Clients with suitable VAs;</li><li>vet VAs and apply our Trust and standards process;</li><li>process applications, hiring, payments and payouts;</li><li>send service messages, support replies and account notices;</li><li>send updates or offers about AAO, where permitted, with an easy way to opt out;</li><li>keep the Platform secure, and detect and prevent fraud, abuse and policy violations;</li><li>understand how the Platform is used and improve its features, content and design;</li><li>meet legal, tax, accounting and regulatory obligations, and enforce our Terms and Conditions.</li></ul><p>Where the law requires a legal basis, we rely on: performing our contract with you, our legitimate interests (running and securing the Platform), your consent (for example, optional marketing or non-essential cookies) and legal obligations.</p></section><section class=\"legal-sec\"><h2>4. How we share information</h2><p>We do not sell your personal information. We share it only as follows:</p><p><strong>Between Clients and VAs:</strong> VA profile details (such as name, photo, skills, rates and work history) are visible to Clients. Job posts and application details are shared with the relevant counterparty. Contact details are shared only when needed to proceed with a hire.</p><p><strong>Service providers:</strong> hosting, database, email, analytics, customer support, identity verification, background-check and payment providers that process data on our behalf under confidentiality and data-protection terms.</p><p><strong>Legal and safety:</strong> courts, regulators or law enforcement when required by law, or to protect the rights, safety and property of users, AAO or the public.</p><p><strong>Business transfers:</strong> a buyer or successor if AAO is involved in a merger, acquisition, financing or sale of assets, with notice to you where required.</p><p><strong>With your consent:</strong> any other sharing you ask for or approve.</p><p>Information you post in a public VA profile may be seen by anyone who can reach that page. Please share only what you are comfortable making visible.</p></section><section class=\"legal-sec\"><h2>5. Cookies and analytics</h2><p>We use cookies and similar tools to keep you logged in, remember preferences, secure your session and measure how the Platform is used. Some are essential, and others (analytics or advertising) are optional where the law requires your consent.</p><p>You can block or delete cookies in your browser settings. Doing so may stop parts of the Platform, such as logging in to your VA desk, from working properly. Where we offer a cookie banner or settings panel, you can change your choices there at any time.</p></section><section class=\"legal-sec\"><h2>6. International transfers and retention</h2><p><strong>International transfers.</strong> Clients and VAs may be in different countries, and our service providers may process data outside your country. When we transfer personal information across borders, we use safeguards such as contracts with data-protection terms, in line with applicable law.</p><p><strong>Retention.</strong> We keep personal information only as long as needed for the purposes above:</p><ul><li>Account and profile data: while your account is active, then deleted or anonymised within [90] days of closure unless we must keep it.</li><li>Vetting records: for [12] months after a VA's last activity, or longer if the law or a dispute requires it.</li><li>Payment and tax records: for the period required by tax and accounting law, typically [5 to 10] years.</li><li>Support messages: for [24] months after the matter is resolved.</li></ul></section><section class=\"legal-sec\"><h2>7. Security</h2><p>We use reasonable organisational, technical and physical safeguards, such as encrypted connections (HTTPS), access controls, password protection and limits on who can view sensitive vetting records. No online service is completely secure, so we cannot guarantee absolute security.</p><p>Please use a strong, unique password and keep your login details private. If you suspect unauthorised access to your account, contact us immediately. If a breach affects your personal information, we will notify you and the relevant authorities as required by law.</p></section><section class=\"legal-sec\"><h2>8. Your rights and choices</h2><p>Depending on where you live, you may have the right to:</p><ul><li>be informed about how we process your data;</li><li>access a copy of your personal information;</li><li>correct inaccurate or incomplete information (you can edit much of it in Account Settings and My Profile);</li><li>request deletion, or block or restrict processing;</li><li>object to processing, including direct marketing;</li><li>receive your data in a portable format;</li><li>withdraw consent at any time, without affecting earlier processing;</li><li>lodge a complaint with your data protection authority.</li></ul><p><strong>Philippines.</strong> Under the Data Privacy Act of 2012 (Republic Act No. 10173), you have the rights above, including the right to claim damages for inaccurate, unlawfully obtained or unauthorised use of your data. You may also complain to the National Privacy Commission.</p><p><strong>EU, UK and EEA.</strong> You have rights under the GDPR or UK GDPR, including access, rectification, erasure, restriction, portability and objection, and may complain to your local supervisory authority.</p><p><strong>California.</strong> You may request to know, correct or delete your personal information, and not be discriminated against for exercising these rights. We do not sell or share personal information for cross-context behavioural advertising.</p><p>To exercise a right, email [privacy email]. We may need to verify your identity first, and we will respond within the time required by law. You can unsubscribe from marketing emails at any time using the link in each message.</p></section><section class=\"legal-sec\"><h2>9. Children, third-party links, changes and contact</h2><p><strong>Children.</strong> The Platform is for adults aged 18 or older. We do not knowingly collect information from anyone under 18. If you believe a minor has given us personal information, contact us and we will delete it.</p><p><strong>Third-party links and social media.</strong> The Platform links to other sites, including our Facebook page. Those services have their own privacy policies, and we are not responsible for their practices.</p><p><strong>Changes.</strong> We may update this policy from time to time. We will post the new version with a revised date, and notify you of material changes by email or on the Platform.</p><p><strong>Contact.</strong> For questions or requests about this policy, contact our Data Protection Officer or privacy contact:</p><p>Email: [privacy email]<br>Address: [Legal Entity Name], [Business Address]<br>Website: findmyaao.com (Help and support)</p></section>"+
+  '<div class="legal-nav"><a class="btn btn-navy" href="#help">Help and support</a><a class="btn btn-line" href="#home">Back to home</a></div>'+
+  '</div></section>';
+};
+
 var AAO_CONFIG={formEndpoint:"",supportEmail:""};
 function sendForm(kind,data,note,okMsg,offMsg){
   note.classList.add("show");
@@ -4409,15 +4490,12 @@ V.join = function(){
           '<label class="field">Full name<input type="text" id="jn" autocomplete="name" required></label>'+
           '<label class="field">Email<input type="email" id="je" autocomplete="email" required></label>'+
           '<label class="field">Password'+passwordFieldHtml({id:"jpw",autocomplete:"new-password",placeholder:"At least 8 characters",btnId:"jeye",extra:' minlength="8"'})+'</label>'+
-          '<div class="jpath" id="jpath-find" hidden>'+
-            '<label class="field">What work do you do?<textarea id="jskills" placeholder="Skills, tools, and the kind of roles you want"></textarea></label>'+
-            '<label class="field">Availability<input type="text" id="javail" placeholder="Full-time, part-time, or hours per week" autocomplete="off"></label>'+
-          '</div>'+
           '<div class="jpath" id="jpath-post" hidden>'+
             '<label class="field">Business name<input type="text" id="jorg" autocomplete="organization"></label>'+
             '<label class="field">What would you like help with?<textarea id="jh"></textarea></label>'+
           '</div>'+
           '<button class="btn btn-navy btn-block" type="submit">Create account →</button>'+
+          '<p class="note">By creating an account you agree to our <a href="#terms">Terms and Conditions</a> and <a href="#privacy">Privacy Policy</a>.</p>'+
           '<p class="note">Already have an account? <a href="#login">Log in</a></p>'+
           '<div class="notice" id="jnote" role="status"></div>'+
         '</form>'+
@@ -4428,9 +4506,9 @@ V.join = function(){
 V.join.init = function(){
   var form=$("#jf2"),note=$("#jnote"),sideH=$("#auth-h"),sideP=$("#auth-p"),g=$("#jgoogle");
   initPasswordToggles(form||document);
-  var findPath=$("#jpath-find"),postPath=$("#jpath-post");
+  var postPath=$("#jpath-post");
   var copy={
-    find:["Find work that fits.","Set up your profile and browse openings. We’ll help you meet clients who value solid partners."],
+    find:["Find work that fits.","Create your account, then finish your VA profile so clients can meet you."],
     post:["You weren’t meant to build alone.","Tell us about your business and what you need. We’ll match you with pre-vetted assistants who are in it with you."]
   };
   var defaults=["Let’s get you started.","Choose whether you’re looking for work or hiring help, then tell us a little about you."];
@@ -4440,8 +4518,7 @@ V.join.init = function(){
   }
   function syncIntent(){
     var v=intent();
-    findPath.hidden=v!=="find";
-    postPath.hidden=v!=="post";
+    if(postPath)postPath.hidden=v!=="post";
     if(v&&copy[v]){sideH.textContent=copy[v][0];sideP.textContent=copy[v][1];}
     else{sideH.textContent=defaults[0];sideP.textContent=defaults[1];}
     note.classList.remove("show");note.innerHTML="";
@@ -4462,12 +4539,36 @@ V.join.init = function(){
   form.addEventListener("submit",function(e){
     e.preventDefault();
     var v=intent();
+    var name=($("#jn").value||"").trim();
+    var email=($("#je").value||"").trim().toLowerCase();
+    var pwd=((($("#jpw")||{}).value)||"");
     if(!v){note.classList.add("show");note.innerHTML="<strong>Choose a path.</strong>Tell us if you want to find a job or post a job.";return;}
-    if(!$("#jn").value.trim()||!/\S+@\S+\.\S+/.test($("#je").value)){note.classList.add("show");note.innerHTML="<strong>Check your details.</strong>Enter your name and a valid email.";return;}
-    var payload={intent:v,name:$("#jn").value,email:$("#je").value};
-    if(v==="post"){payload.business=$("#jorg").value;payload.needs=$("#jh").value;}
-    else{payload.skills=$("#jskills").value;payload.availability=$("#javail").value;}
-    sendForm("get-started",payload,note,"<strong>Welcome to AAO.</strong>Our team will be in touch shortly to get you started.","<strong>Online sign-up opens soon.</strong>Please check back shortly.");
+    if(!name||!/\S+@\S+\.\S+/.test(email)){note.classList.add("show");note.innerHTML="<strong>Check your details.</strong>Enter your name and a valid email.";return;}
+    if(pwd.length<8){note.classList.add("show");note.innerHTML="<strong>Choose a stronger password.</strong>Use at least 8 characters.";return;}
+    if(v==="find"){
+      var vaUser={email:email,role:"va",name:name,label:"Virtual assistant"};
+      setDemoUser(vaUser);
+      if(window.AAOMessaging&&AAOMessaging.syncAuthWithDemo)AAOMessaging.syncAuthWithDemo(vaUser);
+      var profiles=localStore("aao_va_profiles",{});
+      if(!profiles[email]){
+        saveVaProfile(vaUser,{
+          name:name,headline:"",about:"",cat:"Admin",avail:"Available full-time",
+          loc:"",exp:"",langs:"",skills:"",email:email,rate:"",hours:"",education:"",
+          memberSince:(new Date()).toLocaleString("en-US",{month:"long",year:"numeric"}),
+          status:"Open to work",portfolio:"",gender:"",age:""
+        });
+      }
+      try{sessionStorage.setItem("aao_va_setup","1");}catch(err){}
+      syncAuthNav();
+      go("va-profile");
+      return;
+    }
+    var clientUser={email:email,role:"client",name:name,label:"Client"};
+    setDemoUser(clientUser);
+    if(window.AAOMessaging&&AAOMessaging.syncAuthWithDemo)AAOMessaging.syncAuthWithDemo(clientUser);
+    sendForm("get-started",{intent:v,name:name,email:email,business:($("#jorg")||{}).value||"",needs:($("#jh")||{}).value||""},note,"<strong>Welcome to AAO.</strong>Opening your client desk…","<strong>Welcome to AAO.</strong>Opening your client desk…");
+    syncAuthNav();
+    go("dashboard");
   });
   initLoginLogoKey();
 };
@@ -5007,6 +5108,13 @@ V.vaProfile.init = function(){
     btn.addEventListener("click",function(){setEditing(true);});
   });
   if(cancel)cancel.addEventListener("click",function(){setEditing(false);note.classList.remove("show");note.innerHTML="";});
+  try{
+    if(sessionStorage.getItem("aao_va_setup")==="1"){
+      sessionStorage.removeItem("aao_va_setup");
+      setEditing(true);
+      if(note){note.classList.add("show");note.innerHTML="<strong>Welcome to AAO.</strong>Fill in your profile details so clients can meet you.";}
+    }
+  }catch(err){}
   form.addEventListener("submit",function(e){
     e.preventDefault();
     var name=$("#vp-name").value.trim();
@@ -5058,7 +5166,7 @@ V.vaSaved = function(){
   var saved=localStore("aao_va_saved_jobs",[]);
   var body;
   if(!saved.length){
-    body='<p class="app-note" style="margin-top:8px">No saved jobs yet. Open a posting and use Save when that control is wired to your API.</p>';
+    body='<p class="app-note" style="margin-top:8px">No saved jobs yet. Open a posting and tap <strong>Save job</strong> to bookmark it here.</p>';
   }else{
     body='<div class="dash-panels" style="margin-top:8px"><div class="dash-panel">'+dashRows(saved.map(function(j){return [j.title||"Saved role",j.company||"AAO client","View","#job-"+(j.id||"")];}))+'</div></div>';
   }
@@ -5314,7 +5422,7 @@ var hdr=$(".site-header");
 function onScroll(){var y=window.scrollY,on=hdr.classList.contains("scrolled");if(!on&&y>60)hdr.classList.add("scrolled");else if(on&&y<10)hdr.classList.remove("scrolled");}
 window.addEventListener("scroll",onScroll,{passive:true});onScroll();
 
-var TITLES = {pricing:"Pricing | AAO",faq:"FAQs | AAO",home:"Amazing Assistants Online | You weren’t meant to build alone",how:"How AAO works | AAO",standards:"Trust and standards | AAO",about:"About AAO | AAO",talent:"Find virtual assistants | AAO",help:"Help and support | AAO",join:"Create your account | AAO",login:"Log in | AAO",dashboard:"Dashboard | AAO","post-job":"Post a job | AAO",messages:"Messages | AAO",membership:"Membership | AAO","va-profile":"Your profile | AAO","va-applications":"Job applications | AAO","va-saved":"Saved jobs | AAO","va-settings":"Account settings | AAO"};
+var TITLES = {pricing:"Pricing | AAO",faq:"FAQs | AAO",terms:"Terms and Conditions | AAO",privacy:"Privacy Policy | AAO",home:"Amazing Assistants Online | You weren’t meant to build alone",how:"How AAO works | AAO",standards:"Trust and standards | AAO",about:"About AAO | AAO",talent:"Find virtual assistants | AAO",help:"Help and support | AAO",join:"Create your account | AAO",login:"Log in | AAO",dashboard:"Dashboard | AAO","post-job":"Post a job | AAO",messages:"Messages | AAO",membership:"Membership | AAO","va-profile":"Your profile | AAO","va-applications":"Job applications | AAO","va-saved":"Saved jobs | AAO","va-settings":"Account settings | AAO"};
 var current=null;
 function go(r){
   if(r==="logout"){
