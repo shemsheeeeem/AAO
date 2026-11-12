@@ -42,6 +42,7 @@ Do not commit live checkout URLs, service-role keys, or other secrets. The Supab
   - **Vercel:** mirror the same keys in `vercel.json` `headers`, or use a `_headers`-compatible adapter.
   - **GitHub Pages:** cannot set most response headers; rely on the CSP `<meta>` in `index.html` and prefer a host that supports `_headers` for HSTS/frame deny.
 - **Backend still required for:** payment webhooks, Supabase RLS, rate limits, Turnstile secret, CORS allowlist.
+- **Password reset (live mode only):** the login page links to `#forgot-password` (asks for the email; the response is the same whether or not an account exists), the email link returns to the site with `?code=` and the library announces a password recovery, then `#reset-password` asks for a new password (at least 8 characters), signs the person out and sends them to the login. Until the new password is saved, the site shows only that screen. The link must be opened in the same browser that asked for it (login uses PKCE). The backend project needs the site address (and `/**`) in its Auth redirect URLs and a working email sender (SMTP) for the message to be delivered.
 
 ## Membership paste pack
 
