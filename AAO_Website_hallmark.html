@@ -879,9 +879,11 @@ ul,ol{margin:0;padding:0;list-style:none}
 .trow{display:grid;grid-template-columns:64px minmax(0,1fr);gap:16px;align-items:start;padding:22px 24px;border-top:1px solid var(--jobs-line);background:var(--jobs-surface);text-decoration:none;color:var(--jobs-ink);transition:background .2s}
 .trow:first-child{border-top:0}
 .trow:hover,.trow:focus-visible{background:var(--jobs-soft);outline:none}
-.trow-photo{width:64px;height:64px;border-radius:14px;overflow:hidden;background:#E8EEF8;flex:none}
-.trow-photo .art,.trow-photo .ph,.trow-photo svg,.trow-photo img{width:100%;height:100%;display:block;object-fit:cover}
-.trow-photo .ph{aspect-ratio:auto;border-radius:0}
+.trow-photo{position:relative;width:64px;height:64px;border-radius:14px;overflow:hidden;background:#E8EEF8;flex:none}
+.trow-photo .art,.trow-photo .shot{position:absolute;inset:0;width:100%;height:100%;display:block}
+.trow-photo .art svg{width:100%;height:100%;display:block;object-fit:cover}
+.trow-photo .shot{z-index:1;object-fit:cover}
+.trow-photo .ph{aspect-ratio:auto;border-radius:0;width:100%;height:100%}
 .trow-title{display:inline;font-family:var(--body);font-weight:700;font-size:1.12rem;line-height:1.35;color:var(--jobs-title);text-decoration:none}
 .trow:hover .trow-title,.trow:focus-visible .trow-title{color:var(--jobs-link);text-decoration:underline}
 .trow-role{margin:6px 0 0;font-weight:600;font-size:.95rem;color:var(--jobs-ink)}
@@ -1523,7 +1525,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 .ph{position:relative;aspect-ratio:16/10;border-radius:16px;overflow:hidden;background:var(--sky);flex:none}
 .ph .art,.ph .shot{position:absolute;inset:0;width:100%;height:100%;display:block}
 .ph .art svg{width:100%;height:100%;display:block;transition:transform .8s var(--ease)}
-.ph .shot{object-fit:cover;transition:transform .8s var(--ease)}
+.ph .shot{z-index:1;object-fit:cover;transition:transform .8s var(--ease)}
 .pc:hover .ph .art svg,.pc:hover .ph .shot{transform:scale(1.05)}
 .ph.sq{aspect-ratio:1/1;width:172px;border-radius:20px}
 .ph.wide{aspect-ratio:2/1;border-radius:20px;margin-bottom:30px}
@@ -2601,9 +2603,12 @@ function personArt(i,name,headset){
   return svgWrap(g,"Illustration of "+name);
 }
 function picOf(kind,x){
-  var a=personArt(TALENT.indexOf(x),x.name,x.cat==="Customer support"||x.id==="joy");
-  var src=x.photo&&(/^https?:\/\//i.test(String(x.photo))||String(x.photo).indexOf("images/")===0)?escAttr(x.photo):"";
-  return '<span class="art">'+a+'</span>'+(src?'<img class="shot" src="'+src+'" alt="'+escAttr(x.name)+'" loading="lazy">':'');
+  var idx=TALENT.indexOf(x);
+  if(idx<0&&x&&x.id){for(var i=0;i<TALENT.length;i++){if(TALENT[i]&&TALENT[i].id===x.id){idx=i;break;}}}
+  var a=personArt(idx<0?0:idx,x.name,x.cat==="Customer support"||x.id==="joy");
+  var raw=String((x&&x.photo)||"").trim();
+  var ok=raw&&raw!=="null"&&raw!=="undefined"&&(/^https?:\/\//i.test(raw)||raw.indexOf("images/")===0||raw.indexOf("/")===0||raw.indexOf("data:")===0);
+  return '<span class="art">'+a+'</span>'+(ok?'<img class="shot" src="'+escAttr(raw)+'" alt="'+escAttr(x.name)+'" loading="lazy" decoding="async">':'');
 }
 document.addEventListener("error",function(e){var t=e.target;if(t&&t.classList&&t.classList.contains("shot"))t.style.display="none";},true);
 
@@ -2754,7 +2759,9 @@ function publishedJobs(){
   return list;
 }
 function findJob(id){
-  return publishedJobs().filter(function(j){return j.id===id;})[0]||null;
+  var sid="";
+  try{sid=decodeURIComponent(String(id||""));}catch(err){sid=String(id||"");}
+  return publishedJobs().filter(function(j){return String(j.id)===sid;})[0]||null;
 }
 function jobCard(j,i){
   var k=typeof i==="number"?i:0;
@@ -3094,7 +3101,7 @@ V.home = function(){
   return ''+
   '<section class="hero" id="hero">'+
     '<video class="hero-video" id="heroVideo" autoplay muted loop playsinline webkit-playsinline preload="auto" aria-hidden="true">'+
-      '<source src="https://files.leadconnectorhq.com/file/6af400d3421749dec7b90cb8/hero-background-video.mp4" type="video/mp4">'+
+      '<source src="https://files.leadconnectorhq.com/file/6af6a70213bae199e932d45a/untitled-design.mp4" type="video/mp4">'+
     '</video>'+
     '<div class="hero-overlay" aria-hidden="true"></div>'+
     '<div class="wrap hero-center">'+
@@ -4009,7 +4016,9 @@ function jobApplyPanel(j,m){
 }
 V.job = function(id){
   var j=findJob(id);
-  if(!j)return V.notfound();
+  if(!j){
+    return '<section class="jd"><div class="wrap" style="padding:clamp(36px,6vw,72px) 0"><p class="muted" id="job-miss" role="status">Looking up this role…</p></div></section>';
+  }
   var m=jobDetailMeta(j);
   var payMain=payLabel(j)+(j.payUnit==="fixed"?" fixed.":(j.payUnit==="mo"?" /mo.":" /hr."));
   var paySub=j.payUnit==="fixed"?"Fixed project":(j.payUnit==="mo"?"Monthly":"Hourly");
@@ -4043,8 +4052,34 @@ V.job = function(id){
   '</div><aside class="jd-aside">'+jobApplyPanel(j,m)+"</aside></div></div></section>";
 };
 V.job.init = function(){
-  var id=(location.hash||"").replace(/^#job-/,"");
+  var raw=(location.hash||"").replace(/^#job-/,"").split("?")[0];
+  var id="";
+  try{id=decodeURIComponent(raw);}catch(err){id=raw;}
   var j=findJob(id);
+  if(!j){
+    var miss=$("#job-miss"), tries=0;
+    function finishMiss(){
+      if(!miss)return;
+      miss.innerHTML="We couldn’t find that role. <a href=\"#talent\">Back to openings</a>";
+    }
+    function retry(){
+      tries++;
+      var found=findJob(id);
+      if(found){render();return;}
+      if(window.AAOApi&&AAOApi.enabled&&AAOApi.enabled()&&typeof AAOApi.loadJob==="function"){
+        AAOApi.loadJob(id).then(function(full){
+          if(full&&!findJob(id))JOBS.unshift(full);
+          if(findJob(id))render();
+          else finishMiss();
+        }).catch(finishMiss);
+        return;
+      }
+      if(tries<12){setTimeout(retry,150);return;}
+      finishMiss();
+    }
+    setTimeout(retry,0);
+    return;
+  }
   if(j)bindJobSaveButton(j);
   var form=$("#japf"),note=$("#jnote");
   if(!form||!note)return;
@@ -4682,10 +4717,10 @@ V.login = function(){
     '<div class="login-card">'+
       '<aside class="login-brand">'+
         '<div class="login-logo-wrap"><video class="login-logo" src="'+LOGIN_LOGO_VIDEO+'" crossorigin="anonymous" autoplay muted loop playsinline aria-label="Amazing Assistants Online"></video></div>'+
-        '<div class="login-brand-copy"><h2 class="login-brand-name">Amazing Assistants Online</h2><p class="login-brand-sub">Demo sign-in for clients and virtual assistants. Use the sample accounts below.</p></div>'+
+        '<div class="login-brand-copy"><h2 class="login-brand-name">Amazing Assistants Online</h2><p class="login-brand-sub">Sign in to your account</p></div>'+
       '</aside>'+
       '<div class="login-body">'+
-        '<div><h1>Welcome back</h1><p class="login-sub">Sign in to your demo account</p></div>'+
+        '<div><h1>Welcome back</h1><p class="login-sub">Sign in to your account</p></div>'+
         '<div class="login-demo" id="ldemo">'+
           '<div><strong>Demo accounts</strong> · password for both is <code>demo123</code></div>'+
           '<div class="login-demo-actions">'+
