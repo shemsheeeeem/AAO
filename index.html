@@ -1124,11 +1124,6 @@ ul,ol{margin:0;padding:0;list-style:none}
 .jd-apply .notice a{color:var(--jd-gold-400);font-weight:700}
 .jd-apply .btn-line-dark{color:#fff;border-color:rgba(234,247,248,.35)}
 .jd-apply .btn-line-dark:hover{background:rgba(2,15,33,.28);border-color:#fff;color:#fff}
-.jd-save{display:inline-flex;align-items:center;justify-content:center;gap:10px}
-.jd-save svg{width:18px;height:18px;flex:none}
-.jd-save[aria-pressed="true"]{border-color:rgba(221,187,104,.55);color:var(--jd-gold-400);background:rgba(221,187,104,.12)}
-.jd-save[aria-pressed="true"]:hover{border-color:var(--jd-gold-400);background:rgba(221,187,104,.18);color:var(--jd-gold-300)}
-.jd-save[aria-pressed="true"] svg{fill:currentColor}
 .jd-gate p{margin:0;color:var(--jd-card-muted);font-size:.95rem;line-height:1.5}
 .jd-gate .stack{display:grid;gap:10px;margin-top:4px}
 @media (max-width:980px){
@@ -1159,7 +1154,6 @@ ul,ol{margin:0;padding:0;list-style:none}
 .faq .ans{padding:0 0 22px;color:var(--muted);max-width:44em}
 .faq h3{font-size:1.45rem;margin:38px 0 6px}
 .faq h3:first-child{margin-top:0}
-
 
 /* Legal documents */
 .legal-doc{max-width:46rem}
@@ -1213,7 +1207,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 .login-aurora-glow{pointer-events:none;position:absolute;inset:-10px;opacity:.6;filter:blur(10px);will-change:transform;background-image:var(--dark-gradient),var(--aurora);background-size:300% 200%;background-position:50% 50%,50% 50%;-webkit-mask-image:radial-gradient(ellipse at 100% 0%,#000 10%,transparent 70%);mask-image:radial-gradient(ellipse at 100% 0%,#000 10%,transparent 70%)}
 .login-aurora-glow::after{content:"";position:absolute;inset:0;background-image:var(--dark-gradient),var(--aurora);background-size:200% 100%;background-attachment:fixed;mix-blend-mode:difference;animation:login-aurora 60s linear infinite}
 .login-shell::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 80% 60% at 50% 45%,transparent 30%,rgba(2,15,32,.62) 100%)}
-.login-card{position:relative;z-index:2;width:min(920px,100%);--ink:#0B1A33;--muted:#51617C;--line:#DAE1EE;--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#EAF0FA;--sky:#EAF0FA;--link:#1B4B91;background:#fff;color:#0B1A33;color-scheme:light;border-radius:22px;padding:0;overflow:hidden;box-shadow:0 28px 60px -28px rgba(0,0,0,.55);display:grid;grid-template-columns:minmax(260px,.92fr) minmax(300px,1.08fr);align-items:stretch}
+.login-card{position:relative;z-index:2;width:min(920px,100%);--ink:#0B1A33;--muted:#51617C;--line:#DAE1EE;--bg:#FFFFFF;--surface:#FFFFFF;--surface-2:#EAF0FA;--sky:#EAF0FA;--link:#1B4B91;background:#fff;color:#0B1A33;border-radius:22px;padding:0;overflow:hidden;box-shadow:0 28px 60px -28px rgba(0,0,0,.55);display:grid;grid-template-columns:minmax(260px,.92fr) minmax(300px,1.08fr);align-items:stretch}
 .login-card.login-card-join{width:min(980px,100%)}
 .login-brand{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:18px;padding:clamp(32px,4.5vw,52px) clamp(24px,3.5vw,40px);text-align:center;background:linear-gradient(165deg,#F3F6FB 0%,#EAF0FA 42%,#DCE8FA 100%);color:#0B1A33;isolation:isolate}
 .login-brand::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(rgba(27,75,145,.16) 1.1px,transparent 1.2px);background-size:18px 18px;opacity:.55}
@@ -1242,10 +1236,9 @@ ul,ol{margin:0;padding:0;list-style:none}
 .login-or::before,.login-or::after{content:"";height:1px;background:#DAE1EE}
 .login-card .form{width:100%;gap:14px;color:#0B1A33}
 .login-card .field{gap:6px;color:#0B1A33}
-.login-card .field input,.login-card .field textarea,.login-card .field select{color:#0B1A33;-webkit-text-fill-color:#0B1A33;caret-color:#0B1A33;background:#fff;border:1.5px solid #DAE1EE;color-scheme:light}
-.login-card .field input::placeholder,.login-card .field textarea::placeholder{color:#7A8AA3;-webkit-text-fill-color:#7A8AA3;opacity:1}
-.login-card .field input:focus,.login-card .field textarea:focus,.login-card .field select:focus{border-color:#1B4B91;box-shadow:0 0 0 4px rgba(27,75,145,.18);color:#0B1A33;-webkit-text-fill-color:#0B1A33;background:#fff}
-.login-card .field input:-webkit-autofill,.login-card .field input:-webkit-autofill:hover,.login-card .field input:-webkit-autofill:focus,.login-card .field textarea:-webkit-autofill,.login-card .field textarea:-webkit-autofill:hover,.login-card .field textarea:-webkit-autofill:focus{color:#0B1A33;-webkit-text-fill-color:#0B1A33;caret-color:#0B1A33;border:1.5px solid #DAE1EE;box-shadow:0 0 0 1000px #fff inset;transition:background-color 99999s ease-out}
+.login-card .field input,.login-card .field textarea,.login-card .field select{color:#0B1A33;background:#fff;border:1.5px solid #DAE1EE}
+.login-card .field input::placeholder,.login-card .field textarea::placeholder{color:#7A8AA3}
+.login-card .field input:focus,.login-card .field textarea:focus,.login-card .field select:focus{border-color:#1B4B91;box-shadow:0 0 0 4px rgba(27,75,145,.18)}
 .login-card .field textarea{min-height:96px}
 .login-card .roles{color:#0B1A33}
 .login-card .roles legend{color:#0B1A33}
@@ -1525,7 +1518,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 .ph{position:relative;aspect-ratio:16/10;border-radius:16px;overflow:hidden;background:var(--sky);flex:none}
 .ph .art,.ph .shot{position:absolute;inset:0;width:100%;height:100%;display:block}
 .ph .art svg{width:100%;height:100%;display:block;transition:transform .8s var(--ease)}
-.ph .shot{z-index:1;object-fit:cover;transition:transform .8s var(--ease)}
+.ph .shot{object-fit:cover;transition:transform .8s var(--ease)}
 .pc:hover .ph .art svg,.pc:hover .ph .shot{transform:scale(1.05)}
 .ph.sq{aspect-ratio:1/1;width:172px;border-radius:20px}
 .ph.wide{aspect-ratio:2/1;border-radius:20px;margin-bottom:30px}
@@ -2288,6 +2281,8 @@ p{text-wrap:pretty}
   </div>
 </footer>
 
+<script src="aao-config.js"></script>
+<script src="aao-api.js"></script>
 <script>
 (function(){
 "use strict";
@@ -2580,14 +2575,32 @@ var JOBS = [
 ];
 
 /* ============ Picture slots ============ */
+/* Live mode: when aao-config.js points at the backend, the sample data above is dropped and real data is loaded at start-up.
+   With an empty config (the default) nothing changes and the site runs on the sample data and demo logins. */
+var API_ON=!!(window.AAOApi&&window.AAOApi.enabled());
+if(API_ON){TALENT.length=0;JOBS.length=0;}
+/* U(): decode text that the API layer HTML-escaped, for putting it back into form fields. */
+function U(s){if(!API_ON)return s;var t=document.createElement("textarea");t.innerHTML=s==null?"":s;return t.value;}
+/* Reload listings after the signed-in user changed something, so the public pages show it. */
+function reloadCatalog(){
+  if(!API_ON)return Promise.resolve();
+  return AAOApi.loadCatalog(true).then(function(c){TALENT.length=0;JOBS.length=0;TALENT.push.apply(TALENT,c.talent);JOBS.push.apply(JOBS,c.jobs);}).catch(function(e){console.warn("AAO: could not reload listings",e);});
+}
+
 /* Every profile and job has a  photo  field in the data above (photo:"images/name.jpg").
    When it is empty, or the file can’t load, this brand illustration is shown instead. */
 var SKIN=["#E7B58F","#D79A72","#F1C9A8","#C58A62","#E2AD86","#D9A27C"];
 var BGP=["#C9DBF5","#F3E3B5","#D3E2F8","#EBD9A6","#C4D8F4","#F0DFB0"];
 var OUTF=["#06244A","#1B4B91","#C49B3F","#F4F6FA","#06244A","#1B4B91"];
 var HAIR=["#1A1410","#2A1D16","#120E0B","#3A2A1F","#1A1410","#241811"];
-function escHtml(v){return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
-function escAttr(v){return String(v==null?"":v).replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+function escHtml(v){
+  if(window.AAOApi&&typeof AAOApi.esc==="function")return AAOApi.esc(v);
+  return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function escAttr(v){
+  if(window.AAOApi&&typeof AAOApi.escAttr==="function")return AAOApi.escAttr(v);
+  return String(v==null?"":v).replace(/"/g,"&quot;").replace(/'/g,"&#39;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
 function svgWrap(inner,label){return '<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="'+escAttr(label)+'">'+inner+'</svg>';}
 function personArt(i,name,headset){
   i=((i%6)+6)%6;var sk=SKIN[i],bg=BGP[i],ot=OUTF[i],hr=HAIR[i],st=i%3,collar=(ot==="#F4F6FA")?"#C9DBF5":"#fff";
@@ -2603,12 +2616,9 @@ function personArt(i,name,headset){
   return svgWrap(g,"Illustration of "+name);
 }
 function picOf(kind,x){
-  var idx=TALENT.indexOf(x);
-  if(idx<0&&x&&x.id){for(var i=0;i<TALENT.length;i++){if(TALENT[i]&&TALENT[i].id===x.id){idx=i;break;}}}
-  var a=personArt(idx<0?0:idx,x.name,x.cat==="Customer support"||x.id==="joy");
-  var raw=String((x&&x.photo)||"").trim();
-  var ok=raw&&raw!=="null"&&raw!=="undefined"&&(/^https?:\/\//i.test(raw)||raw.indexOf("images/")===0||raw.indexOf("/")===0||raw.indexOf("data:")===0);
-  return '<span class="art">'+a+'</span>'+(ok?'<img class="shot" src="'+escAttr(raw)+'" alt="'+escAttr(x.name)+'" loading="lazy" decoding="async">':'');
+  var a=personArt(TALENT.indexOf(x),x.name,x.cat==="Customer support"||x.id==="joy");
+  var src=x.photo&&/^https?:\/\//i.test(String(x.photo))?escAttr(x.photo):(x.photo&&String(x.photo).indexOf("images/")===0?escAttr(x.photo):"");
+  return '<span class="art">'+a+'</span>'+(src?'<img class="shot" src="'+src+'" alt="'+escAttr(x.name)+'" loading="lazy">':'');
 }
 document.addEventListener("error",function(e){var t=e.target;if(t&&t.classList&&t.classList.contains("shot"))t.style.display="none";},true);
 
@@ -2735,6 +2745,7 @@ function paySuffix(j){
 }
 function publishedJobs(){
   var list=JOBS.map(function(j){return j;});
+  if(API_ON)return list; /* live mode: jobs come from the backend, not from this device */
   var drafts=[];
   try{drafts=JSON.parse(localStorage.getItem("aao_job_drafts")||"[]");}catch(err){drafts=[];}
   if(!Array.isArray(drafts))drafts=[];
@@ -2759,9 +2770,7 @@ function publishedJobs(){
   return list;
 }
 function findJob(id){
-  var sid="";
-  try{sid=decodeURIComponent(String(id||""));}catch(err){sid=String(id||"");}
-  return publishedJobs().filter(function(j){return String(j.id)===sid;})[0]||null;
+  return publishedJobs().filter(function(j){return j.id===id;})[0]||null;
 }
 function jobCard(j,i){
   var k=typeof i==="number"?i:0;
@@ -3097,18 +3106,18 @@ V.home = function(){
     ["","Support that understands the weight you carry","Every assistant is pretrained on empathy. They look past the task list to what you’re actually trying to achieve."],
     ["","A team behind you, not just a profile","Onboarding, matching help and a support desk stay with you after the hire, so you’re never left to figure it out alone."]
   ];
-  var featured=["joy","marco","hannah"].map(function(id){return TALENT.filter(function(x){return x.id===id;})[0];});
+  var featured=["joy","marco","hannah"].map(function(id){return TALENT.filter(function(x){return x.id===id;})[0];}).filter(Boolean);
   return ''+
   '<section class="hero" id="hero">'+
     '<video class="hero-video" id="heroVideo" autoplay muted loop playsinline webkit-playsinline preload="auto" aria-hidden="true">'+
-      '<source src="https://files.leadconnectorhq.com/file/6af6a70213bae199e932d45a/untitled-design.mp4" type="video/mp4">'+
+      '<source src="https://files.leadconnectorhq.com/file/6af400d3421749dec7b90cb8/hero-background-video.mp4" type="video/mp4">'+
     '</video>'+
     '<div class="hero-overlay" aria-hidden="true"></div>'+
     '<div class="wrap hero-center">'+
       '<div class="hw-title">'+
         '<div class="hw-title-copy">'+
           '<h1 class="hero-h1"><span class="ln ln-one"><i>You weren’t meant to build alone.</i></span><span class="ln"><i>Rally your <span class="ctf" data-ctf-words="Army|VA\'s|Team" aria-live="polite"><span class="ctf-inner"><span class="ctf-word">Army</span></span></span>.</i></span></h1>'+
-          '<p class="lede">At AAO, self-leadership is our culture. Hire virtual assistants who care about your goals, think in systems, and solve problems before they cost you.</p>'+
+          '<p class="lede">Pre-vetted virtual assistants who care about your goals, think in systems, and stay in it with you.</p>'+
         '</div>'+
       '</div>'+
       '<div class="btn-row"><a class="btn btn-gold" href="#how">Find jobs</a><a class="btn btn-light" href="#join" data-jintent="post">Post a job</a></div>'+
@@ -3952,50 +3961,11 @@ function jobDetailMeta(j){
     clientLoc:j.clientLoc||(String(j.loc||"Remote").split("·")[0].trim()||"Remote")
   };
 }
-function isJobSaved(id){
-  var saved=localStore("aao_va_saved_jobs",[]);
-  if(!Array.isArray(saved))return false;
-  var sid=String(id||"");
-  return saved.some(function(row){return String(row&&row.id)===sid;});
-}
-function toggleSavedJob(j){
-  var saved=localStore("aao_va_saved_jobs",[]);
-  if(!Array.isArray(saved))saved=[];
-  var sid=String(j&&j.id||"");
-  var idx=-1;
-  for(var i=0;i<saved.length;i++){if(String(saved[i]&&saved[i].id)===sid){idx=i;break;}}
-  var on=false;
-  if(idx>=0){saved.splice(idx,1);}
-  else{
-    saved.unshift({id:sid,title:j.title||"Saved role",company:j.company||"AAO client",loc:j.loc||"",pay:j.pay||"",payUnit:j.payUnit||"",at:new Date().toISOString()});
-    saved=saved.slice(0,40);
-    on=true;
-  }
-  localSave("aao_va_saved_jobs",saved);
-  return on;
-}
-function jobSaveButtonHtml(j){
-  var on=isJobSaved(j&&j.id);
-  return '<button class="btn btn-line-dark btn-block jd-save" type="button" id="jsave" data-job-id="'+String(j&&j.id||"").replace(/"/g,"&quot;")+'" aria-pressed="'+(on?"true":"false")+'"><svg viewBox="0 0 24 24" fill="'+(on?"currentColor":"none")+'" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 19.4 5.6 13A4.2 4.2 0 0 1 12 7.2 4.2 4.2 0 0 1 18.4 13L12 19.4z"/></svg><span>'+(on?"Saved":"Save job")+'</span></button>';
-}
-function bindJobSaveButton(j){
-  var btn=$("#jsave");
-  if(!btn||!j)return;
-  btn.addEventListener("click",function(){
-    var on=toggleSavedJob(j);
-    btn.setAttribute("aria-pressed",on?"true":"false");
-    var label=btn.querySelector("span");
-    var icon=btn.querySelector("svg");
-    if(label)label.textContent=on?"Saved":"Save job";
-    if(icon)icon.setAttribute("fill",on?"currentColor":"none");
-  });
-}
 function jobApplyPanel(j,m){
   var u=getDemoUser();
   var budget=payLabel(j)+" "+paySuffix(j);
   var ask='<div class="jd-ask"><strong>How to stand out</strong>'+m.tip+"</div>";
   var sums='<dl class="jd-sum"><div><dt>Client budget</dt><dd>'+budget+'</dd></div><div><dt>Applicants</dt><dd>'+m.applicants+'</dd></div></dl>';
-  var saveBtn=jobSaveButtonHtml(j);
   if(u&&u.role==="va"){
     var defPay=j.pay||"";
     return '<div class="jd-apply"><h2>Send a letter.</h2>'+sums+ask+
@@ -4005,20 +3975,73 @@ function jobApplyPanel(j,m){
         '<label class="field">Link to similar work<input id="jap-link" name="link" type="url" placeholder="https://"></label>'+
         '<label class="field">Letter<textarea id="jap-letter" name="letter" required minlength="20" placeholder="Say why you fit this role. At least 20 characters."></textarea></label>'+
         '<button class="btn btn-gold btn-block" type="submit">Submit application</button>'+
-        saveBtn+
         '<div class="notice" id="jnote" role="status"></div>'+
       '</form></div>';
   }
   if(u&&u.role==="client"){
-    return '<div class="jd-apply jd-gate"><h2>Client desk</h2><p>You are signed in as a client. Open roles for assistants live on the board; manage hires from your desk.</p><div class="stack"><a class="btn btn-gold btn-block" href="#dashboard">Open client desk</a><a class="btn btn-line-dark btn-block" href="#talent">Browse assistants</a>'+saveBtn+'</div></div>';
+    return '<div class="jd-apply jd-gate"><h2>Client desk</h2><p>You are signed in as a client. Open roles for assistants live on the board; manage hires from your desk.</p><div class="stack"><a class="btn btn-gold btn-block" href="#dashboard">Open client desk</a><a class="btn btn-line-dark btn-block" href="#talent">Browse assistants</a></div></div>';
   }
-  return '<div class="jd-apply jd-gate"><h2>Send a letter.</h2>'+sums+ask+'<p>Log in with a virtual assistant account to apply for this role.</p><div class="stack"><a class="btn btn-gold btn-block" href="#login">Log in to apply</a><a class="btn btn-line-dark btn-block" href="#join">Create a free profile</a>'+saveBtn+'</div></div>';
+  return '<div class="jd-apply jd-gate"><h2>Send a letter.</h2>'+sums+ask+'<p>Log in with a virtual assistant account to apply for this role.</p><div class="stack"><a class="btn btn-gold btn-block" href="#login">Log in to apply</a><a class="btn btn-line-dark btn-block" href="#join">Create a free profile</a></div></div>';
 }
+/* Live mode: the job page shows only facts the backend actually has. The demo page invents applicant counts, ratings, client history and
+   generic duties; those are left out here so real employers are never described with made-up numbers. */
+function agoLabel(iso){
+  var t=Date.parse(iso);
+  if(!t)return "";
+  var d=Math.floor((Date.now()-t)/86400000);
+  if(d<=0)return "Posted today";
+  if(d===1)return "Posted yesterday";
+  if(d<14)return "Posted "+d+" days ago";
+  try{return "Posted "+new Date(t).toLocaleDateString([],{dateStyle:"medium"});}catch(e){return "";}
+}
+V.jobLive = function(j){
+  var u=getDemoUser();
+  var payMain=payLabel(j)+(j.payUnit==="fixed"?" fixed.":(j.payUnit==="mo"?" /mo.":" /hr."));
+  var paySub=j.payUnit==="fixed"?"Fixed project":(j.payUnit==="mo"?"Monthly":"Hourly");
+  var skills=(j.skills&&j.skills.length)?j.skills.map(function(s){return '<span class="jd-tag">'+s+"</span>";}).join(""):"";
+  var posted=agoLabel(j.created);
+  var budget='<dl class="jd-sum"><div><dt>Budget</dt><dd>'+payLabel(j)+" "+paySuffix(j)+'</dd></div><div><dt>Type</dt><dd>'+j.type+'</dd></div></dl>';
+  var panel;
+  if(u&&u.role==="va"){
+    /* The designed "Send a letter" form, unchanged; only the made-up applicant count in the summary is left out. */
+    var defPay=j.pay||"";
+    panel='<div class="jd-apply"><h2>Send a letter.</h2>'+budget+'<div class="jd-ask"><strong>How to stand out</strong>In your letter, name one similar project and how soon you can start.</div>'+
+      '<form class="jd-form" id="japf">'+
+        '<label class="field">Your price for the project<div class="jd-price"><span class="cur">$</span><input id="jap-pay" name="pay" type="number" min="1" step="1" value="'+defPay+'" required><span class="unit">'+(j.payUnit==="hr"?"USD / hr":(j.payUnit==="mo"?"USD / mo":"USD total"))+'</span></div></label>'+
+        '<label class="field">Can start<select id="jap-start" name="start"><option>Immediately</option><option>Within a week</option><option>In 2 weeks</option><option>In a month</option></select></label>'+
+        '<label class="field">Link to similar work<input id="jap-link" name="link" type="url" placeholder="https://"></label>'+
+        '<label class="field">Letter<textarea id="jap-letter" name="letter" required minlength="20" placeholder="Say why you fit this role. At least 20 characters."></textarea></label>'+
+        '<button class="btn btn-gold btn-block" type="submit">Submit application</button>'+
+        '<div class="notice" id="jnote" role="status"></div>'+
+      '</form></div>';
+  }else if(u&&u.role==="client"){
+    panel='<div class="jd-apply jd-gate"><h2>Client desk</h2><p>You are signed in as a client. Open roles for assistants live on the board; manage your jobs from your desk.</p><div class="stack"><a class="btn btn-gold btn-block" href="#dashboard">Open client desk</a><a class="btn btn-line-dark btn-block" href="#talent">Browse assistants</a></div></div>';
+  }else{
+    panel='<div class="jd-apply jd-gate"><h2>Interested?</h2>'+budget+'<p>Create a free assistant profile so clients can find you.</p><div class="stack"><a class="btn btn-gold btn-block" href="#join">Create a free profile</a><a class="btn btn-line-dark btn-block" href="#login">Log in</a></div></div>';
+  }
+  return '<section class="jd"><div class="wrap"><div class="jd-layout"><div class="jd-main">'+
+    '<div class="jd-badges"><span class="jd-pill open">Open</span><span class="jd-pill cat">'+(j.cat||"Role")+"</span></div>"+
+    '<h1 class="jd-title">'+j.title+"</h1>"+
+    '<p class="jd-payline">'+payMain+"</p>"+
+    '<p class="jd-meta"><span>'+j.company+"</span><span>"+j.loc+"</span>"+(posted?"<span>"+posted+"</span>":"")+"</p>"+
+    '<dl class="jd-facts">'+
+      "<div><dt>Pay</dt><dd>"+payLabel(j)+" "+paySuffix(j)+"<small>"+paySub+"</small></dd></div>"+
+      "<div><dt>Job type</dt><dd>"+j.type+"</dd></div>"+
+      "<div><dt>Location</dt><dd>"+j.loc+"</dd></div>"+
+    "</dl>"+
+    '<div class="jd-sec"><h2>About the job</h2><div class="prose"><p>'+(j.body||"Details coming soon.").replace(/\n/g,"<br>")+"</p></div></div>"+
+    (skills?'<div class="jd-sec"><h2>Skills and tools</h2><div class="jd-tags">'+skills+"</div></div>":"")+
+    '<div class="jd-client"><div class="jd-client-top"><span class="jd-avatar" aria-hidden="true">'+init(j.company||j.title||"A")+'</span><div><h3>'+j.company+'</h3><p class="who">Employer</p></div></div></div>'+
+  '</div><aside class="jd-aside">'+panel+"</aside></div></div></section>";
+};
 V.job = function(id){
   var j=findJob(id);
   if(!j){
-    return '<section class="jd"><div class="wrap" style="padding:clamp(36px,6vw,72px) 0"><p class="muted" id="job-miss" role="status">Looking up this role…</p></div></section>';
+    /* Live mode: a job that is not in the loaded list is fetched; say so instead of flashing "not found". */
+    if(API_ON&&jobLookups[id]!=="missing")return '<section class="jd"><div class="wrap" style="padding:clamp(36px,6vw,72px) 0"><p class="muted" id="job-miss" role="status">Looking up this role…</p></div></section>';
+    return V.notfound();
   }
+  if(API_ON)return V.jobLive(j);
   var m=jobDetailMeta(j);
   var payMain=payLabel(j)+(j.payUnit==="fixed"?" fixed.":(j.payUnit==="mo"?" /mo.":" /hr."));
   var paySub=j.payUnit==="fixed"?"Fixed project":(j.payUnit==="mo"?"Monthly":"Hourly");
@@ -4052,37 +4075,38 @@ V.job = function(id){
   '</div><aside class="jd-aside">'+jobApplyPanel(j,m)+"</aside></div></div></section>";
 };
 V.job.init = function(){
-  var raw=(location.hash||"").replace(/^#job-/,"").split("?")[0];
-  var id="";
-  try{id=decodeURIComponent(raw);}catch(err){id=raw;}
-  var j=findJob(id);
-  if(!j){
-    var miss=$("#job-miss"), tries=0;
-    function finishMiss(){
-      if(!miss)return;
-      miss.innerHTML="We couldn’t find that role. <a href=\"#talent\">Back to openings</a>";
-    }
-    function retry(){
-      tries++;
-      var found=findJob(id);
-      if(found){render();return;}
-      if(window.AAOApi&&AAOApi.enabled&&AAOApi.enabled()&&typeof AAOApi.loadJob==="function"){
-        AAOApi.loadJob(id).then(function(full){
-          if(full&&!findJob(id))JOBS.unshift(full);
-          if(findJob(id))render();
-          else finishMiss();
-        }).catch(finishMiss);
-        return;
-      }
-      if(tries<12){setTimeout(retry,150);return;}
-      finishMiss();
-    }
-    setTimeout(retry,0);
-    return;
-  }
-  if(j)bindJobSaveButton(j);
   var form=$("#japf"),note=$("#jnote");
   if(!form||!note)return;
+  if(API_ON){
+    /* Live mode: the same form sends the application to the backend. */
+    var jobId=(location.hash||"").replace(/^#job-/,""),sending=false,E=AAOApi.esc;
+    function lock(){form.querySelectorAll("input,select,textarea,button[type=submit]").forEach(function(el){el.disabled=true;});}
+    AAOApi.myApplications().then(function(list){
+      var a=list.filter(function(x){return x.job.id===jobId;})[0];
+      if(!a||!document.body.contains(form))return;
+      note.classList.add("show");
+      note.innerHTML="<strong>"+(a.status==="withdrawn"?"You withdrew your application.":"You already applied to this job.")+"</strong> <a href='#va-applications'>View your applications</a>";
+      lock();
+    }).catch(function(){});
+    form.addEventListener("submit",function(e){
+      e.preventDefault();
+      if(sending)return;
+      var letter=(($("#jap-letter")||{}).value||"").trim();
+      note.classList.add("show");
+      if(letter.length<20){note.innerHTML="<strong>Add a longer letter.</strong> Use at least 20 characters.";return;}
+      if(letter.length>2000){note.innerHTML="<strong>That letter is too long.</strong> Please keep it under 2,000 characters.";return;}
+      sending=true;
+      note.innerHTML="<strong>Sending…</strong>";
+      AAOApi.applyToJob(jobId,{letter:letter,amount:($("#jap-pay")||{}).value,start:($("#jap-start")||{}).value,link:(($("#jap-link")||{}).value||"").trim()}).then(function(){
+        note.innerHTML="<strong>Application sent.</strong> <a href='#va-applications'>View your applications</a>";
+        lock();
+      }).catch(function(err){
+        sending=false;
+        note.innerHTML="<strong>We could not send your application.</strong> "+E(err.status===409&&/profile/i.test(err.message)?"Create your profile first, then apply. ":"")+E(err.message)+(err.status===409&&/profile/i.test(err.message)?" <a href='#va-profile'>Create profile</a>":"");
+      });
+    });
+    return;
+  }
   form.addEventListener("submit",function(e){
     e.preventDefault();
     var letter=($("#jap-letter")||{}).value||"";
@@ -4378,7 +4402,7 @@ var FAQ_GROUPS=[
   ["What does “pre-vetted” mean?","Before assistants are matched with clients, they build a professional profile, add their skills and portfolio, complete the assessments that apply to their field, and have their profile reviewed against AAO’s marketplace standards. You’re choosing from people who have been through that process, not from anyone who simply signed up."],
   ["What does “pretrained on empathy” mean?","Our assistants are trained to understand the pressure of running a business on your own. They’re encouraged to look past the task list to what you’re actually trying to achieve, and to bring care for the outcome to the work, not just tick a task off."],
   ["Can I get to know an assistant before I reach out?","Yes. Profiles show skills, experience, portfolio, languages and availability, and featured assistants share short video introductions so you can get a feel for who you could be working with."],
-  ["How is my information protected?","Personal information is visible only to the team members whose duties require it, and sensitive changes are recorded in audit logs. You can read more in our <a href=\"#privacy\">Privacy Policy</a> and on our <a href=\"#standards\">Trust and standards</a> page."]
+  ["How is my information protected?","Personal information is visible only to the team members whose duties require it, and sensitive changes are recorded in audit logs. You can read more on our <a href=\"#standards\">Trust and standards</a> page."]
  ]],
  ["Support",[
   ["What if I need help, or something isn’t working?","Send a request to our support team. It’s logged, assigned to the right person, investigated, then resolved or escalated, documented, and followed up on so you know the outcome. You can reach us from the <a href=\"#help\">Help and support</a> page."]
@@ -4397,6 +4421,19 @@ V.faq = function(){
    FAQ_GROUPS.map(function(g){return '<h3>'+g[0]+'</h3>'+faqItems(g[1]);}).join("")+'</div></div></section>'+
   closing();
 };
+var AAO_CONFIG={formEndpoint:"",supportEmail:""};
+function sendForm(kind,data,note,okMsg,offMsg){
+  note.classList.add("show");
+  var fail="<strong>Something went wrong.</strong>We couldn’t send that just now. Please try again in a moment.";
+  if(AAO_CONFIG.formEndpoint){
+    note.innerHTML="<strong>Sending…</strong>";
+    fetch(AAO_CONFIG.formEndpoint,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(Object.assign({form:kind},data))}).then(function(r){note.innerHTML=r.ok?okMsg:fail;}).catch(function(){note.innerHTML=fail;});
+  }else if(AAO_CONFIG.supportEmail){
+    var body=Object.keys(data).map(function(k){return k+": "+data[k];}).join("\n");
+    location.href="mailto:"+AAO_CONFIG.supportEmail+"?subject="+encodeURIComponent("AAO "+kind)+"&body="+encodeURIComponent(body);
+    note.innerHTML=okMsg;
+  }else note.innerHTML=offMsg;
+}
 V.terms = function(){
   return pageHead({h1:"Terms and Conditions",p:"The agreement that governs your use of Amazing Assistants Online.",btns:"<a class=\"btn btn-gold\" href=\"#privacy\">Privacy Policy</a><a class=\"btn btn-light\" href=\"#help\">Contact support</a>"})+
   '<section class="sec legal"><div class="wrap legal-doc">'+
@@ -4415,19 +4452,6 @@ V.privacy = function(){
   '</div></section>';
 };
 
-var AAO_CONFIG={formEndpoint:"",supportEmail:""};
-function sendForm(kind,data,note,okMsg,offMsg){
-  note.classList.add("show");
-  var fail="<strong>Something went wrong.</strong>We couldn’t send that just now. Please try again in a moment.";
-  if(AAO_CONFIG.formEndpoint){
-    note.innerHTML="<strong>Sending…</strong>";
-    fetch(AAO_CONFIG.formEndpoint,{method:"POST",headers:{"Content-Type":"application/json","Accept":"application/json"},body:JSON.stringify(Object.assign({form:kind},data))}).then(function(r){note.innerHTML=r.ok?okMsg:fail;}).catch(function(){note.innerHTML=fail;});
-  }else if(AAO_CONFIG.supportEmail){
-    var body=Object.keys(data).map(function(k){return k+": "+data[k];}).join("\n");
-    location.href="mailto:"+AAO_CONFIG.supportEmail+"?subject="+encodeURIComponent("AAO "+kind)+"&body="+encodeURIComponent(body);
-    note.innerHTML=okMsg;
-  }else note.innerHTML=offMsg;
-}
 V.help = function(){
   return pageHead({h1:"Help and support.",p:"A direct line to the AAO support team."})+
   '<section class="sec glow"><div class="wrap lead-grid"><div class="sec-head faq-side"><h2>Need a hand?</h2><p>Send us a message and our team will follow it through to a resolution. Many questions are already answered in our FAQs.</p><div class="btn-row" style="margin-top:26px"><a class="btn btn-navy" href="#faq">Read the FAQs</a></div></div>'+
@@ -4515,8 +4539,7 @@ V.join = function(){
       '</aside>'+
       '<div class="login-body">'+
         '<div><h1>Create an account</h1><p class="login-sub">Free to join. Membership unlocks messaging and hiring.</p></div>'+
-        '<button class="login-google" type="button" id="jgoogle">'+GOOGLE_BTN_SVG+'Continue with Google</button>'+
-        '<div class="login-or" aria-hidden="true">or</div>'+
+        (API_ON?'':'<button class="login-google" type="button" id="jgoogle">'+GOOGLE_BTN_SVG+'Continue with Google</button><div class="login-or" aria-hidden="true">or</div>')+
         '<form class="form" id="jf2" novalidate>'+
           '<fieldset class="roles"><legend>What are you here to do?</legend>'+
             '<label class="role"><input type="radio" name="jintent" value="find" required><span><strong>Find a job</strong><small>I’m a virtual assistant looking for clients</small></span></label>'+
@@ -4525,6 +4548,10 @@ V.join = function(){
           '<label class="field">Full name<input type="text" id="jn" autocomplete="name" required></label>'+
           '<label class="field">Email<input type="email" id="je" autocomplete="email" required></label>'+
           '<label class="field">Password'+passwordFieldHtml({id:"jpw",autocomplete:"new-password",placeholder:"At least 8 characters",btnId:"jeye",extra:' minlength="8"'})+'</label>'+
+          '<div class="jpath" id="jpath-find" hidden>'+
+            '<label class="field">What work do you do?<textarea id="jskills" placeholder="Skills, tools, and the kind of roles you want"></textarea></label>'+
+            '<label class="field">Availability<input type="text" id="javail" placeholder="Full-time, part-time, or hours per week" autocomplete="off"></label>'+
+          '</div>'+
           '<div class="jpath" id="jpath-post" hidden>'+
             '<label class="field">Business name<input type="text" id="jorg" autocomplete="organization"></label>'+
             '<label class="field">What would you like help with?<textarea id="jh"></textarea></label>'+
@@ -4541,9 +4568,9 @@ V.join = function(){
 V.join.init = function(){
   var form=$("#jf2"),note=$("#jnote"),sideH=$("#auth-h"),sideP=$("#auth-p"),g=$("#jgoogle");
   initPasswordToggles(form||document);
-  var postPath=$("#jpath-post");
+  var findPath=$("#jpath-find"),postPath=$("#jpath-post");
   var copy={
-    find:["Find work that fits.","Create your account, then finish your VA profile so clients can meet you."],
+    find:["Find work that fits.","Set up your profile and browse openings. We’ll help you meet clients who value solid partners."],
     post:["You weren’t meant to build alone.","Tell us about your business and what you need. We’ll match you with pre-vetted assistants who are in it with you."]
   };
   var defaults=["Let’s get you started.","Choose whether you’re looking for work or hiring help, then tell us a little about you."];
@@ -4553,7 +4580,8 @@ V.join.init = function(){
   }
   function syncIntent(){
     var v=intent();
-    if(postPath)postPath.hidden=v!=="post";
+    findPath.hidden=v!=="find";
+    postPath.hidden=v!=="post";
     if(v&&copy[v]){sideH.textContent=copy[v][0];sideP.textContent=copy[v][1];}
     else{sideH.textContent=defaults[0];sideP.textContent=defaults[1];}
     note.classList.remove("show");note.innerHTML="";
@@ -4574,36 +4602,22 @@ V.join.init = function(){
   form.addEventListener("submit",function(e){
     e.preventDefault();
     var v=intent();
-    var name=($("#jn").value||"").trim();
-    var email=($("#je").value||"").trim().toLowerCase();
-    var pwd=((($("#jpw")||{}).value)||"");
     if(!v){note.classList.add("show");note.innerHTML="<strong>Choose a path.</strong>Tell us if you want to find a job or post a job.";return;}
-    if(!name||!/\S+@\S+\.\S+/.test(email)){note.classList.add("show");note.innerHTML="<strong>Check your details.</strong>Enter your name and a valid email.";return;}
-    if(pwd.length<8){note.classList.add("show");note.innerHTML="<strong>Choose a stronger password.</strong>Use at least 8 characters.";return;}
-    if(v==="find"){
-      var vaUser={email:email,role:"va",name:name,label:"Virtual assistant"};
-      setDemoUser(vaUser);
-      if(window.AAOMessaging&&AAOMessaging.syncAuthWithDemo)AAOMessaging.syncAuthWithDemo(vaUser);
-      var profiles=localStore("aao_va_profiles",{});
-      if(!profiles[email]){
-        saveVaProfile(vaUser,{
-          name:name,headline:"",about:"",cat:"Admin",avail:"Available full-time",
-          loc:"",exp:"",langs:"",skills:"",email:email,rate:"",hours:"",education:"",
-          memberSince:(new Date()).toLocaleString("en-US",{month:"long",year:"numeric"}),
-          status:"Open to work",portfolio:"",gender:"",age:""
-        });
-      }
-      try{sessionStorage.setItem("aao_va_setup","1");}catch(err){}
-      syncAuthNav();
-      go("va-profile");
+    if(!$("#jn").value.trim()||!/\S+@\S+\.\S+/.test($("#je").value)){note.classList.add("show");note.innerHTML="<strong>Check your details.</strong>Enter your name and a valid email.";return;}
+    if(API_ON){
+      var jpw=$("#jpw").value||"";
+      if(jpw.length<8){note.classList.add("show");note.innerHTML="<strong>Choose a longer password.</strong>Use at least 8 characters.";return;}
+      note.classList.add("show");note.innerHTML="<strong>Creating your account…</strong>";
+      AAOApi.signUp({email:$("#je").value.trim(),password:jpw,name:$("#jn").value.trim(),role:v==="post"?"client":"va",business:v==="post"?($("#jorg").value||"").trim():""}).then(function(r){
+        if(r.needsConfirmation){note.innerHTML="<strong>Check your email.</strong>We sent a confirmation link to "+AAOApi.esc($("#je").value.trim())+". Open it to finish creating your account, then log in.";return;}
+        return AAOApi.currentUser().then(function(u){if(u){setDemoUser(u);return AAOApi.refreshMine(u).then(function(){go("dashboard");});}else{go("login");}});
+      }).catch(function(err){note.classList.add("show");note.innerHTML="<strong>We could not create your account.</strong>"+AAOApi.esc(err.message);});
       return;
     }
-    var clientUser={email:email,role:"client",name:name,label:"Client"};
-    setDemoUser(clientUser);
-    if(window.AAOMessaging&&AAOMessaging.syncAuthWithDemo)AAOMessaging.syncAuthWithDemo(clientUser);
-    sendForm("get-started",{intent:v,name:name,email:email,business:($("#jorg")||{}).value||"",needs:($("#jh")||{}).value||""},note,"<strong>Welcome to AAO.</strong>Opening your client desk…","<strong>Welcome to AAO.</strong>Opening your client desk…");
-    syncAuthNav();
-    go("dashboard");
+    var payload={intent:v,name:$("#jn").value,email:$("#je").value};
+    if(v==="post"){payload.business=$("#jorg").value;payload.needs=$("#jh").value;}
+    else{payload.skills=$("#jskills").value;payload.availability=$("#javail").value;}
+    sendForm("get-started",payload,note,"<strong>Welcome to AAO.</strong>Our team will be in touch shortly to get you started.","<strong>Online sign-up opens soon.</strong>Please check back shortly.");
   });
   initLoginLogoKey();
 };
@@ -4717,25 +4731,26 @@ V.login = function(){
     '<div class="login-card">'+
       '<aside class="login-brand">'+
         '<div class="login-logo-wrap"><video class="login-logo" src="'+LOGIN_LOGO_VIDEO+'" crossorigin="anonymous" autoplay muted loop playsinline aria-label="Amazing Assistants Online"></video></div>'+
-        '<div class="login-brand-copy"><h2 class="login-brand-name">Amazing Assistants Online</h2><p class="login-brand-sub">Sign in to your account</p></div>'+
+        '<div class="login-brand-copy"><h2 class="login-brand-name">Amazing Assistants Online</h2><p class="login-brand-sub">'+(API_ON?'Sign in to your account':'Demo sign-in for clients and virtual assistants. Use the sample accounts below.')+'</p></div>'+
       '</aside>'+
       '<div class="login-body">'+
-        '<div><h1>Welcome back</h1><p class="login-sub">Sign in to your account</p></div>'+
-        '<div class="login-demo" id="ldemo">'+
+        '<div><h1>Welcome back</h1><p class="login-sub">'+(API_ON?'Sign in to your account':'Sign in to your demo account')+'</p></div>'+
+        (API_ON?'':'<div class="login-demo" id="ldemo">'+
           '<div><strong>Demo accounts</strong> · password for both is <code>demo123</code></div>'+
           '<div class="login-demo-actions">'+
             '<button type="button" data-demo="client">Fill client</button>'+
             '<button type="button" data-demo="va">Fill VA</button>'+
           '</div>'+
-        '</div>'+
+        '</div>')+
         '<form class="form" id="lf" novalidate>'+
           '<fieldset class="roles"><legend>I am signing in as</legend>'+
             '<label class="role"><input type="radio" name="lrole" value="client" checked><span><strong>Client</strong><small>Hire and manage assistants</small></span></label>'+
             '<label class="role"><input type="radio" name="lrole" value="va"><span><strong>Virtual assistant</strong><small>Find work and manage jobs</small></span></label>'+
           '</fieldset>'+
-          '<label class="field">Email<input type="email" id="le" autocomplete="username" placeholder="client@aao.demo" required></label>'+
-          '<label class="field">Password'+passwordFieldHtml({id:"lp",autocomplete:"current-password",placeholder:"demo123",btnId:"leye"})+'</label>'+
+          '<label class="field">Email<input type="email" id="le" autocomplete="username" placeholder="'+(API_ON?'you@example.com':'client@aao.demo')+'" required></label>'+
+          '<label class="field">Password'+passwordFieldHtml({id:"lp",autocomplete:"current-password",placeholder:(API_ON?"Your password":"demo123"),btnId:"leye"})+'</label>'+
           '<button class="btn btn-navy btn-block" type="submit">Sign in →</button>'+
+          (API_ON?'<p class="note"><a href="#forgot-password">Forgot your password?</a></p>':'')+
           '<p class="note">New to AAO? <a href="#join">Get started</a></p>'+
           '<div class="notice" id="lnote" role="status"></div>'+
         '</form>'+
@@ -4771,6 +4786,16 @@ V.login.init = function(){
     var pwd=pass.value||"";
     var want=role();
     if(!/\S+@\S+\.\S+/.test(email)||!pwd){note.innerHTML="<strong>Check your details.</strong>Enter your email and password.";return;}
+    if(API_ON){
+      note.innerHTML="<strong>Logging in…</strong>";
+      AAOApi.signIn(email,pwd).then(function(u){
+        if(!u){note.innerHTML="<strong>Could not log in.</strong>Please try again.";return;}
+        if(u.role!==want){AAOApi.signOut();note.innerHTML="<strong>Role mismatch.</strong>That account is a "+u.label.toLowerCase()+". Switch the role toggle and try again.";return;}
+        setDemoUser(u);
+        return AAOApi.refreshMine(u).then(function(){go("dashboard");});
+      }).catch(function(err){note.innerHTML="<strong>Could not log in.</strong>"+AAOApi.esc(err.message);});
+      return;
+    }
     var match=null;
     Object.keys(DEMO_USERS).forEach(function(k){
       var u=DEMO_USERS[k];
@@ -4784,7 +4809,177 @@ V.login.init = function(){
   });
   initLoginLogoKey();
 };
+/* Password reset (live mode). The same card as the login screen. Flow: "Forgot your password?" -> #forgot-password (asks for the email, the backend of the login provider sends a link)
+   -> the link opens the site with ?code=... and the library announces a recovery (see aao-api.js) -> #reset-password (choose a new password) -> back to the login. */
+function authShell(inner){
+  return '<div class="login-shell">'+
+    '<div class="login-aurora" aria-hidden="true"><div class="login-aurora-glow"></div></div>'+
+    '<div class="login-card">'+
+      '<aside class="login-brand">'+
+        '<div class="login-logo-wrap"><video class="login-logo" src="'+LOGIN_LOGO_VIDEO+'" crossorigin="anonymous" autoplay muted loop playsinline aria-label="Amazing Assistants Online"></video></div>'+
+        '<div class="login-brand-copy"><h2 class="login-brand-name">Amazing Assistants Online</h2><p class="login-brand-sub">Choose a new password and get back to work.</p></div>'+
+      '</aside>'+
+      '<div class="login-body">'+inner+'</div>'+
+    '</div>'+
+  '</div>';
+}
+V["forgot-password"] = function(){
+  if(!API_ON)return authShell('<div><h1>Reset your password</h1><p class="login-sub">Password reset is available on the live site. In this demo, use the sample accounts on the login page.</p></div><p class="note"><a href="#login">Back to log in</a></p>');
+  return authShell(
+    '<div><h1>Reset your password</h1><p class="login-sub">Enter your email and we will send you a link to choose a new password.</p></div>'+
+    '<form class="form" id="ff" novalidate>'+
+      '<label class="field">Email<input type="email" id="fe" autocomplete="username" placeholder="you@example.com" required></label>'+
+      '<button class="btn btn-navy btn-block" type="submit" id="fbtn">Send reset link</button>'+
+      '<p class="note"><a href="#login">Back to log in</a></p>'+
+      '<div class="notice" id="fnote" role="status"></div>'+
+    '</form>');
+};
+V["forgot-password"].init = function(){
+  var form=$("#ff");
+  if(!form)return;
+  var note=$("#fnote"),btn=$("#fbtn"),busy=false;
+  form.addEventListener("submit",function(e){
+    e.preventDefault();
+    if(busy)return;
+    note.classList.add("show");
+    var email=($("#fe").value||"").trim().toLowerCase();
+    if(!/\S+@\S+\.\S+/.test(email)){note.innerHTML="<strong>Check your email.</strong>Enter the email address you signed up with.";return;}
+    busy=true;btn.disabled=true;
+    note.innerHTML="<strong>Sending…</strong>";
+    AAOApi.requestPasswordReset(email).then(function(){
+      /* The same message whether or not an account exists, so this page never reveals who has an account. */
+      note.innerHTML="<strong>Check your email.</strong>If an account exists for "+AAOApi.esc(email)+", we sent a link to choose a new password. Open it in <strong>this same browser</strong>. It expires in 1 hour.";
+      setTimeout(function(){busy=false;btn.disabled=false;},60000);
+    }).catch(function(err){
+      busy=false;btn.disabled=false;
+      note.innerHTML="<strong>We could not send that.</strong>"+AAOApi.esc(err.message);
+    });
+  });
+};
+V["reset-password"] = function(){
+  if(!API_ON||!AAOApi.recoveryPending())return authShell(
+    '<div><h1>This link has expired</h1><p class="login-sub">The password reset link is not valid any more, or it was opened in a different browser. Request a new one and open it in the same browser.</p></div>'+
+    '<p class="note"><a href="#forgot-password">Send me a new link</a> · <a href="#login">Back to log in</a></p>');
+  return authShell(
+    '<div><h1>Choose a new password</h1><p class="login-sub">Use at least 8 characters.</p></div>'+
+    '<form class="form" id="rf" novalidate>'+
+      '<label class="field">New password'+passwordFieldHtml({id:"rp1",autocomplete:"new-password",placeholder:"At least 8 characters",btnId:"rp1eye"})+'</label>'+
+      '<label class="field">Confirm new password'+passwordFieldHtml({id:"rp2",autocomplete:"new-password",placeholder:"Type it again",btnId:"rp2eye"})+'</label>'+
+      '<button class="btn btn-navy btn-block" type="submit" id="rbtn">Save new password</button>'+
+      '<p class="note"><a href="#login" id="rcancel">Cancel</a></p>'+
+      '<div class="notice" id="rnote" role="status"></div>'+
+    '</form>');
+};
+V["reset-password"].init = function(){
+  var form=$("#rf");
+  if(!form)return;
+  initPasswordToggles(form);
+  var note=$("#rnote"),btn=$("#rbtn"),busy=false;
+  $("#rcancel").addEventListener("click",function(){AAOApi.cancelRecovery();clearDemoUser();});
+  form.addEventListener("submit",function(e){
+    e.preventDefault();
+    if(busy)return;
+    note.classList.add("show");
+    var a=$("#rp1").value||"",b=$("#rp2").value||"";
+    if(a.length<8){note.innerHTML="<strong>Too short.</strong>Use at least 8 characters.";return;}
+    if(a!==b){note.innerHTML="<strong>The passwords do not match.</strong>Type the same password twice.";return;}
+    busy=true;btn.disabled=true;
+    note.innerHTML="<strong>Saving…</strong>";
+    AAOApi.updatePassword(a).then(function(){
+      clearDemoUser();
+      try{history.replaceState(null,"",location.pathname+"#reset-password");}catch(err){} /* drop the used ?code= from the address */
+      var body=form.closest(".login-body");
+      if(body)body.innerHTML='<div><h1>Password updated</h1><p class="login-sub">Your password was changed. Log in with your new password.</p></div><p><a class="btn btn-navy btn-block" href="#login">Log in</a></p>';
+    }).catch(function(err){busy=false;btn.disabled=false;note.innerHTML="<strong>We could not save that.</strong>"+AAOApi.esc(err.message);});
+  });
+};
+/* Live mode: the desks show the signed-in user's real data instead of the sample content. */
+V.dashboardLive = function(){
+  var u=getDemoUser();
+  if(!u)return V.login();
+  var E=AAOApi.esc,first=E((u.name||"").split(" ")[0]||"there");
+  if(u.role==="va"){
+    var has=AAOApi.hasTalentProfile();
+    return '<section class="dash"><div class="wrap">'+
+      '<div class="dash-head"><div><div class="dash-badge"><em>VA desk</em></div><h1>Welcome back, '+first+'.</h1><p>'+(has?"Your profile is live. Keep it current so clients can find you.":"Create your profile so clients can find you.")+'</p></div>'+
+      '<div class="dash-actions"><a class="btn btn-navy" href="#talent">Browse openings</a><a class="btn btn-line" href="#va-profile">'+(has?"Edit profile":"Create profile")+'</a><a class="btn btn-line" href="#messages">Inquiries</a><a class="btn btn-line" href="#logout">Log out</a></div></div>'+
+      '<div class="dash-toast" id="dtoast" role="status"></div>'+
+      '<div class="dash-stats"><div class="dash-stat"><strong>'+(has?"Live":"Not yet")+'</strong><span>Your profile</span></div><div class="dash-stat"><strong id="dl-count">…</strong><span>Inquiries received</span></div></div>'+
+      '<div class="dash-panels"><div class="dash-panel"><h2>Next steps</h2>'+dashRows([
+        [has?"Update your profile":"Create your profile","Skills, availability and a short introduction",has?"Edit profile":"Start","#va-profile"],
+        ["Browse new openings","Open roles from clients","View jobs","#talent"],
+        ["Read your inquiries","Clients who contacted you","Open","#messages"]
+      ])+'<p class="dash-note">Signed in as '+E(u.email)+'</p></div></div></div></section>';
+  }
+  var memOn=isAaOMember();
+  var memAct=memOn?'<a class="btn btn-line" href="#messages">Messages</a>':membershipLink("btn btn-gold","Unlock membership")+'<a class="btn btn-line" href="#membership">Membership</a>';
+  return '<section class="dash"><div class="wrap">'+
+    '<div class="dash-head"><div><div class="dash-badge"><em>Client desk</em></div><h1>Welcome back, '+first+'.</h1><p>'+(memOn?"Membership is active. Message assistants and hire when you’re ready.":"Browse is free. Unlock membership to message, interview, and hire.")+'</p></div>'+
+    '<div class="dash-actions"><a class="btn '+(memOn?"btn-gold":"btn-navy")+'" href="#talent">Find assistants</a><a class="btn btn-line" href="#post-job">Post a job</a>'+memAct+'<a class="btn btn-line" href="#logout">Log out</a></div></div>'+
+    '<div class="dash-toast" id="dtoast" role="status"></div>'+
+    '<div class="dash-stats"><div class="dash-stat"><strong id="dl-open">…</strong><span>Open jobs</span></div><div class="dash-stat"><strong>'+(memOn?"On":"Off")+'</strong><span>Membership</span></div></div>'+
+    '<div class="dash-panels"><div class="dash-panel"><h2>Your jobs</h2><div id="dl-jobs"><p class="dash-note">Loading…</p></div><p class="dash-note">Signed in as '+E(u.email)+'</p></div></div></div></section>';
+};
+V.dashboardLive.init = function(){
+  var u=getDemoUser();
+  if(!u){go("login");return;}
+  var E=AAOApi.esc,root=$(".dash");
+  if(!root)return;
+  if(u.role==="va"){
+    AAOApi.receivedInquiries().then(function(l){var c=$("#dl-count");if(c&&document.body.contains(c))c.textContent=l.length;}).catch(function(){var c=$("#dl-count");if(c)c.textContent="–";});
+    return;
+  }
+  var box=$("#dl-jobs");
+  function when(s){try{return new Date(s).toLocaleDateString([],{dateStyle:"medium"});}catch(e){return "";}}
+  function paint(){
+    return AAOApi.myJobs().then(function(list){
+      if(!document.body.contains(box))return;
+      var open=list.filter(function(j){return j.status==="open";}).length;
+      var o=$("#dl-open");if(o)o.textContent=open;
+      if(!list.length){box.innerHTML='<p class="dash-note">You have not posted a job yet.</p><div class="dash-row"><div><strong>Post your first job</strong><span>It goes live right away</span></div><a class="dash-act" href="#post-job">Post a job</a></div>';return;}
+      box.innerHTML=list.map(function(j){
+        var n=j.application_count||0;
+        var st=(j.status==="open"?"Open · expires "+when(j.expires_at):(j.status==="closed"?"Closed":(j.status==="expired"?"Expired · reopen to list it again":"Hidden by an administrator")))+" · "+n+(n===1?" applicant":" applicants");
+        var left=j.status==="open"?'<a class="dash-person" href="#job-'+E(j.id)+'"><strong>'+E(j.title)+'</strong><span>'+E(st)+'</span></a>':'<div><strong>'+E(j.title)+'</strong><span>'+E(st)+'</span></div>';
+        var ctl=(n?'<button type="button" class="dash-act" data-job-act="applicants" data-job-id="'+E(j.id)+'">Applicants</button> ':"")+(j.status==="open"?'<button type="button" class="dash-act" data-job-act="close" data-job-id="'+E(j.id)+'">Close</button>':(j.status==="closed"||j.status==="expired"?'<button type="button" class="dash-act" data-job-act="reopen" data-job-id="'+E(j.id)+'">Reopen</button>':""));
+        return '<div class="dash-row">'+left+'<span>'+ctl+'</span></div><div class="dash-note" data-apps-for="'+E(j.id)+'" hidden></div>';
+      }).join("");
+    }).catch(function(err){if(document.body.contains(box))box.innerHTML='<p class="dash-note">We could not load your jobs. '+E(err.message)+'</p>';});
+  }
+  if(box.getAttribute("data-bound"))return;
+  box.setAttribute("data-bound","1");
+  box.addEventListener("click",function(e){
+    var btn=e.target.closest("[data-job-act]");
+    if(!btn||btn.disabled)return;
+    btn.disabled=true;
+    var act=btn.getAttribute("data-job-act"),id=btn.getAttribute("data-job-id");
+    if(act==="applicants"){
+      /* Show or hide the applicants of this job under its row (name and headline from the public profile, plus what they sent). */
+      var panel=box.querySelector('[data-apps-for="'+id+'"]');
+      if(!panel){btn.disabled=false;return;}
+      if(!panel.hidden){panel.hidden=true;btn.disabled=false;return;}
+      panel.hidden=false;panel.innerHTML="Loading…";
+      AAOApi.jobApplicants(id).then(function(list){
+        btn.disabled=false;
+        if(!list.length){panel.innerHTML="No applicants yet.";return;}
+        var start={immediately:"Immediately",within_week:"Within a week",in_two_weeks:"In 2 weeks",in_a_month:"In a month"};
+        panel.innerHTML=list.map(function(a){
+          var who=a.applicant.available?'<a href="#talent-'+E(a.applicant.id)+'"><strong>'+E(a.applicant.display_name)+'</strong></a>'+(a.applicant.headline?" · "+E(a.applicant.headline):""):"<strong>Profile no longer available</strong>";
+          var link=(a.link_url&&/^https:\/\//i.test(a.link_url))?' · <a href="'+E(a.link_url)+'" target="_blank" rel="noopener noreferrer">Sample work</a>':"";
+          return '<div style="margin:10px 0 14px">'+who+(a.status==="withdrawn"?" · <em>Withdrawn</em>":"")+'<br>'+E(a.letter).replace(/\n/g,"<br>")+'<br><small>'+(a.proposed_amount!=null?"Price: $"+E(a.proposed_amount)+" · ":"")+"Can start: "+E(start[a.start_when]||"")+link+" · "+E(when(a.created_at))+'</small></div>';
+        }).join("");
+      }).catch(function(err){btn.disabled=false;panel.innerHTML="We could not load the applicants. "+E(err.message);});
+      return;
+    }
+    (act==="close"?AAOApi.closeJob(id):AAOApi.reopenJob(id)).then(function(){
+      showDashToast(act==="close"?"<strong>Job closed.</strong>It is no longer listed.":"<strong>Job reopened.</strong>It is listed again for 30 days.");
+      return reloadCatalog().then(paint);
+    }).catch(function(err){btn.disabled=false;showDashToast("<strong>We could not do that.</strong>"+E(err.status===403?"This job was hidden by an administrator.":err.message));});
+  });
+  paint();
+};
 V.dashboard = function(){
+  if(API_ON)return V.dashboardLive();
   var u=getDemoUser();
   if(!u)return V.login();
   if(u.role==="va"){
@@ -4837,6 +5032,7 @@ V.dashboard = function(){
     '</div></div></section>';
 };
 V.dashboard.init = function(){
+  if(API_ON){V.dashboardLive.init();return;}
   if(!getDemoUser()){go("login");return;}
   var root=$(".dash");
   if(!root)return;
@@ -4903,7 +5099,7 @@ function defaultVaProfile(u){
     rate:"18",
     hours:"Part-time · 20 hours/week",
     education:"Bachelor’s degree",
-    memberSince:"March 2024",
+    memberSince:u.since||"March 2024",
     status:"Open to work",
     portfolio:"",
     gender:"",
@@ -4925,6 +5121,8 @@ function vapSkillRows(p){
 function loadVaProfile(u){
   var all=localStore("aao_va_profiles",{});
   var saved=all[u.email];
+  /* Live mode: what the backend stores wins; fields it has no column for (hours, education, status, portfolio) stay on this device. */
+  if(API_ON){var srv=AAOApi.myTalentForUi();if(srv)saved=Object.assign({},saved||{},srv);}
   var base=defaultVaProfile(u);
   if(!saved||typeof saved!=="object")return base;
   Object.keys(base).forEach(function(k){if(saved[k]!=null&&saved[k]!=="")base[k]=saved[k];});
@@ -5010,10 +5208,12 @@ function applyMembershipPaidFromHash(){
     if(q<0)return;
     var params=new URLSearchParams(raw.slice(q+1));
     if(params.get("paid")!=="1")return;
-    /* Demo convenience only — not payment proof. */
-    var u=getDemoUser();
-    if(u&&u.role==="client"){
-      setMembershipStatus(u.email,"active",{source:"demo-paid-hash"});
+    /* Live mode: never trust ?paid=1 — membership must come from the backend. Demo only: local unlock for UX. */
+    if(!API_ON){
+      var u=getDemoUser();
+      if(u&&u.role==="client"){
+        setMembershipStatus(u.email,"active",{source:"demo-paid-hash"});
+      }
     }
     if(history.replaceState)history.replaceState(null,"",location.pathname+location.search+"#membership");
   }catch(err){}
@@ -5063,7 +5263,7 @@ V.vaProfile = function(){
     '<a class="vap-crumb" href="#dashboard">← Back to VA desk</a>'+
     '<div class="vap-view">'+
       '<div class="vap-hero"><p class="vap-status">Current status: '+(p.status||"Open to work")+'</p><div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
-      '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+p.headline+'</p><div class="vap-badges"><span class="vap-badge">AAO vetted</span><span class="vap-badge gold">'+(p.avail||"Available")+'</span></div></div>'+
+      '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+p.headline+'</p><div class="vap-badges"><span class="vap-badge gold">'+(p.avail||"Available")+'</span></div></div>'+
       '<div class="vap-actions"><button class="btn btn-gold" type="button" id="vap-edit-btn">Edit profile</button><a class="btn btn-navy" href="#talent">Browse jobs</a></div>'+
       '<div class="vap-layout"><div>'+
         '<div class="vap-card"><h2>Overview</h2><div class="vap-overview">'+overview+'</div></div>'+
@@ -5116,15 +5316,15 @@ V.vaProfile.init = function(){
   if(!u)return;
   var root=$("#vap"),form=$("#vpf"),note=$("#vp-note"),p=loadVaProfile(u);
   function fill(){
-    $("#vp-name").value=p.name||"";
-    $("#vp-headline").value=p.headline||"";
-    $("#vp-about").value=p.about||"";
+    $("#vp-name").value=U(p.name||"");
+    $("#vp-headline").value=U(p.headline||"");
+    $("#vp-about").value=U(p.about||"");
     $("#vp-cat").value=p.cat||"Admin";
     $("#vp-avail").value=p.avail||"Available full-time";
-    $("#vp-loc").value=p.loc||"";
-    $("#vp-exp").value=p.exp||"";
-    $("#vp-langs").value=p.langs||"";
-    $("#vp-skills").value=p.skills||"";
+    $("#vp-loc").value=U(p.loc||"");
+    $("#vp-exp").value=U(p.exp||"");
+    $("#vp-langs").value=U(p.langs||"");
+    $("#vp-skills").value=U(p.skills||"");
     $("#vp-rate").value=p.rate||"";
     $("#vp-hours").value=p.hours||"";
     $("#vp-education").value=p.education||"";
@@ -5137,19 +5337,30 @@ V.vaProfile.init = function(){
     if(on)window.scrollTo(0,0);
   }
   fill();
+  if(API_ON){
+    /* Live mode: profile photo. Needs an existing profile; uploads straight to storage through a signed URL, then registers the file. */
+    var avatarEl=root.querySelector(".vap-avatar");
+    function showPhoto(url){if(avatarEl&&url)avatarEl.innerHTML='<img src="'+url+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">';}
+    showPhoto(AAOApi.myPhotoUrl());
+    var photoField=document.createElement("label");
+    photoField.className="field";
+    photoField.innerHTML='Profile photo<input type="file" id="vp-photo" accept="image/jpeg,image/png,image/webp"><small id="vp-photo-note" class="muted">JPEG, PNG or WebP, up to 2 MB.</small>';
+    form.insertBefore(photoField,form.querySelector(".app-actions"));
+    $("#vp-photo").addEventListener("change",function(){
+      var input=this,f=input.files[0],pn=$("#vp-photo-note");
+      if(!f)return;
+      if(!AAOApi.hasTalentProfile()){pn.textContent="Save your profile first, then add a photo.";input.value="";return;}
+      pn.textContent="Uploading…";
+      AAOApi.uploadPhoto(f).then(function(url){pn.textContent="Photo saved.";showPhoto(url);return reloadCatalog();}).catch(function(err){pn.textContent=err.message;});
+      input.value="";
+    });
+  }
   var editBtn=$("#vap-edit-btn"),cancel=$("#vap-cancel");
   if(editBtn)editBtn.addEventListener("click",function(){setEditing(true);});
   Array.prototype.forEach.call(document.querySelectorAll("[data-vap-edit]"),function(btn){
     btn.addEventListener("click",function(){setEditing(true);});
   });
   if(cancel)cancel.addEventListener("click",function(){setEditing(false);note.classList.remove("show");note.innerHTML="";});
-  try{
-    if(sessionStorage.getItem("aao_va_setup")==="1"){
-      sessionStorage.removeItem("aao_va_setup");
-      setEditing(true);
-      if(note){note.classList.add("show");note.innerHTML="<strong>Welcome to AAO.</strong>Fill in your profile details so clients can meet you.";}
-    }
-  }catch(err){}
   form.addEventListener("submit",function(e){
     e.preventDefault();
     var name=$("#vp-name").value.trim();
@@ -5164,6 +5375,19 @@ V.vaProfile.init = function(){
       status:$("#vp-status").value.trim(),portfolio:$("#vp-portfolio").value.trim(),
       memberSince:p.memberSince||"March 2024",email:u.email,updatedAt:new Date().toISOString()
     };
+    if(API_ON){
+      /* Live mode: save to the backend. Local-only extras (hours, education, status, portfolio) stay on this device. */
+      note.innerHTML="<strong>Saving…</strong>";
+      AAOApi.saveTalentProfile(row).then(function(){
+        saveVaProfile(u,{hours:row.hours,education:row.education,status:row.status,portfolio:row.portfolio,memberSince:row.memberSince});
+        setDemoUser(Object.assign({},u,{name:name}));
+        return reloadCatalog();
+      }).then(function(){syncAuthNav();go("va-profile");}).catch(function(err){
+        note.classList.add("show");
+        note.innerHTML="<strong>We could not save your profile.</strong>"+AAOApi.esc(err.status===403?"Please confirm your email address first (check your inbox), then try again.":err.message);
+      });
+      return;
+    }
     saveVaProfile(u,row);
     setDemoUser({email:u.email,role:u.role,name:name,label:u.label||"Virtual assistant"});
     syncAuthNav();
@@ -5181,6 +5405,7 @@ function vaAppShell(o){
 V.vaApplications = function(){
   var u=getDemoUser();
   if(!u)return V.login();
+  if(API_ON)return vaAppShell({h1:"Job applications",p:"Track roles you’ve applied to.",cta:"Browse openings",ctaHref:"#talent",body:'<div class="dash-panels" style="margin-top:8px"><div class="dash-panel"><div id="va-apps"><p class="dash-note">Loading…</p></div></div></div>'});
   var rows=[
     ["Executive assistant · health clinic","Interview scheduled Thursday","In review"],
     ["Customer support · SaaS","Client reviewing your sample replies","Submitted"],
@@ -5194,14 +5419,44 @@ V.vaApplications = function(){
     body:'<div class="dash-panels" style="margin-top:8px"><div class="dash-panel">'+dashRows(rows.map(function(r){return [r[0],r[1],r[2],"#talent"];}))+'</div></div>'
   });
 };
-V.vaApplications.init = function(){requireVaPage();};
+V.vaApplications.init = function(){
+  var u=requireVaPage();
+  if(!u||!API_ON)return;
+  var box=$("#va-apps"),E=AAOApi.esc;
+  if(!box)return;
+  var demoNote=document.querySelector(".app-note");if(demoNote)demoNote.remove(); /* "frontend only" note does not apply to live data */
+  function when(s){try{return new Date(s).toLocaleDateString([],{dateStyle:"medium"});}catch(e){return "";}}
+  function paint(){
+    return AAOApi.myApplications().then(function(list){
+      if(!document.body.contains(box))return;
+      if(!list.length){box.innerHTML='<p class="dash-note">You have not applied to a job yet.</p><div class="dash-row"><div><strong>Browse openings</strong><span>Find a role that fits</span></div><a class="dash-act" href="#talent">View jobs</a></div>';return;}
+      box.innerHTML=list.map(function(a){
+        var st=(a.status==="withdrawn"?"Withdrawn":"Submitted")+" · "+when(a.created_at)+(a.job.is_open?"":" · Job closed");
+        var title=E(a.job.title)+" · "+E(a.job.company_name);
+        var left=a.job.is_open?'<a class="dash-person" href="#job-'+E(a.job.id)+'"><strong>'+title+'</strong><span>'+E(st)+'</span></a>':'<div><strong>'+title+'</strong><span>'+E(st)+'</span></div>';
+        var ctl=(a.status==="submitted"||a.status==="shortlisted")?'<button type="button" class="dash-act" data-app-withdraw="'+E(a.id)+'">Withdraw</button>':"";
+        return '<div class="dash-row">'+left+ctl+'</div>';
+      }).join("");
+    }).catch(function(err){if(document.body.contains(box))box.innerHTML='<p class="dash-note">We could not load your applications. '+E(err.message)+'</p>';});
+  }
+  if(box.getAttribute("data-bound"))return;
+  box.setAttribute("data-bound","1");
+  box.addEventListener("click",function(e){
+    var btn=e.target.closest("[data-app-withdraw]");
+    if(!btn||btn.disabled)return;
+    if(!window.confirm("Withdraw this application? You will not be able to apply to this job again."))return;
+    btn.disabled=true;
+    AAOApi.withdrawApplication(btn.getAttribute("data-app-withdraw")).then(paint).catch(function(err){btn.disabled=false;alert("We could not withdraw that. "+err.message);});
+  });
+  paint();
+};
 V.vaSaved = function(){
   var u=getDemoUser();
   if(!u)return V.login();
   var saved=localStore("aao_va_saved_jobs",[]);
   var body;
   if(!saved.length){
-    body='<p class="app-note" style="margin-top:8px">No saved jobs yet. Open a posting and tap <strong>Save job</strong> to bookmark it here.</p>';
+    body='<p class="app-note" style="margin-top:8px">No saved jobs yet. Open a posting and use Save when that control is wired to your API.</p>';
   }else{
     body='<div class="dash-panels" style="margin-top:8px"><div class="dash-panel">'+dashRows(saved.map(function(j){return [j.title||"Saved role",j.company||"AAO client","View","#job-"+(j.id||"")];}))+'</div></div>';
   }
@@ -5270,7 +5525,12 @@ V.postJob.init = function(){
   var u=requireClientPage();
   if(!u)return;
   var form=$("#pjf"),note=$("#pj-note");
-  var drafts=localStore("aao_job_drafts",[]);
+  var drafts=API_ON?[]:localStore("aao_job_drafts",[]);
+  if(API_ON){
+    var pjBtn=form.querySelector('button[type="submit"]');if(pjBtn)pjBtn.textContent="Post job";
+    var pjLede=document.querySelector(".app-card .lede");if(pjLede)pjLede.textContent="Describe the role. Your job goes live as soon as you post it and stays open for 30 days.";
+    var pjNote=form.querySelector(".app-note");if(pjNote)pjNote.remove();
+  }
   if(drafts.length){
     var last=drafts[drafts.length-1];
     $("#pj-title").value=last.title||"";
@@ -5287,6 +5547,18 @@ V.postJob.init = function(){
     var body=$("#pj-body").value.trim();
     note.classList.add("show");
     if(title.length<6||body.length<20){note.innerHTML="<strong>Add more detail.</strong>Use a clear title and describe the work.";return;}
+    if(API_ON){
+      /* Live mode: publish through the backend (the job goes live immediately for 30 days). */
+      if(body.length>8000){note.innerHTML="<strong>That description is too long.</strong>Please keep it under 8,000 characters.";return;}
+      note.innerHTML="<strong>Posting your job…</strong>";
+      var liveRow={title:title,body:body,category:$("#pj-cat").value,budgetType:$("#pj-budget").value,amount:$("#pj-amount").value,availability:$("#pj-avail").value,skills:$("#pj-skills").value};
+      AAOApi.postJob(u,liveRow).then(function(job){
+        return reloadCatalog().then(function(){if(!JOBS.some(function(x){return x.id===job.id;}))JOBS.unshift(AAOApi.jobFromOwn(job));note.innerHTML="<strong>Your job is live.</strong>It stays open for 30 days. <a href='#job-"+AAOApi.esc(job.id)+"'>View the posting</a> or <a href='#dashboard'>go back to your desk</a>.";});
+      }).catch(function(err){
+        note.innerHTML="<strong>We could not post your job.</strong>"+AAOApi.esc(err.status===403?"Please confirm your email address first (check your inbox), then try again.":err.message);
+      });
+      return;
+    }
     var row={id:"job_"+Date.now(),title:title,body:body,category:$("#pj-cat").value,budgetType:$("#pj-budget").value,amount:$("#pj-amount").value,availability:$("#pj-avail").value,skills:$("#pj-skills").value,owner:u.email,updatedAt:new Date().toISOString(),status:"draft"};
     drafts.push(row);localSave("aao_job_drafts",drafts);
     note.innerHTML="<strong>Draft saved on this device.</strong>Connect submit to your API when ready. <a href='#dashboard'>Back to desk</a>";
@@ -5298,15 +5570,16 @@ V.membership = function(){
   var checkout=membershipCheckoutUrl();
   var statusHtml=member
     ? '<div class="notice show" role="status"><strong>Membership active.</strong>Messaging and hire are unlocked on this device for '+escHtml(u.email)+'.</div>'
-    : '<div class="notice show" role="status"><strong>Browse is free.</strong>Membership unlocks messaging, interviews, and hire. Demo mode can unlock locally for testing.</div>';
+    : '<div class="notice show" role="status"><strong>Browse is free.</strong>Membership unlocks messaging, interviews, and hire.'+(API_ON?"":" Demo mode can unlock locally for testing.")+'</div>';
   var actions=member
     ? '<div class="btn-row"><a class="btn btn-gold" href="#talent">Meet assistants</a><a class="btn btn-line-dark" href="#messages">Open messages</a><button class="btn btn-line" type="button" id="mem-clear">Turn off membership</button></div>'
     : '<div class="btn-row">'+membershipLink("btn btn-gold",checkout?"Continue to checkout":"Open membership checkout")+
-      (u&&u.role==="client"?'<button class="btn btn-navy" type="button" id="mem-demo">Unlock for demo</button>':'<a class="btn btn-navy" href="#login">Log in as client first</a>')+
+      (u&&u.role==="client"&&!API_ON?'<button class="btn btn-navy" type="button" id="mem-demo">Unlock for demo</button>':"")+
+      (u&&u.role==="client"?"":'<a class="btn btn-navy" href="#login">Log in as client first</a>')+
       '<a class="btn btn-line-dark" href="#pricing">Back to pricing</a></div>';
   return pageHead({
     h1:"Unlock AAO membership.",
-    p:membershipPlanLabel()+" is "+membershipPlanPrice()+". After checkout, return here signed in so messaging and hire unlock. In demo mode, use Unlock for demo on this device.",
+    p:membershipPlanLabel()+" is "+membershipPlanPrice()+". "+(API_ON?"After real checkout, membership unlocks from the server — not from a return URL alone.":"After checkout, return here signed in so messaging and hire unlock. In demo mode, use Unlock for demo on this device."),
     btns:actions
   })+
   '<section class="sec glow"><div class="wrap lead-grid"><div class="sec-head"><h2>What membership opens.</h2>'+statusHtml+'</div><div class="prose">'+
@@ -5325,7 +5598,7 @@ V.membership.init = function(){
   });
   if(demoBtn)demoBtn.addEventListener("click",function(){
     var u=getDemoUser();
-    if(!u||u.role!=="client")return;
+    if(!u||u.role!=="client"||API_ON)return;
     setMembershipStatus(u.email,"active",{source:"demo-unlock"});
     go("membership");
   });
@@ -5369,6 +5642,66 @@ V.messages = function(slug){
         (active?'<form class="app-compose" id="msg-form"><textarea id="msg-input" placeholder="Write a message…" required maxlength="5000"></textarea><button type="submit">Send</button></form>':'')+
       '</section>'+
     '</div><p class="app-note" style="margin-top:14px">Stored in localStorage for now. Swap send/load to your backend when ready.</p></div></section>';
+};
+/* Live mode: the Messages screen shows real inquiries. The backend saves them but does not email them yet, so there are no replies in the thread. */
+V.messagesLive = function(){
+  var u=getDemoUser();
+  if(!u)return V.login();
+  if(u.role==="client"&&!isAaOMember())return V.membership();
+  return '<section class="app-page app-page-wide"><div class="wrap"><a class="app-crumb" href="#dashboard">← Back to '+(u.role==="va"?"VA":"client")+' desk</a><div class="app-card" id="msgl"><p class="lede">Loading…</p></div></div></section>';
+};
+V.messagesLive.init = function(){
+  var u=requireAuthPage();
+  if(!u)return;
+  var box=$("#msgl");if(!box)return;
+  var E=AAOApi.esc;
+  var hash=(location.hash||"").replace(/^#/,"");
+  var slug=hash.indexOf("messages-")===0?hash.slice(9):"";
+  function when(s){try{return new Date(s).toLocaleString([],{dateStyle:"medium",timeStyle:"short"});}catch(e){return "";}}
+  function fail(err){box.innerHTML='<h1>Messages</h1><div class="notice show" role="status"><strong>We could not load your messages.</strong>'+E(err&&err.message||"Please try again.")+'</div>';}
+  if(u.role==="va"){
+    AAOApi.receivedInquiries().then(function(list){
+      box.innerHTML='<h1>Inquiries</h1><p class="lede">Clients who contacted you through your profile.</p>'+
+        (list.length?list.map(function(i){return '<div class="app-bubble them" style="max-width:none;margin:10px 0"><strong>'+E(i.company_name)+'</strong><br>'+E(i.message).replace(/\n/g,"<br>")+'<br><small>'+E(when(i.created_at))+'</small></div>';}).join("")
+          :'<p class="muted">No inquiries yet. Complete your profile so clients can find you.</p>');
+    }).catch(fail);
+    return;
+  }
+  AAOApi.sentInquiries().then(function(items){
+    var groups={},order=[];
+    items.forEach(function(i){
+      var id=i.talent.id;
+      if(!groups[id]){groups[id]={id:id,name:i.talent.display_name?E(i.talent.display_name):"Assistant no longer listed",msgs:[]};order.push(id);}
+      groups[id].msgs.unshift(i); /* API is newest first; show oldest first */
+    });
+    if(slug&&!groups[slug]){var t=TALENT.filter(function(x){return x.id===slug;})[0];groups[slug]={id:slug,name:t?t.name:"Assistant",msgs:[]};order.unshift(slug);}
+    if(!slug&&order.length){go("messages-"+order[0]);return;}
+    if(!order.length){box.innerHTML='<h1>Messages</h1><p class="lede">You have not contacted anyone yet.</p><a class="btn btn-gold" href="#talent">Browse assistants</a>';return;}
+    var cur=groups[slug]||groups[order[0]];
+    box.innerHTML='<h1>Messages</h1>'+
+      '<div class="app-split"><aside class="app-side">'+order.map(function(id){return '<a class="app-conv'+(id===cur.id?" is-on":"")+'" href="#messages-'+E(id)+'"><strong>'+groups[id].name+'</strong><span>'+groups[id].msgs.length+' sent</span></a>';}).join("")+'</aside>'+
+      '<section class="app-thread"><div class="app-thread-head"><div><h2>'+cur.name+'</h2><p>Your message is saved to their inbox.</p></div></div>'+
+      '<div class="app-stream" id="msg-stream">'+(cur.msgs.length?cur.msgs.map(function(m){return '<div class="app-bubble me">'+E(m.message).replace(/\n/g,"<br>")+'<br><small>'+E(when(m.created_at))+'</small></div>';}).join(""):'<p class="muted">Introduce yourself and what you need help with.</p>')+'</div>'+
+      '<form class="app-compose" id="msg-form"><textarea id="msg-input" placeholder="Write a message (at least 10 characters)…" required minlength="10" maxlength="2000"></textarea><button type="submit">Send</button></form>'+
+      '<div class="notice" id="msg-note" role="status"></div></section></div>'+
+      '<p class="app-note" style="margin-top:14px">Messages are saved for the assistant to read when they sign in. Email notifications are not switched on yet.</p>';
+    if(!document.body.contains(box))return; /* a newer render replaced this screen while the data was loading */
+    var stream=box.querySelector("#msg-stream");if(stream)stream.scrollTop=stream.scrollHeight;
+    var form=box.querySelector("#msg-form"),input=box.querySelector("#msg-input"),note=box.querySelector("#msg-note"),sending=false;
+    form.addEventListener("submit",function(e){
+      e.preventDefault();
+      if(sending)return;
+      var text=(input.value||"").trim();
+      note.classList.add("show");
+      if(text.length<10){note.innerHTML="<strong>Add a little more.</strong>Please write at least 10 characters.";return;}
+      sending=true;
+      note.innerHTML="<strong>Sending…</strong>";
+      AAOApi.sendInquiry(u,cur.id,text).then(function(){go("messages-"+cur.id);}).catch(function(err){
+        sending=false;
+        note.innerHTML="<strong>We could not send that.</strong>"+E(err.status===403?"Please confirm your email address first (check your inbox), then try again.":err.message);
+      });
+    });
+  }).catch(fail);
 };
 V.messages.init = function(){
   var u=requireAuthPage();
@@ -5457,11 +5790,13 @@ var hdr=$(".site-header");
 function onScroll(){var y=window.scrollY,on=hdr.classList.contains("scrolled");if(!on&&y>60)hdr.classList.add("scrolled");else if(on&&y<10)hdr.classList.remove("scrolled");}
 window.addEventListener("scroll",onScroll,{passive:true});onScroll();
 
-var TITLES = {pricing:"Pricing | AAO",faq:"FAQs | AAO",terms:"Terms and Conditions | AAO",privacy:"Privacy Policy | AAO",home:"Amazing Assistants Online | You weren’t meant to build alone",how:"How AAO works | AAO",standards:"Trust and standards | AAO",about:"About AAO | AAO",talent:"Find virtual assistants | AAO",help:"Help and support | AAO",join:"Create your account | AAO",login:"Log in | AAO",dashboard:"Dashboard | AAO","post-job":"Post a job | AAO",messages:"Messages | AAO",membership:"Membership | AAO","va-profile":"Your profile | AAO","va-applications":"Job applications | AAO","va-saved":"Saved jobs | AAO","va-settings":"Account settings | AAO"};
+var TITLES = {pricing:"Pricing | AAO",faq:"FAQs | AAO",terms:"Terms and Conditions | AAO",privacy:"Privacy Policy | AAO",home:"Amazing Assistants Online | You weren’t meant to build alone",how:"How AAO works | AAO",standards:"Trust and standards | AAO",about:"About AAO | AAO",talent:"Find virtual assistants | AAO",help:"Help and support | AAO",join:"Create your account | AAO",login:"Log in | AAO",dashboard:"Dashboard | AAO","post-job":"Post a job | AAO",messages:"Messages | AAO",membership:"Membership | AAO","va-profile":"Your profile | AAO","va-applications":"Job applications | AAO","va-saved":"Saved jobs | AAO","va-settings":"Account settings | AAO","forgot-password":"Reset your password | AAO","reset-password":"Choose a new password | AAO"};
 var current=null;
+var jobLookups={}; /* live mode: job ids fetched on a direct link ("pending", "done" or "missing") */
 function go(r){
   if(r==="logout"){
     clearDemoUser();
+    if(API_ON)AAOApi.signOut();
     if(window.AAOMessaging&&AAOMessaging.signOut)AAOMessaging.signOut();
     r="home";
   }
@@ -5469,21 +5804,90 @@ function go(r){
   try{if(location.hash!=="#"+r)history.pushState(null,"","#"+r);}catch(e){}
   render();
 }
+/* Cloudflare Turnstile (only when a site key is configured): the script is fetched the first time a visitor opens the report form. */
+var turnstileLoading=null;
+function loadTurnstile(){
+  if(window.turnstile)return Promise.resolve(window.turnstile);
+  if(!turnstileLoading)turnstileLoading=new Promise(function(resolve,reject){
+    var s=document.createElement("script");
+    s.src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
+    s.async=true;s.defer=true;
+    s.onload=function(){resolve(window.turnstile);};
+    s.onerror=function(){turnstileLoading=null;reject(new Error("The verification could not be loaded."));};
+    document.head.appendChild(s);
+  });
+  return turnstileLoading;
+}
+/* Live mode: a "Report" box on assistant and job pages. Anyone may report; a signed-in reporter's token is sent. */
+function attachReport(h){
+  if(!API_ON)return;
+  var type=h.indexOf("talent-")===0?"talent_profile":(h.indexOf("job-")===0?"job_post":"");
+  var id=type==="talent_profile"?h.slice(7):h.slice(4);
+  var aside=document.querySelector("#app .aside,#app .jd-aside");
+  if(!type||!aside||document.getElementById("rpt"))return;
+  var what=type==="job_post"?"job":"profile";
+  var dark=aside.classList.contains("jd-aside"); /* the job page uses the dark panel style */
+  var box=document.createElement("div");
+  box.className=dark?"jd-apply jd-gate":"panel";box.id="rpt";
+  if(dark)box.style.marginTop="16px";
+  box.innerHTML='<h3>Report this '+what+'</h3><p class="muted" style="margin:0 0 12px">Something wrong? Tell us and our team will take a look.</p>'+
+    '<button class="btn btn-line-dark btn-block" type="button" id="rpt-open">Report</button>'+
+    '<form id="rpt-form" class="'+(dark?"jd-form":"form")+'" hidden novalidate>'+
+      '<label class="field">Reason<select id="rpt-reason"><option value="spam">Spam</option><option value="scam">Scam or fraud</option><option value="inappropriate">Inappropriate content</option><option value="other">Something else</option></select></label>'+
+      '<label class="field">Details<textarea id="rpt-details" maxlength="2000" placeholder="What should we know?"></textarea></label>'+
+      '<div id="rpt-ts" style="margin:4px 0 8px"></div>'+
+      '<button class="btn btn-gold btn-block" type="submit">Send report</button></form>'+
+    '<div class="notice" id="rpt-note" role="status"></div>';
+  aside.appendChild(box);
+  var form=box.querySelector("#rpt-form"),note=box.querySelector("#rpt-note"),open=box.querySelector("#rpt-open"),sending=false;
+  var siteKey=AAOApi.turnstileSiteKey(),tsId=null,tsToken="";
+  open.addEventListener("click",function(){
+    form.hidden=false;open.hidden=true;
+    if(!siteKey)return;
+    loadTurnstile().then(function(ts){
+      if(tsId!==null||!document.body.contains(form))return;
+      tsId=ts.render(box.querySelector("#rpt-ts"),{sitekey:siteKey,action:"report",callback:function(t){tsToken=t;},"expired-callback":function(){tsToken="";},"error-callback":function(){tsToken="";}});
+    }).catch(function(err){note.classList.add("show");note.innerHTML="<strong>We could not load the verification.</strong>"+AAOApi.esc(err.message);});
+  });
+  function resetTs(){tsToken="";if(tsId!==null&&window.turnstile){try{window.turnstile.reset(tsId);}catch(e){}}}
+  form.addEventListener("submit",function(e){
+    e.preventDefault();
+    if(sending)return;
+    var reason=box.querySelector("#rpt-reason").value,details=box.querySelector("#rpt-details").value.trim();
+    note.classList.add("show");
+    if(reason==="other"&&details.length<5){note.innerHTML="<strong>Add a few details.</strong>Please tell us what is wrong.";return;}
+    if(siteKey&&!tsToken){note.innerHTML="<strong>One quick check.</strong>Please complete the verification, then send your report.";return;}
+    sending=true;
+    note.innerHTML="<strong>Sending…</strong>";
+    var used=tsToken;
+    AAOApi.report({type:type,id:id,reason:reason,details:details,turnstileToken:used}).then(function(){
+      form.hidden=true;
+      note.innerHTML="<strong>Thank you.</strong>Your report was sent. Our team will review it.";
+    }).catch(function(err){sending=false;resetTs();note.innerHTML="<strong>We could not send that.</strong>"+AAOApi.esc(err.message);});
+  });
+}
+function currentRoute(){return (current!==null?current:(location.hash||"").replace(/^#/,""))||"home";}
 function render(){
-  var h=(current!==null?current:(location.hash||"").replace(/^#/,""))||"home";
-  if(h==="logout"){clearDemoUser();h="home";current="home";try{history.replaceState(null,"","#home");}catch(e){}}
+  var h=currentRoute();
+  if(h==="logout"){clearDemoUser();if(API_ON)AAOApi.signOut();h="home";current="home";try{history.replaceState(null,"","#home");}catch(e){}}
+  /* Live mode: someone who arrived from a password-reset email must choose a new password before using the site (signing out or cancelling ends this). */
+  if(API_ON&&AAOApi.recoveryPending()&&h!=="reset-password"){h="reset-password";current="reset-password";try{history.replaceState(null,"","#reset-password");}catch(e){}}
   var view,arg,key=h,title;
   var needsAuth=h==="dashboard"||h==="post-job"||h==="va-profile"||h==="va-applications"||h==="va-saved"||h==="va-settings"||h==="messages"||h.indexOf("messages-")===0;
   if(needsAuth&&!getDemoUser()){h="login";key="login";}
-  if(h.indexOf("talent-")===0){view=V.profile;arg=h.slice(7);var t=TALENT.filter(function(x){return x.id===arg;})[0];title=(t?t.name:"Profile")+" | AAO";key="talent";}
-  else if(h.indexOf("job-")===0){view=V.job;arg=h.slice(4);var jj=findJob(arg);title=(jj?jj.title:"Job")+" | AAO";key="talent";}
+  if(h.indexOf("talent-")===0){view=V.profile;arg=h.slice(7);var t=TALENT.filter(function(x){return x.id===arg;})[0];title=(t?t.name:"Profile")+" | AAO";key="talent";
+    /* Live mode: the list only carries a summary; fetch the full profile once, then redraw if the visitor is still on this page. */
+    if(API_ON&&t&&!t._full){t._full=true;AAOApi.loadTalent(arg).then(function(full){var i=TALENT.indexOf(t);if(i>=0)TALENT[i]=full;if(currentRoute()==="talent-"+arg)render();}).catch(function(e){console.warn("AAO: could not load profile",e);});}}
+  else if(h.indexOf("job-")===0){view=V.job;arg=h.slice(4);var jj=findJob(arg);title=(jj?jj.title:"Job")+" | AAO";key="talent";
+    if(API_ON&&!jj&&!jobLookups[arg]){jobLookups[arg]="pending";AAOApi.loadJob(arg).then(function(full){if(full&&!findJob(arg)){full._full=true;JOBS.push(full);}jobLookups[arg]="done";if(currentRoute()==="job-"+arg)render();}).catch(function(){jobLookups[arg]="missing";if(currentRoute()==="job-"+arg)render();});}
+    if(API_ON&&jj&&!jj._full){jj._full=true;AAOApi.loadJob(arg).then(function(full){var i=JOBS.indexOf(jj);if(i>=0)JOBS[i]=full;if(currentRoute()==="job-"+arg)render();}).catch(function(e){console.warn("AAO: could not load job",e);});}}
   else if(h==="post-job"){view=V.postJob;title=TITLES["post-job"];key="dashboard";}
   else if(h==="va-profile"){view=V.vaProfile;title=TITLES["va-profile"];key="va-profile";}
   else if(h==="va-applications"){view=V.vaApplications;title=TITLES["va-applications"];key="va-applications";}
   else if(h==="va-saved"){view=V.vaSaved;title=TITLES["va-saved"];key="va-saved";}
   else if(h==="va-settings"){view=V.vaSettings;title=TITLES["va-settings"];key="va-settings";}
   else if(h==="membership"||h.indexOf("membership?")===0){view=V.membership;title=TITLES.membership;key="membership";}
-  else if(h==="messages"||h.indexOf("messages-")===0){view=V.messages;arg=h.indexOf("messages-")===0?h.slice(9):"";title=TITLES.messages;key="dashboard";}
+  else if(h==="messages"||h.indexOf("messages-")===0){view=API_ON?V.messagesLive:V.messages;arg=h.indexOf("messages-")===0?h.slice(9):"";title=TITLES.messages;key="dashboard";}
   else if(V[h]&&typeof V[h]==="function"&&h!=="profile"&&h!=="job"&&h!=="notfound"&&h!=="postJob"&&h!=="messages"&&h!=="interview"&&h!=="vaProfile"&&h!=="vaApplications"&&h!=="vaSaved"&&h!=="vaSettings"){view=V[h];title=TITLES[h]||"AAO";}
   else{view=V.notfound;title="Page not found | AAO";key="";}
   if(h==="dashboard"){
@@ -5498,8 +5902,10 @@ function render(){
   if(highlightStackOff){highlightStackOff();highlightStackOff=null;}
   $("#app").innerHTML=view(arg);
   if(view.init)view.init();
+  attachReport(h);
   var ap=$("#app");ap.classList.remove("vin");if(h!=="home"){void ap.offsetWidth;ap.classList.add("vin");}
   motion();
+  if(API_ON){var dt=document.createElement("textarea");dt.innerHTML=title;title=dt.value;} /* titles contain API text that was HTML-escaped for the page body */
   document.title=title;
   syncAuthNav();
   Array.prototype.forEach.call(document.querySelectorAll(".nav a[data-r]"),function(a){if(a.getAttribute("data-r")===key)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
@@ -5528,20 +5934,41 @@ document.addEventListener("click",function(e){
 document.documentElement.style.setProperty("--mark",'url("'+LOGO_MARK+'")');
 setMenuIcon(false);
 Array.prototype.forEach.call(document.querySelectorAll("img[data-mark]"),function(i){i.src=LOGO_MARK;});
-function onNav(){current=null;render();}
+/* Live mode: changing the URL hash fires both "hashchange" and "popstate"; draw once, so screens do not load their data twice. */
+var navQueued=false;
+function onNav(){
+  if(!API_ON){current=null;render();return;}
+  if(navQueued)return;
+  navQueued=true;
+  setTimeout(function(){navQueued=false;current=null;render();},0);
+}
 window.addEventListener("hashchange",onNav);
 window.addEventListener("popstate",onNav);
+/* Live mode: the reset email's link is recognised a moment after the page loads; redraw so the new-password screen appears. */
+if(API_ON)window.addEventListener("aao-recovery",function(){current=null;render();});
 initAcctMenu();
-render();
+if(API_ON){
+  /* Live mode: restore the real session and load real data first (never block the page for more than 4 seconds). */
+  var bootShown=false;
+  var bootTimer=setTimeout(function(){bootShown=true;render();},4000);
+  AAOApi.ready().then(function(){
+    return Promise.all([
+      AAOApi.currentUser().then(function(u){if(u){setDemoUser(u);return AAOApi.refreshMine(u);}clearDemoUser();}).catch(function(){clearDemoUser();}),
+      AAOApi.loadCatalog().then(function(c){TALENT.push.apply(TALENT,c.talent);JOBS.push.apply(JOBS,c.jobs);}).catch(function(e){console.warn("AAO: could not load listings",e);})
+    ]);
+  }).then(function(){clearTimeout(bootTimer);render();});
+}else{
+  render();
+}
 })();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0" integrity="sha384-gnyZit14c5lnGcarmA166QQjjJXpucw25ogZXuwH3HxxY904zHkBqmxVpelsPorb" crossorigin="anonymous"></script>
 <script src="messaging-config.js"></script>
 <script src="messaging.js"></script>
 <script src="payments-config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollToPlugin.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js" integrity="sha384-HOvlOYPIs/zjoIkWUGXkVmXsjr8GuZLV+Q+rcPwmJOVZVpvTSXQChiN4t9Euv9Vc" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js" integrity="sha384-P8VzCVnT9NBUkMrpcIZrJbA7EBjJvh/fJS6PmP+4nLIM284DtsImIv8D0fFjIkeh" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollToPlugin.min.js" integrity="sha384-dUEYjN2xd8Wk4WIZYrCpK7Ww7+r/LVtVebVp8skuwm9bKGoVo2bZrWuA79w8TI+v" crossorigin="anonymous"></script>
 <script>
 (function(){
   if(typeof gsap==="undefined")return;
