@@ -4970,7 +4970,7 @@ V.dashboardLive.init = function(){
       if(!list.length){box.innerHTML='<p class="dash-note">You have not posted a job yet.</p><div class="dash-row"><div><strong>Post your first job</strong><span>It goes live right away</span></div><a class="dash-act" href="#post-job">Post a job</a></div>';return;}
       box.innerHTML=list.map(function(j){
         var n=j.application_count||0;
-        var st=(j.status==="open"?"Open · expires "+when(j.expires_at):(j.status==="closed"?"Closed":(j.status==="expired"?"Expired · reopen to list it again":"Hidden by an administrator")))+" · "+n+(n===1?" applicant":" applicants");
+        var st=(j.status==="open"?(j.expires_at?"Open · expires "+when(j.expires_at):"Open"):(j.status==="closed"?"Closed":(j.status==="expired"?"Expired · reopen to list it again":"Hidden by an administrator")))+" · "+n+(n===1?" applicant":" applicants");
         var left=j.status==="open"?'<a class="dash-person" href="#job-'+E(j.id)+'"><strong>'+E(j.title)+'</strong><span>'+E(st)+'</span></a>':'<div><strong>'+E(j.title)+'</strong><span>'+E(st)+'</span></div>';
         var ctl=(n?'<button type="button" class="dash-act" data-job-act="applicants" data-job-id="'+E(j.id)+'">Applicants</button> ':"")+(j.status==="open"?'<button type="button" class="dash-act" data-job-act="close" data-job-id="'+E(j.id)+'">Close</button>':(j.status==="closed"||j.status==="expired"?'<button type="button" class="dash-act" data-job-act="reopen" data-job-id="'+E(j.id)+'">Reopen</button>':""));
         return '<div class="dash-row">'+left+'<span>'+ctl+'</span></div><div class="dash-note" data-apps-for="'+E(j.id)+'" hidden></div>';
