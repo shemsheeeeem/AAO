@@ -490,8 +490,8 @@ ul,ol{margin:0;padding:0;list-style:none}
 .hb-card p,.hb-card .hb-desc,.wobble-inner p,.wobble-inner .hb-desc{color:var(--mut,var(--muted));font-size:.98rem;line-height:1.55;margin:0}
 .hb-foot{margin-top:auto;padding-top:14px}
 @media (min-width:900px){
-  .how-bento{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(150px,1fr));min-height:520px}
-  .hb-tall{grid-column:1;grid-row:1/span 3}
+  .how-bento{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(170px,1fr));min-height:400px}
+  .hb-tall{grid-column:1;grid-row:1/span 2}
   .hb-a{grid-column:2;grid-row:1}
   .hb-b{grid-column:3;grid-row:1}
   .hb-c{grid-column:2;grid-row:2}
@@ -1365,7 +1365,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 .foot-top{display:grid;grid-template-columns:minmax(200px,.85fr) minmax(0,2.15fr);gap:clamp(28px,4vw,56px);align-items:start}
 .foot-brand{display:grid;gap:14px;max-width:18rem}
 .foot-brand .brand{display:inline-flex;align-items:center;gap:14px;text-decoration:none;color:#fff}
-.foot-brand .brand img{width:auto;height:64px;aspect-ratio:1/1}
+.foot-brand .brand img{width:auto;height:88px;aspect-ratio:1/1}
 .foot-brand .brand-name{font-family:var(--display);font-size:1.15rem;line-height:1.15;color:#fff}
 .foot-brand .brand-name small{display:block;font-size:.72rem;letter-spacing:.28em;color:var(--gold-400);margin-top:2px}
 .foot-copy{margin:0;font-size:.86rem;line-height:1.45;color:rgba(168,185,214,.85);max-width:16em}
@@ -1550,8 +1550,9 @@ main{outline:none;overflow-x:clip}
 }
 
 /* ===== approved logo, shown as-is with a fine edge highlight (no card behind it) ===== */
-.brand img{background:none;padding:0;border-radius:0;height:42px}
-.scrolled .brand img{height:35px}
+.brand img{background:none;padding:0;border-radius:0;height:56px}
+.scrolled .brand img{height:46px}
+.foot-brand .brand img{height:88px}
 .logo-plate{background:none;box-shadow:none;padding:0;border-radius:0}
 .auth-side .logo-plate{padding:0;width:min(380px,86%)}
 /* hero headline sizing is set in the base hero rules */
@@ -2117,8 +2118,9 @@ p{text-wrap:pretty}
   }
   .brand-name{display:inline;font-size:.98rem;line-height:1.05;max-width:9.5rem}
   .brand-name small{display:block;font-size:.58rem;letter-spacing:.16em}
-  .brand img{height:34px}
-  .scrolled .brand img{height:32px}
+  .brand img{height:46px}
+  .scrolled .brand img{height:40px}
+  .foot-brand .brand img{height:72px}
   .menu-btn{width:44px;height:44px}
   .nav{
     max-height:min(78dvh,640px);overflow-y:auto;-webkit-overflow-scrolling:touch;
@@ -2262,6 +2264,7 @@ p{text-wrap:pretty}
           <h4>Socials</h4>
           <ul>
             <li><a href="https://www.facebook.com/AmazingAssistantOnline" target="_blank" rel="noopener noreferrer">Facebook</a></li>
+            <li><a href="https://www.instagram.com/AmazingAssistantOnline/" target="_blank" rel="noopener noreferrer">Instagram</a></li>
           </ul>
         </div>
         <div>
@@ -3039,8 +3042,7 @@ var OPS_ITEMS=[
   ["Pre-vetting and profile review","Every assistant profile is reviewed against AAO standards before you see them, and misleading information is flagged."],
   ["Matching and interview coordination","Support with shortlisting, matching you with the right assistants, and arranging interviews."],
   ["Training and development","Assessments, training and ongoing development, so the assistants you meet keep getting better at what they do."],
-  ["Support desk","Questions, account concerns, and disputes are logged, assigned, and followed through to a resolution."],
-  ["Privacy and access","Personal information is visible only to the team members whose duties require it."]
+  ["Support desk","Questions, account concerns, and disputes are logged, assigned, and followed through to a resolution."]
 ];
 function opsGrid(){
   return '<div class="infos bento">'+OPS_ITEMS.map(function(i,k){return '<div class="info v-'+["navy","sky","gold","sand","blue","white"][k%6]+'"><div class="tx"><h3>'+i[0]+'</h3><p>'+i[1]+'</p></div></div>';}).join("")+'</div>';
@@ -3751,7 +3753,6 @@ V.standards = function(){
   var items=[
     ["Pre-vetting and profile review","Every assistant profile is reviewed against AAO standards before clients see it. Misleading information is flagged and followed up."],
     ["Account confirmation","Every client account is reviewed and confirmed by the AAO team, and confirmation histories are kept."],
-    ["Privacy and access","Personal information is available only to team members whose duties require it. Sensitive changes are recorded in audit logs."],
     ["Clear accountability","Every internal workflow has a named owner, response expectations, an escalation path, and a record of completion."],
     ["Suspicious activity","Clear procedures exist for reporting and handling suspicious activity on the platform."],
     ["One place for support","Questions, account concerns, and disputes go through a single support system and are followed through."]
