@@ -2192,6 +2192,183 @@ p{text-wrap:pretty}
   .btn{padding:.85em 1.15em;font-size:.95rem}
   .brand-name{max-width:7.5rem;font-size:.9rem}
 }
+/* ==== Why Filipino VAs page (route #why-filipino). Every class is prefixed wf- so nothing leaks into the rest of the site. ==== */
+.wf{--wf-night:var(--navy-950);--wf-night2:var(--navy-900);--wf-navy:#0B2D5C;--wf-blue:var(--blue-600);--wf-gold:var(--gold-400);--wf-gold2:var(--gold-500);--wf-ink:var(--ink);--wf-ink2:var(--muted);--wf-line:var(--line);--wf-ease:cubic-bezier(.2,.8,.2,1);font-family:var(--body);line-height:1.75}
+.wf h1,.wf h2,.wf h3{margin:0;font-family:var(--display);font-weight:400;text-wrap:balance}
+.wf h2{font-size:clamp(1.85rem,3.1vw,2.7rem);line-height:1.18;letter-spacing:-.005em}
+.wf p{margin:0}
+.wf button{font:inherit;color:inherit}
+.wf :focus-visible{outline:2px solid var(--wf-gold);outline-offset:3px}
+.wf-cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;border-radius:999px;padding:.8rem 1.6rem;font-weight:500;font-size:.95rem;line-height:1.4;text-decoration:none;border:1px solid transparent;transition:transform .35s var(--wf-ease),background .3s,border-color .3s,box-shadow .3s;cursor:pointer}
+.wf-cta.wf-gold{background:var(--wf-gold);color:#0B1B3F}.wf-cta.wf-gold:hover{background:#ECD28F;transform:translateY(-2px);box-shadow:0 14px 30px rgba(221,187,104,.25)}
+.wf-cta.wf-ghost{background:rgba(255,255,255,.05);color:#fff;border-color:rgba(255,255,255,.22)}.wf-cta.wf-ghost:hover{border-color:var(--wf-gold);transform:translateY(-2px)}
+/* slabs */
+.wf-slab{padding:clamp(4.5rem,8vw,7.5rem) 0;position:relative;overflow:hidden}
+.wf-dark{background:var(--wf-night);color:#fff}.wf-soft{background:var(--bg);color:var(--wf-ink)}.wf-light{background:var(--surface);color:var(--wf-ink)}
+.wf-badge{display:inline-flex;align-items:center;gap:10px;padding:.35rem 1rem .35rem .55rem;border-radius:999px;font-size:.88rem;font-weight:500;background:var(--surface-2);border:1px solid var(--wf-line);color:var(--wf-ink);line-height:1.5}
+.wf-badge::before{content:"";width:18px;height:18px;border-radius:50%;background:var(--wf-gold)}
+.wf-dark .wf-badge{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:#fff}
+.wf-shead{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,5rem);align-items:start;margin-bottom:3.4rem}
+.wf-shead h2{margin-top:1.4rem}
+.wf-dark .wf-shead h2{color:#fff}
+.wf-copy p{color:var(--wf-ink2)}.wf-copy p+p{margin-top:1rem}
+.wf-copy p.wf-lead{color:var(--wf-ink);font-weight:500}
+.wf-dark .wf-copy p{color:#AEBBD3}.wf-dark .wf-copy p.wf-strong{color:#fff}
+/* hero */
+.wf-hero{display:flex;flex-direction:column;justify-content:center;gap:clamp(1.4rem,3vw,2.4rem);padding:clamp(4rem,8vw,6.5rem) 0 clamp(4rem,7vw,6rem);background:var(--wf-night)}
+.wf-hin{text-align:center;max-width:980px;margin-inline:auto;position:relative;z-index:2;will-change:transform,opacity}
+.wf-hero h1{font-size:clamp(2.4rem,5vw,4.2rem);line-height:1.06;letter-spacing:-.01em;margin:1.2rem 0 1rem;color:#fff}
+.wf-hl{display:block;overflow:hidden;padding:.1em 0 .08em;--b:#fff;--hi:var(--wf-gold)}
+.wf-hl.wf-g{--b:var(--wf-gold);--hi:#fff;color:var(--wf-gold)}.wf-hl.wf-free{overflow:visible}
+.wf-ch{display:inline-block;transform:translateY(118%) rotate(7deg);transform-origin:0 100%;transition:transform 1s var(--wf-ease);transition-delay:calc(var(--k)*30ms + 250ms)}
+.wf-go .wf-ch{transform:none}
+.wf-ci{display:inline-block;transition:transform .3s var(--wf-ease),color .3s;transform:translateY(calc(var(--p,0)*-14px)) scale(calc(1 + var(--p,0)*.12));color:color-mix(in srgb,var(--hi) calc(var(--p,0)*100%),var(--b))}
+.wf-sp{display:inline-block;width:.28em}
+.wf-sub{font-size:clamp(1.05rem,1.6vw,1.3rem);color:#fff;font-weight:500;margin-bottom:1rem}
+.wf-lede{color:#AEBBD3;max-width:760px;margin:0 auto 1.6rem}
+.wf-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.wf-mq{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:.6rem;overflow:hidden;pointer-events:none;z-index:0;will-change:transform}
+.wf-mq .wf-row{display:flex;width:max-content;will-change:transform}
+.wf-mq span{font-family:var(--display);font-size:clamp(4rem,12vw,10rem);line-height:1;letter-spacing:-.01em;white-space:nowrap;color:transparent;-webkit-text-stroke:1px rgba(255,255,255,.06);padding-right:.4em}
+.wf-mq .wf-row+.wf-row span{-webkit-text-stroke-color:rgba(221,187,104,.18)}
+.wf-eyebrow{display:flex;justify-content:center}
+.wf-ey{position:relative;display:inline-block;overflow:hidden;padding:.55rem 1.5rem;border-radius:999px;border:1px solid rgba(221,187,104,.5);color:#0B1B3F;font-size:.78rem;font-weight:600;text-transform:uppercase;letter-spacing:.3em;line-height:1.4}
+.wf-ey::before{content:"";position:absolute;inset:0;background:var(--wf-gold);transform:scaleX(0);transform-origin:0 50%;transition:transform 1.1s var(--wf-ease) .5s}
+.wf-go .wf-ey::before{transform:none}
+.wf-ey::after{content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:34%;background:rgba(255,255,255,.55);transform:translateX(-220%) skewX(-22deg);animation:wfShine 6s ease-in-out 2.4s infinite}
+@keyframes wfShine{0%{transform:translateX(-220%) skewX(-22deg)}30%,100%{transform:translateX(420%) skewX(-22deg)}}
+.wf-eyt{position:relative;z-index:1;display:inline-block}
+.wf-ec{display:inline-block;opacity:0;transform:translateY(60%);color:var(--wf-gold);transition:opacity .6s ease,transform .8s var(--wf-ease),color .5s ease;transition-delay:calc(var(--e)*38ms + 450ms),calc(var(--e)*38ms + 450ms),calc(var(--e)*38ms + 1500ms)}
+.wf-go .wf-ec{opacity:1;transform:none;color:#0B1B3F}
+.wf-js .wf-fd{opacity:0;transform:translateY(16px);transition:opacity .9s ease,transform .9s var(--wf-ease);transition-delay:calc(var(--i)*120ms + 150ms)}
+.wf-js .wf-go .wf-fd{opacity:1;transform:none}
+/* reason selector */
+.wf-pick{display:grid;grid-template-columns:5fr 7fr;gap:1.4rem;align-items:stretch}
+.wf-sels{display:grid;gap:.9rem;grid-auto-rows:1fr}
+.wf-sel{display:flex;align-items:center;gap:1.1rem;text-align:left;background:var(--surface);border:1px solid var(--wf-line);border-radius:24px;padding:1.1rem 1.5rem;cursor:pointer;transition:background .4s,color .4s,border-color .4s,transform .4s var(--wf-ease),box-shadow .4s;color:var(--wf-ink)!important;font-weight:500;line-height:1.4}
+.wf-sn{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--surface-2);font-size:.82rem;font-weight:500;transition:background .4s}
+.wf-sel:hover{transform:translateX(5px);border-color:#C8D2E6}
+.wf-sel.wf-on{background:var(--wf-navy);color:#fff!important;border-color:var(--wf-gold);box-shadow:0 18px 40px rgba(11,45,92,.28);transform:none}
+.wf-sel.wf-on .wf-sn{background:rgba(255,255,255,.16)}
+.wf-stage{display:grid;grid-template-rows:1fr auto;background:var(--wf-navy);border-radius:32px;color:#fff;position:relative;overflow:hidden}
+.wf-pn{grid-area:1/1;grid-row:1;padding:clamp(1.8rem,4vw,3.2rem);opacity:0;visibility:hidden;transform:translateY(22px);transition:opacity .5s ease,transform .7s var(--wf-ease),visibility 0s .5s;display:flex;flex-direction:column}
+.wf-pn.wf-on{opacity:1;visibility:visible;transform:none;transition:opacity .7s ease .1s,transform .8s var(--wf-ease) .1s,visibility 0s}
+.wf-big{font-family:var(--display);font-size:clamp(4.5rem,9vw,7.5rem);line-height:1;letter-spacing:-.02em;color:rgba(255,255,255,.2)}
+.wf-pt{margin-top:1.2rem!important;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--wf-gold)!important;font-weight:500}
+.wf-pn h3{font-size:clamp(1.5rem,2.4vw,2.1rem);line-height:1.2;letter-spacing:-.005em;margin:.6rem 0 1.2rem;color:#fff}
+.wf-pn p{color:#DCE5F2;font-size:1rem;line-height:1.75}.wf-pn p+p{margin-top:.9rem}
+.wf-pn strong{color:#fff;font-weight:600}
+.wf-adv{padding:1.1rem 1.4rem;border-radius:20px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-weight:500;line-height:1.6;margin-top:auto}
+.wf-pn .wf-adv{margin-top:1.6rem}
+.wf-adv em{display:block;font-style:normal;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--wf-gold);margin-bottom:.25rem}
+.wf-segs{display:flex;gap:.6rem;padding:0 clamp(1.8rem,4vw,3.2rem) 1.8rem;grid-row:2}
+.wf-segs i{flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,.2);overflow:hidden;position:relative;cursor:pointer}
+.wf-segs i::after{content:"";position:absolute;inset:0;background:#fff;transform:scaleX(0);transform-origin:0 50%}
+.wf-segs i.wf-done::after{transform:scaleX(1)}
+.wf-segs i.wf-on::after{animation:wfFill var(--dur,12s) linear forwards}
+.wf-stage.wf-paused .wf-segs i.wf-on::after{animation-play-state:paused}
+@keyframes wfFill{to{transform:scaleX(1)}}
+.wf-js .wf-pick:not(.wf-vis) .wf-sel{opacity:0}
+.wf-pick.wf-vis .wf-sel{animation:wfSlin .8s var(--wf-ease) backwards;animation-delay:calc(var(--n)*90ms + 200ms)}
+@keyframes wfSlin{from{opacity:0;transform:translateX(-30px)}}
+.wf-pn.wf-on>*{animation:wfUp .85s var(--wf-ease) backwards;animation-delay:calc(var(--k)*80ms + 150ms)}
+@keyframes wfUp{from{opacity:0;transform:translateY(20px)}}
+/* stats */
+.wf-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem}
+.wf-stat{position:relative;overflow:hidden;isolation:isolate;background:var(--surface);border:1px solid var(--wf-line);border-radius:28px;padding:2.2rem 2rem;transition:color .5s}
+.wf-stat::before{content:"";position:absolute;inset:0;background:var(--wf-navy);transform:translateY(101%);transition:transform .7s var(--wf-ease);z-index:-1}
+.wf-stat:hover::before{transform:none}
+.wf-stat b{display:block;font-family:var(--display);font-weight:400;font-size:clamp(2.6rem,5vw,4rem);letter-spacing:-.01em;line-height:1.05;color:var(--wf-navy);font-variant-numeric:tabular-nums;transition:color .5s}
+.wf-stat>span{display:block;margin-top:.6rem;color:var(--wf-ink2);font-size:.98rem;transition:color .5s}
+.wf-stat:hover b{color:#fff}.wf-stat:hover>span{color:#C9D6EC}
+:root[data-theme="dark"] .wf-stat b{color:#fff}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .wf-stat b{color:#fff}}
+.wf-stat .wf-odo{display:flex;height:1.05em;line-height:1.05;overflow:hidden}
+.wf-odo .wf-dg{display:block;height:1.05em;overflow:hidden}
+.wf-odo .wf-dg>div{display:flex;flex-direction:column;transform:translateY(0);transition:transform 2.4s cubic-bezier(.2,.9,.2,1);transition-delay:calc(var(--c)*140ms + 300ms)}
+.wf-odo .wf-dg>div>span{display:block;height:1.05em;line-height:1.05;text-align:center}
+.wf-stat.wf-in .wf-odo .wf-dg>div{transform:translateY(calc(var(--t)*-1.05em))}
+/* band */
+.wf-band{background:var(--wf-gold);color:#0B1B3F;overflow:hidden;padding:1.2rem 0;border-block:1px solid rgba(0,0,0,.08)}
+.wf-band .wf-row{display:flex;width:max-content}
+.wf-band span{font-family:var(--display);font-size:clamp(1.8rem,4.6vw,3.6rem);letter-spacing:-.005em;line-height:1.1;white-space:nowrap;padding-right:.6em}
+.wf-band i{font-style:normal;opacity:.35;padding:0 .3em}
+/* bento */
+.wf-bento{display:grid;grid-template-columns:2.4fr 1fr 1fr 1fr;gap:1rem;transition:grid-template-columns .75s var(--wf-ease)}
+.wf-bn{min-width:0;border-radius:28px;padding:1.8rem;min-height:330px;display:flex;flex-direction:column;transition:transform .5s var(--wf-ease)}
+.wf-bn:hover{transform:translateY(-6px)}
+.wf-bnum{font-family:var(--display);font-size:2.6rem;letter-spacing:-.01em;line-height:1;opacity:.45}
+.wf-bn h3{margin-top:auto;font-size:1.3rem;line-height:1.25;letter-spacing:-.005em;transition:font-size .5s var(--wf-ease)}
+.wf-bn p{margin-top:.6rem;font-size:.95rem;line-height:1.6}
+.wf-b1{background:var(--wf-navy);color:#fff}.wf-b1 h3{color:#fff;font-size:1.6rem}.wf-b1 p{color:#C9D6EC}
+.wf-b2{background:var(--wf-gold);color:#0B1B3F}.wf-b2 h3{color:#0B1B3F}.wf-b2 p{color:#2B3550}
+.wf-b3{background:var(--wf-blue);color:#fff}.wf-b3 h3{color:#fff}.wf-b3 p{color:#D3DFF3}
+.wf-b4{background:var(--wf-gold2);color:#0B1B3F}.wf-b4 h3{color:#0B1B3F}.wf-b4 p{color:#2B3550}
+.wf-viz{flex:1;display:flex;align-items:center;justify-content:center;margin:.8rem 0}
+.wf-type{width:100%;max-width:340px;padding:.9rem 1.1rem;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);font-weight:500;font-size:.98rem;line-height:1.4;min-height:3.2rem;display:flex;align-items:center}
+.wf-caret{display:inline-block;width:2px;height:1.1em;background:var(--wf-gold);margin-left:3px;animation:wfCb 1s steps(1) infinite}
+@keyframes wfCb{50%{opacity:0}}
+.wf-sk{width:100%;display:grid;gap:.6rem}
+.wf-sk span{display:block;height:10px;width:var(--w);border-radius:6px;background:rgba(11,27,63,.16);position:relative;overflow:hidden}
+.wf-sk span::after{content:"";position:absolute;inset:0;background:#0B1B3F;transform:scaleX(0);transform-origin:0 50%;animation:wfWork 5s var(--wf-ease) infinite;animation-delay:calc(var(--s)*.8s)}
+@keyframes wfWork{0%{transform:scaleX(0);opacity:1}38%,82%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}
+.wf-tr{position:relative;width:100%;height:2px;background:rgba(255,255,255,.28);margin:0 6px}
+.wf-tr::after{content:"";position:absolute;inset:0;background:#fff;transform:scaleX(0);transform-origin:0 50%;animation:wfTrk 5s var(--wf-ease) infinite}
+@keyframes wfTrk{0%{transform:scaleX(0);opacity:1}70%,90%{transform:scaleX(1);opacity:1}100%{transform:scaleX(1);opacity:0}}
+.wf-tr .wf-m{position:absolute;left:var(--p);top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border:2px solid #fff;border-radius:4px;background:var(--wf-blue);animation:wfMk 5s infinite;animation-delay:calc(var(--q)*.75s)}
+@keyframes wfMk{0%,2%{background:var(--wf-blue);transform:scale(1)}8%{background:#fff;transform:scale(1.4)}16%,88%{background:#fff;transform:scale(1)}100%{background:var(--wf-blue)}}
+.wf-zoom{position:relative;width:112px;height:112px}
+.wf-zoom i{position:absolute;inset:calc(var(--z)*16px);border:2px solid rgba(11,27,63,.5);border-radius:16px;animation:wfZo 4.4s ease-in-out infinite;animation-delay:calc(var(--z)*-.45s)}
+.wf-zoom i:last-child{background:#0B1B3F;border-color:#0B1B3F;border-radius:8px}
+@keyframes wfZo{0%,100%{transform:scale(.78);opacity:.55}50%{transform:scale(1.12);opacity:1}}
+.wf-bn:focus-visible{outline:2px solid var(--wf-gold);outline-offset:3px}
+@media(min-width:1001px){
+.wf-bento:has(.wf-b2:hover),.wf-bento:has(.wf-b2:focus-visible){grid-template-columns:1fr 2.4fr 1fr 1fr}
+.wf-bento:has(.wf-b3:hover),.wf-bento:has(.wf-b3:focus-visible){grid-template-columns:1fr 1fr 2.4fr 1fr}
+.wf-bento:has(.wf-b4:hover),.wf-bento:has(.wf-b4:focus-visible){grid-template-columns:1fr 1fr 1fr 2.4fr}
+.wf-bn h3,.wf-b1 h3{font-size:1.3rem}
+.wf-bn:hover h3,.wf-bn:focus-visible h3,.wf-bento:not(:has(.wf-bn:hover,.wf-bn:focus-visible)) .wf-b1 h3{font-size:1.6rem}
+.wf-bn:hover p,.wf-bn:focus-visible p,.wf-bento:not(:has(.wf-bn:hover,.wf-bn:focus-visible)) .wf-b1 p{font-size:1rem}
+}
+/* closing bar */
+.wf-cbar{margin-top:1rem;display:flex;align-items:center;justify-content:space-between;gap:1.5rem;flex-wrap:wrap;padding:1.4rem 1.6rem 1.4rem 2.2rem;border-radius:999px;background:var(--wf-night2);border:1px solid rgba(255,255,255,.1)}
+.wf-cbar p{font-weight:500;color:#fff;font-size:1.05rem;line-height:1.5}
+.wf-cbar p span{color:var(--wf-gold)}
+.wf-cbar .wf-cta{position:relative;overflow:hidden}
+.wf-cbar .wf-cta::after{content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:30%;background:rgba(255,255,255,.55);transform:translateX(-250%) skewX(-22deg);animation:wfShine 5.5s ease-in-out 1.5s infinite}
+.wf-wv{display:inline-block;animation:wfWv 2.8s ease-in-out infinite;animation-delay:calc(var(--w)*80ms)}
+@keyframes wfWv{0%,55%,100%{transform:none}25%{transform:translateY(-6px)}}
+/* reveal + tilt */
+.wf-js .wf-rv{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .9s var(--wf-ease);transition-delay:calc(var(--d,0)*1ms)}
+.wf-js .wf-rv.wf-in{opacity:1;transform:none}
+.wf-js .wf-rv .wf-w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.14em;margin-bottom:-.14em}
+.wf-js .wf-rv .wf-w>span{display:inline-block;transform:translateY(112%);transition:transform .9s var(--wf-ease);transition-delay:calc(var(--j)*45ms + 150ms)}
+.wf-js .wf-rv.wf-in .wf-w>span{transform:none}
+.wf-js .wf-b1.wf-rv:not(.wf-in){transform:translateX(-60px)}.wf-js .wf-b4.wf-rv:not(.wf-in){transform:translateX(60px)}.wf-js .wf-b2.wf-rv:not(.wf-in),.wf-js .wf-b3.wf-rv:not(.wf-in){transform:translateY(70px)}
+.wf-bn.wf-b1{transition-delay:0ms}.wf-bn.wf-b2{transition-delay:120ms}.wf-bn.wf-b3{transition-delay:240ms}.wf-bn.wf-b4{transition-delay:360ms}
+.wf-js .wf-rv.wf-done{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)) translateY(var(--ty,0px));transition:transform .4s var(--wf-ease),opacity .8s ease,grid-template-columns .75s var(--wf-ease)}
+.wf-js .wf-bn.wf-done{transition-delay:0ms}
+.wf-js .wf-bn.wf-done:hover{--ty:-6px}
+@media(max-width:1000px){.wf-shead{grid-template-columns:1fr;gap:1.4rem}.wf-pick{grid-template-columns:1fr}.wf-sels{grid-auto-rows:auto}.wf-bento{grid-template-columns:1fr 1fr}.wf-b1{grid-column:1/-1;min-height:260px}.wf-stats{grid-template-columns:1fr}.wf-cbar{border-radius:28px;padding:1.4rem}}
+@media(max-width:560px){.wf-bento{grid-template-columns:1fr}.wf-bn{min-height:220px}.wf-cta{width:100%}}
+@media(prefers-reduced-motion:reduce){.wf *{transition:none!important;animation:none!important}.wf-js .wf-rv,.wf-js .wf-fd{opacity:1!important;transform:none!important}.wf-ch,.wf-js .wf-rv .wf-w>span,.wf-ec{transform:none!important;opacity:1!important}.wf-ec{color:#0B1B3F}.wf-ey::before{transform:none!important}.wf-js .wf-pick .wf-sel{opacity:1!important}.wf-sk span::after,.wf-tr::after{transform:scaleX(1)}}
+
+/* ==== Home teaser for the Why Filipino VAs page ==== */
+.wft{background:var(--navy-950);color:#fff;position:relative;overflow:hidden}
+.wft-grid{display:grid;grid-template-columns:1fr 1.15fr;gap:clamp(28px,5vw,64px);align-items:center}
+.wft-ey{display:inline-block;padding:.45rem 1.2rem;border-radius:999px;background:var(--gold-400);color:#0B1B3F;font-size:.74rem;font-weight:600;text-transform:uppercase;letter-spacing:.28em;line-height:1.4}
+.wft h2{color:#fff;font-size:clamp(1.9rem,3.2vw,2.7rem);margin:18px 0 14px}
+.wft h2 em{font-style:normal;color:var(--gold-400)}
+.wft p{color:#AEBBD3;font-size:1.08rem;max-width:34em}
+.wft .btn{margin-top:24px}
+.wft-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.wft-stat{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);border-radius:24px;padding:24px 20px;transition:transform .5s var(--ease),border-color .4s}
+.wft-stat:hover{transform:translateY(-4px);border-color:rgba(221,187,104,.55)}
+.wft-stat b{display:block;font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,3vw,2.6rem);line-height:1.05;color:var(--gold-400);font-variant-numeric:tabular-nums}
+.wft-stat span{display:block;margin-top:8px;font-size:.92rem;color:#C9D6EC;line-height:1.45}
+@media(max-width:900px){.wft-grid{grid-template-columns:1fr}}
+@media(max-width:560px){.wft-stats{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -2206,6 +2383,7 @@ p{text-wrap:pretty}
     <nav class="nav" id="nav" aria-label="Main">
       <a href="#home" data-r="home" data-nav="guest">Home</a>
       <a href="#talent" data-r="talent">Assistants</a>
+      <a href="#why-filipino" data-r="why-filipino" data-nav="guest">Why Filipino VAs</a>
       <a href="#messages" data-r="messages" data-nav="auth" hidden>Messages</a>
       <a href="#how" data-r="how">How it works</a>
       <a href="#pricing" data-r="pricing" data-nav="guest">Pricing</a>
@@ -2257,6 +2435,7 @@ p{text-wrap:pretty}
             <li><a href="#home">Home</a></li>
             <li><a href="#how">How it works</a></li>
             <li><a href="#talent">Find assistants</a></li>
+            <li><a href="#why-filipino">Why Filipino VAs</a></li>
             <li><a href="#pricing">Pricing</a></li>
             <li><a href="#about">About</a></li>
           </ul>
@@ -3193,6 +3372,7 @@ V.home = function(){
   faqTeaser()+
   '<section class="sec"><div class="wrap">'+missionBlock()+'</div></section>'+
   founderSection()+
+  whyFilipinoTeaser()+
   teamSection()+
   closing();
 };
@@ -3691,6 +3871,7 @@ function initDeck(){carouselResize=[];initCarousel("#rstage","#rPrev","#rNext");
 var highlightStackOff=null;
 function initHighlightStack(){
   if(highlightStackOff){highlightStackOff();highlightStackOff=null;}
+  if(wfOff){wfOff();wfOff=null;}
   var cards=[].slice.call(document.querySelectorAll(".hstack-card"));
   if(!cards.length)return;
   if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
@@ -5818,6 +5999,107 @@ function onScroll(){var y=window.scrollY,on=hdr.classList.contains("scrolled");i
 window.addEventListener("scroll",onScroll,{passive:true});onScroll();
 
 var TITLES = {pricing:"Pricing | AAO",faq:"FAQs | AAO",terms:"Terms and Conditions | AAO",privacy:"Privacy Policy | AAO",home:"Amazing Assistants Online | You weren’t meant to build alone",how:"How AAO works | AAO",standards:"Trust and standards | AAO",about:"About AAO | AAO",talent:"Find virtual assistants | AAO",help:"Help and support | AAO",join:"Create your account | AAO",login:"Log in | AAO",dashboard:"Dashboard | AAO","post-job":"Post a job | AAO",messages:"Messages | AAO",membership:"Membership | AAO","va-profile":"Your profile | AAO","va-applications":"Job applications | AAO","va-saved":"Saved jobs | AAO","va-settings":"Account settings | AAO","forgot-password":"Reset your password | AAO","reset-password":"Choose a new password | AAO"};
+var WF_HTML="<div class=\"wf\">\n<section class=\"wf-slab wf-dark wf-hero\" id=\"wf-hero\"><div class=\"wf-mq\" aria-hidden=\"true\"><div class=\"wf-row\" data-d=\"1\"><span>LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · <\/span><span>LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · <\/span><\/div><div class=\"wf-row\" data-d=\"-1\"><span>THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · <\/span><span>THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · <\/span><\/div><\/div><div class=\"wrap wf-hin\">\n<div class=\"wf-eyebrow wf-fd\" style=\"--i:0\"><span class=\"wf-ey\" aria-label=\"The Filipino Advantage\"><span class=\"wf-eyt\" aria-hidden=\"true\" data-wf-ey>The Filipino Advantage<\/span><\/span><\/div>\n<h1 aria-label=\"Why Filipino Virtual Assistants?\"><span class=\"wf-hl\" aria-hidden=\"true\" data-wf-split>Why Filipino<\/span><span class=\"wf-hl wf-g\" aria-hidden=\"true\" data-wf-split>Virtual Assistants?<\/span><\/h1>\n<p class=\"wf-sub wf-fd\" style=\"--i:3\">Lasting Partnerships. Clear Communication. Smarter Business Growth.<\/p>\n<p class=\"wf-lede wf-fd\" style=\"--i:4\">Filipino work culture often puts relationships first. Respect, cooperation and a deep sense of gratitude shape how people work, so the right assistant doesn’t just clear your task list. They stay, learn your business and grow alongside it. Add strong English communication and diverse expertise, and you get a partner you can hand things off to with confidence.<\/p>\n<div class=\"wf-btns wf-fd\" style=\"--i:5\"><a class=\"wf-cta wf-gold wf-mag\" href=\"#why-filipino\" data-wf-jump=\"wf-reasons\">See the five reasons<\/a><a class=\"wf-cta wf-ghost wf-mag\" href=\"#why-filipino\" data-wf-jump=\"wf-advantage\">The AAO advantage<\/a><\/div><\/div>\n<\/section>\n<section class=\"wf-slab wf-light\" id=\"wf-reasons\"><div class=\"wrap\">\n<div class=\"wf-shead\"><div class=\"wf-rv\"><span class=\"wf-badge\">Five reasons<\/span><h2>Here’s Why Filipino Talent Is a Smart Investment for Your Business.<\/h2><\/div><div class=\"wf-copy wf-rv\" style=\"--d:120\"><p class=\"wf-lead\">It starts with partnership. Everything else, from clear communication to versatile skills, is what makes that partnership work day to day.<\/p><p>Pick a reason to explore it, or let it play through all five.<\/p><\/div><\/div>\n<div class=\"wf-pick wf-rv\"><div class=\"wf-sels\" role=\"tablist\" aria-label=\"Five reasons\"><button class=\"wf-sel wf-on\" role=\"tab\" id=\"wf-t0\" aria-controls=\"wf-p0\" aria-selected=\"true\" tabindex=\"0\"><span class=\"wf-sn\">01<\/span><span class=\"wf-st\">They Value Strong, Lasting Partnerships<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t1\" aria-controls=\"wf-p1\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">02<\/span><span class=\"wf-st\">They Understand Your Business Needs<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t2\" aria-controls=\"wf-p2\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">03<\/span><span class=\"wf-st\">They Have the Skills to Get Things Done<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t3\" aria-controls=\"wf-p3\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">04<\/span><span class=\"wf-st\">They Are Resourceful, Adaptable &amp; Results-Driven<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t4\" aria-controls=\"wf-p4\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">05<\/span><span class=\"wf-st\">They Make Business Growth More Affordable<\/span><\/button><\/div>\n<div class=\"wf-stage\"><div class=\"wf-pn wf-on\" role=\"tabpanel\" id=\"wf-p0\" aria-labelledby=\"wf-t0\"><span class=\"wf-big\" aria-hidden=\"true\">01<\/span><p class=\"wf-pt\">Professional commitment. Meaningful relationships. Long-term support.<\/p><h3>They Value Strong, Lasting Partnerships<\/h3><p>Filipino workplace culture often emphasizes respect, cooperation and maintaining positive professional relationships.<\/p><p>The cultural value of <em>utang na loob<\/em>, commonly associated with gratitude and reciprocity, reflects the importance placed on recognizing support and building meaningful connections.<\/p><p>When businesses provide fair compensation, clear expectations and opportunities for growth, they can create an environment where Filipino professionals thrive and develop long-term working relationships.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Build a dependable working relationship with a virtual assistant who understands your business and grows alongside it.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p1\" aria-labelledby=\"wf-t1\"><span class=\"wf-big\" aria-hidden=\"true\">02<\/span><p class=\"wf-pt\">Clear communication. Less micromanagement. Better results.<\/p><h3>They Understand Your Business Needs<\/h3><p>A partnership only works when you understand each other. The Philippines is recognized as one of the world’s largest English speaking nations. According to the Philippine Department of Tourism, approximately <strong>93.5% of Filipinos speak and understand English<\/strong>, reflecting the country’s strong foundation in English communication. As an official language widely used in education, business and professional settings, English gives Filipino virtual assistants a valuable advantage when collaborating with international clients.<\/p><p>Beyond language proficiency, Filipino VAs bring a service-oriented mindset, professionalism and dedication to delivering quality work.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Spend less time explaining tasks and more time growing your business.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p2\" aria-labelledby=\"wf-t2\"><span class=\"wf-big\" aria-hidden=\"true\">03<\/span><p class=\"wf-pt\">Educated professionals. Versatile skills. Reliable support.<\/p><h3>They Have the Skills to Get Things Done<\/h3><p>With a reported literacy rate of approximately <strong>97%<\/strong> and hundreds of thousands of college graduates entering the workforce annually, the Philippines offers a broad pool of educated professionals across fields such as business, technology, marketing and communications.<\/p><p>Filipino VAs can support a wide range of business functions, from administrative assistance and customer service to digital marketing, bookkeeping and technical operations.<\/p><p>Whether you’re streamlining daily workflows or expanding your digital presence, the right Filipino virtual assistant can bring valuable expertise to your business.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Get the specialized support your business needs without the commitment of hiring a full-time employee.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p3\" aria-labelledby=\"wf-t3\"><span class=\"wf-big\" aria-hidden=\"true\">04<\/span><p class=\"wf-pt\">Strong work ethic. Practical solutions. Continuous improvement.<\/p><h3>They Are Resourceful, Adaptable &amp; Results-Driven<\/h3><p>The Philippines has developed an established international outsourcing industry, with Filipino professionals supporting businesses across customer service, technology, finance, marketing and other sectors.<\/p><p>Working with international clients often requires flexibility, problem-solving and the ability to learn new tools and processes.<\/p><p>Filipino VAs can bring these capabilities to businesses navigating changing priorities, expanding operations and evolving customer expectations.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Gain a professional who can adapt to your business needs and help keep operations moving forward.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p4\" aria-labelledby=\"wf-t4\"><span class=\"wf-big\" aria-hidden=\"true\">05<\/span><p class=\"wf-pt\">Quality talent. Competitive costs. Greater flexibility.<\/p><h3>They Make Business Growth More Affordable<\/h3><p>Hiring a traditional employee can be expensive, especially when factoring in salaries, office expenses, equipment and other employment-related costs.<\/p><p>Because living costs differ between the Philippines and many Western markets, Filipino virtual assistant services are often competitively priced.<\/p><p>This allows businesses to access professional support while managing staffing expenses more efficiently.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Allocate more resources toward growth without compromising your need for skilled support.<\/div><\/div><div class=\"wf-segs\" aria-hidden=\"true\"><i><\/i><i><\/i><i><\/i><i><\/i><i><\/i><\/div><\/div><\/div><\/div><\/section>\n<section class=\"wf-slab wf-soft\" id=\"wf-numbers\"><div class=\"wrap\"><div class=\"wf-shead\"><div class=\"wf-rv\"><span class=\"wf-badge\">By the numbers<\/span><h2>A Strong Foundation for Working Together.<\/h2><\/div><div class=\"wf-copy wf-rv\" style=\"--d:120\"><p>The figures behind the communication and skills reasons above.<\/p><\/div><\/div>\n<div class=\"wf-stats\"><div class=\"wf-stat wf-rv\"><b data-to=\"93.5\" data-dec=\"1\" data-suf=\"%\">93.5%<\/b><span>of Filipinos speak and understand English<\/span><\/div><div class=\"wf-stat wf-rv\" style=\"--d:120\"><b data-to=\"97\" data-dec=\"0\" data-suf=\"%\">97%<\/b><span>reported literacy rate across the country<\/span><\/div><div class=\"wf-stat wf-rv\" style=\"--d:240\"><b class=\"wf-odo\" aria-label=\"828,760\">828,760<\/b><span>of college graduates enter the workforce each year<\/span><\/div><\/div><\/div><\/section>\n<div class=\"wf-band\" aria-hidden=\"true\"><div class=\"wf-row\" data-d=\"-1\"><span>You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> <\/span><span>You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> <\/span><\/div><\/div>\n<section class=\"wf-slab wf-dark\" id=\"wf-advantage\"><div class=\"wrap\"><div class=\"wf-shead\"><div class=\"wf-rv\"><span class=\"wf-badge\">The AAO Advantage<\/span><h2>More Than Virtual Assistance. Find Someone Who Understands Your Goals.<\/h2><\/div><div class=\"wf-copy wf-rv\" style=\"--d:120\"><p>Amazing Assistants Online connects business owners with skilled Filipino virtual assistants who bring more than technical expertise to the table.<\/p><p>Lasting partnerships don’t happen by accident. They need clear expectations, fair terms, ongoing growth and support on both sides, so that’s what we build into every match.<\/p><p class=\"wf-strong\">Explore our assistants, discover their skills and experience, and get to know the people behind their profiles before deciding who you’d like to connect with.<\/p><\/div><\/div>\n<div class=\"wf-bento\"><article class=\"wf-bn wf-b1 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">01<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-type\"><span class=\"wf-tw\"><\/span><i class=\"wf-caret\"><\/i><\/div><\/div><h3>Clear expectations<\/h3><p>Interview first, and agree on the work before day one.<\/p><\/article><article class=\"wf-bn wf-b2 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">02<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-sk\"><span style=\"--s:0;--w:100%\"><\/span><span style=\"--s:1;--w:78%\"><\/span><span style=\"--s:2;--w:60%\"><\/span><\/div><\/div><h3>Fair, transparent terms<\/h3><p>You know the rate up front. They know it’s fair.<\/p><\/article><article class=\"wf-bn wf-b3 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">03<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-tr\"><i class=\"wf-m\" style=\"--p:0%;--q:0\"><\/i><i class=\"wf-m\" style=\"--p:33%;--q:1\"><\/i><i class=\"wf-m\" style=\"--p:66%;--q:2\"><\/i><i class=\"wf-m\" style=\"--p:100%;--q:3\"><\/i><\/div><\/div><h3>Ongoing training<\/h3><p>AAO keeps developing them after the hire.<\/p><\/article><article class=\"wf-bn wf-b4 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">04<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-zoom\"><i style=\"--z:0\"><\/i><i style=\"--z:1\"><\/i><i style=\"--z:2\"><\/i><i style=\"--z:3\"><\/i><\/div><\/div><h3>Growing together<\/h3><p>The longer they stay, the more of your business they carry.<\/p><\/article><\/div>\n<div class=\"wf-cbar wf-rv\"><p>Ready for an assistant who’s in it for the long run? <span>Start the partnership.<\/span><\/p><a class=\"wf-cta wf-gold\" href=\"#talent\">Meet our assistants<\/a><\/div><\/div><\/section>\n<\/div>";
+
+/* ==== Why Filipino VAs page (route #why-filipino) ==== */
+var wfOff=null;
+V["why-filipino"]=function(){return WF_HTML;};
+V["why-filipino"].init=function(){
+  var root=document.querySelector("#app .wf");if(!root)return;
+  var q=function(s,c){return (c||root).querySelector(s);},qa=function(s,c){return [].slice.call((c||root).querySelectorAll(s));};
+  var rm=matchMedia("(prefers-reduced-motion:reduce)").matches,fine=matchMedia("(hover:hover) and (pointer:fine)").matches;
+  var alive=true,timers=[],obs=[],anims=[],offs=[],timer=null;
+  function T(fn,ms){var id=setTimeout(function(){if(alive)fn();},ms);timers.push(id);return id;}
+  function on(el,ev,fn,o){el.addEventListener(ev,fn,o);offs.push(function(){el.removeEventListener(ev,fn,o);});}
+  function IO(cb,o){var x=new IntersectionObserver(cb,o);obs.push(x);return x;}
+  root.classList.add("wf-js");
+  var hero=q(".wf-hero");
+
+  /* text splitting: section headings by word, eyebrow and headline by letter */
+  qa(".wf-shead h2").forEach(function(h){var n=0;h.innerHTML=h.textContent.split(" ").map(function(w){return '<span class="wf-w"><span style="--j:'+(n++)+'">'+w+'</span></span>';}).join(" ");});
+  qa("[data-wf-ey]").forEach(function(e){var t=e.textContent;e.textContent="";t.split("").forEach(function(c,i){var o=document.createElement("span");o.className="wf-ec";o.style.setProperty("--e",i);o.textContent=c===" "?" ":c;e.appendChild(o);});});
+  var chars=[];
+  qa("[data-wf-split]").forEach(function(l){var t=l.textContent;l.textContent="";t.split("").forEach(function(c){var o=document.createElement("span");if(c===" "){o.className="wf-sp";l.appendChild(o);return;}o.className="wf-ch";o.style.setProperty("--k",chars.length);var i2=document.createElement("span");i2.className="wf-ci";i2.textContent=c;o.appendChild(i2);l.appendChild(o);chars.push({o:o,i:i2});});});
+  T(function(){qa(".wf-hl").forEach(function(l){l.classList.add("wf-free");});},2600);
+  qa(".wf-cbar p span").forEach(function(sp){var t=sp.textContent;sp.textContent="";t.split("").forEach(function(c,i){var o=document.createElement("span");o.className="wf-wv";o.style.setProperty("--w",i);o.textContent=c===" "?" ":c;sp.appendChild(o);});});
+  qa(".wf-odo").forEach(function(o){var t=o.textContent.trim(),h="",c=0;t.split("").forEach(function(ch){if(/\d/.test(ch)){var st="";for(var r=0;r<2;r++)for(var n=0;n<10;n++)st+="<span>"+n+"</span>";h+='<span class="wf-dg" style="--c:'+(c++)+';--t:'+(10+ +ch)+'"><div>'+st+'</div></span>';}else h+='<span class="wf-dg"><div><span>'+ch+'</span></div></span>';});o.innerHTML=h;});
+  requestAnimationFrame(function(){T(function(){hero.classList.add("wf-go");},80);});
+
+  /* reveal on scroll + count-up */
+  function count(el){if(rm)return;var to=+el.dataset.to,dec=+el.dataset.dec,suf=el.dataset.suf||"",t0=performance.now();(function f(t){if(!alive)return;var p=Math.min(1,(t-t0)/1800),e=1-Math.pow(1-p,4);el.textContent=(to*e).toFixed(dec)+suf;if(p<1)requestAnimationFrame(f);})(t0);}
+  var io=IO(function(es){es.forEach(function(e){if(!e.isIntersecting)return;e.target.classList.add("wf-in");if(e.target.classList.contains("wf-pick"))e.target.classList.add("wf-vis");var b=q("[data-to]",e.target);if(b&&!b.wfDone){b.wfDone=1;count(b);}io.unobserve(e.target);});},{threshold:.12});
+  qa(".wf-rv").forEach(function(e){io.observe(e);});
+
+  /* five-reason selector with auto-play */
+  var sels=qa(".wf-sel"),pns=qa(".wf-pn"),segs=qa(".wf-segs i"),stage=q(".wf-stage"),idx=0,DUR=12000,auto=!rm,vis=false,hover=false;
+  stage.style.setProperty("--dur",DUR+"ms");
+  function show(i,user){i=(i+sels.length)%sels.length;
+    sels.forEach(function(s,k){var o=k===i;s.classList.toggle("wf-on",o);s.setAttribute("aria-selected",o);s.tabIndex=o?0:-1;});
+    pns.forEach(function(p,k){p.classList.toggle("wf-on",k===i);});
+    segs.forEach(function(s,k){s.classList.remove("wf-on","wf-done");if(k<i)s.classList.add("wf-done");});
+    void stage.offsetWidth;idx=i;
+    if(user){auto=false;clearTimeout(timer);segs.forEach(function(s,k){s.classList.toggle("wf-done",k<=i);});}
+    else{segs[i].classList.add("wf-on");restart();}
+  }
+  function restart(){clearTimeout(timer);if(!auto||!alive)return;timer=setTimeout(function(){if(!alive)return;if(auto&&!hover&&vis)show(idx+1,false);else restart();},DUR);}
+  IO(function(es){var was=vis;vis=es[0].isIntersecting;if(vis&&!was&&auto)show(idx,false);},{threshold:.4}).observe(q(".wf-pick"));
+  sels.forEach(function(s,k){on(s,"click",function(){show(k,true);});
+    on(s,"keydown",function(e){if(e.key==="ArrowDown"||e.key==="ArrowRight"){e.preventDefault();show(k+1,true);sels[idx].focus();}if(e.key==="ArrowUp"||e.key==="ArrowLeft"){e.preventDefault();show(k-1,true);sels[idx].focus();}});});
+  segs.forEach(function(s,k){on(s,"click",function(){show(k,true);});});
+  on(stage,"mouseenter",function(){hover=true;stage.classList.add("wf-paused");});on(stage,"mouseleave",function(){hover=false;stage.classList.remove("wf-paused");});
+  var sx=null;on(stage,"touchstart",function(e){sx=e.touches[0].clientX;},{passive:true});on(stage,"touchend",function(e){if(sx==null)return;var dx=e.changedTouches[0].clientX-sx;if(Math.abs(dx)>50)show(idx+(dx<0?1:-1),true);sx=null;});
+  if(!auto)segs[0].classList.add("wf-done");
+  sels.forEach(function(s,k){s.style.setProperty("--n",k);});
+  pns.forEach(function(p){[].forEach.call(p.children,function(c,i){c.style.setProperty("--k",i);});});
+
+  /* typing card in the bento */
+  var tw=q(".wf-tw"),ph=["What does success look like?","Who do I check in with?","Here’s the plan for week one."];
+  if(tw){if(rm){tw.textContent=ph[2];}else{var pi=0,ci=0,del=false;(function tick(){if(!alive)return;var p=ph[pi];if(!del){ci++;tw.textContent=p.slice(0,ci);if(ci===p.length){del=true;return void T(tick,1700);}T(tick,48);}else{ci-=2;if(ci<=0){ci=0;del=false;pi=(pi+1)%ph.length;tw.textContent="";return void T(tick,350);}tw.textContent=p.slice(0,ci);T(tick,22);}})();}}
+
+  /* tilt after reveal */
+  qa(".wf-stat,.wf-bn").forEach(function(el){var mo=new MutationObserver(function(){if(el.classList.contains("wf-in")&&!el.wfTilt){el.wfTilt=1;T(function(){el.classList.add("wf-done");},1100);}});mo.observe(el,{attributes:true,attributeFilter:["class"]});obs.push(mo);
+    if(fine){on(el,"pointermove",function(e){var r=el.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;el.style.setProperty("--ry",(x*8).toFixed(2)+"deg");el.style.setProperty("--rx",(-y*8).toFixed(2)+"deg");});on(el,"pointerleave",function(){el.style.setProperty("--rx","0deg");el.style.setProperty("--ry","0deg");});}});
+
+  /* magnetic buttons */
+  if(fine&&!rm){qa(".wf-mag,.wf-cbar .wf-cta").forEach(function(b){on(b,"pointermove",function(e){var r=b.getBoundingClientRect();b.style.transform="translate("+((e.clientX-r.left-r.width/2)*.22).toFixed(1)+"px,"+((e.clientY-r.top-r.height/2)*.3).toFixed(1)+"px)";});on(b,"pointerleave",function(){b.style.transform="";});});}
+
+  /* in-page jumps (the site router owns #hashes, so these scroll instead) */
+  qa("[data-wf-jump]").forEach(function(a){on(a,"click",function(e){e.preventDefault();var t=document.getElementById(a.getAttribute("data-wf-jump"));if(t)t.scrollIntoView({behavior:rm?"auto":"smooth",block:"start"});});});
+
+  /* marquees that speed up with scroll velocity */
+  if(!rm&&Element.prototype.animate){qa(".wf-mq .wf-row,.wf-band .wf-row").forEach(function(r){var dir=+(r.dataset.d||-1),kf=dir<0?[{transform:"translateX(0)"},{transform:"translateX(-50%)"}]:[{transform:"translateX(-50%)"},{transform:"translateX(0)"}];anims.push(r.animate(kf,{duration:r.closest(".wf-band")?30000:70000,iterations:Infinity}));});}
+
+  /* headline letters lift toward the pointer; hero parallax on scroll */
+  var heroIn=q(".wf-hin"),mq=q(".wf-mq"),px=-999,py=-999,lastY=scrollY,vel=0,run=false;
+  if(fine&&!rm){on(hero,"pointermove",function(e){px=e.clientX;py=e.clientY;kick();});on(hero,"pointerleave",function(){px=py=-999;kick();});}
+  function kick(){if(!run&&alive){run=true;requestAnimationFrame(loop);}}
+  function loop(){
+    if(!alive){run=false;return;}
+    if(px>-900){chars.forEach(function(c){var r=c.o.getBoundingClientRect(),dx=px-(r.left+r.width/2),dy=py-(r.top+r.height/2),dd=Math.sqrt(dx*dx+dy*dy),p=Math.max(0,1-dd/150);c.i.style.setProperty("--p",p.toFixed(2));});}
+    else chars.forEach(function(c){c.i.style.setProperty("--p",0);});
+    var y=scrollY,v=y-lastY;lastY=y;vel+=(v-vel)*.12;var rate=1+Math.min(9,Math.abs(vel)*.4);anims.forEach(function(a){a.playbackRate=rate;});
+    run=px>-900||Math.abs(vel)>.05;
+    if(run)requestAnimationFrame(loop);
+  }
+  on(window,"scroll",function(){var y=scrollY;if(y<innerHeight*1.2&&!rm){heroIn.style.transform="translateY("+(y*.16).toFixed(1)+"px)";heroIn.style.opacity=Math.max(0,1-y/(innerHeight*.9)).toFixed(2);mq.style.transform="translateY("+(y*.32).toFixed(1)+"px)";}kick();},{passive:true});
+  if(anims.length)kick();
+
+  /* everything above is torn down when the visitor leaves the page */
+  wfOff=function(){alive=false;clearTimeout(timer);timers.forEach(clearTimeout);obs.forEach(function(o){o.disconnect();});anims.forEach(function(a){a.cancel();});offs.forEach(function(f){f();});};
+};
+
+/* Home teaser: three figures and a link to the Why Filipino VAs page */
+function whyFilipinoTeaser(){
+  return '<section class="sec wft" aria-label="Why Filipino virtual assistants"><div class="wrap wft-grid"><div class="wft-copy"><span class="wft-ey">The Filipino Advantage</span><h2>Why Filipino <em>virtual assistants?</em></h2><p>Filipino work culture often puts relationships first, so the right assistant doesn’t just clear your task list. They stay, learn your business and grow alongside it.</p><a class="btn btn-gold" href="#why-filipino">Why Filipino VAs</a></div>'+
+  '<div class="wft-stats"><div class="wft-stat"><b data-wft-to="93.5" data-wft-dec="1" data-wft-suf="%">93.5%</b><span>of Filipinos speak and understand English</span></div><div class="wft-stat"><b data-wft-to="97" data-wft-dec="0" data-wft-suf="%">97%</b><span>reported literacy rate across the country</span></div><div class="wft-stat"><b data-wft-to="828760" data-wft-dec="0" data-wft-suf="" data-wft-sep="1">828,760</b><span>college graduates enter the workforce each year</span></div></div></div></section>';
+}
+function initWhyFilipinoTeaser(){
+  var s=document.querySelector("#app .wft");if(!s||!("IntersectionObserver" in window)||matchMedia("(prefers-reduced-motion:reduce)").matches)return;
+  var io=new IntersectionObserver(function(es){if(!es[0].isIntersecting)return;io.disconnect();[].forEach.call(s.querySelectorAll("[data-wft-to]"),function(el){var to=+el.getAttribute("data-wft-to"),dec=+el.getAttribute("data-wft-dec"),suf=el.getAttribute("data-wft-suf"),sep=el.hasAttribute("data-wft-sep"),t0=performance.now();(function f(t){if(!document.body.contains(el))return;var p=Math.min(1,(t-t0)/1800),e=1-Math.pow(1-p,4),v=(to*e).toFixed(dec);if(sep)v=Math.round(to*e).toLocaleString("en-US");el.textContent=v+suf;if(p<1)requestAnimationFrame(f);})(t0);});},{threshold:.35});
+  io.observe(s);
+}
+(function(){var hi=V.home.init;V.home.init=function(){if(hi)hi.apply(this,arguments);initWhyFilipinoTeaser();};})();
+TITLES["why-filipino"]="Why Filipino Virtual Assistants | AAO";
 var current=null;
 var jobLookups={}; /* live mode: job ids fetched on a direct link ("pending", "done" or "missing") */
 function go(r){
