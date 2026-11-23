@@ -1324,6 +1324,7 @@ body.booting .foot{visibility:hidden}
 .app-form{display:grid;gap:14px}
 .app-form .field{color:#EAF0FA}
 .app-form .field input,.app-form .field select,.app-form .field textarea{color:#0B1A33;background:#fff;border:1.5px solid #DAE1EE}
+.app-form .field input[readonly]{background:#E3E9F2;color:#51617C;cursor:default}
 .app-form .field textarea{min-height:140px}
 .app-form .field input::placeholder,.app-form .field textarea::placeholder{color:#7A8AA3}
 .app-form .two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -5724,7 +5725,7 @@ V.vaSaved = function(){
   }else{
     body='<div class="dash-panels" style="margin-top:8px"><div class="dash-panel">'+dashRows(saved.map(function(j){return [j.title||"Saved role",j.company||"AAO client","View","#job-"+(j.id||"")];}))+'</div></div>';
   }
-  return vaAppShell({h1:"Saved jobs",p:"Jobs you’ve bookmarked while browsing openings.",cta:"Browse openings",ctaHref:"#talent",body:body});
+  return vaAppShell({h1:"Saved jobs",p:(API_ON?"Jobs you save while browsing will appear here.":"Jobs you’ve bookmarked while browsing openings."),cta:"Browse openings",ctaHref:"#talent",body:body});
 };
 V.vaSaved.init = function(){requireVaPage();};
 V.vaSettings = function(){
