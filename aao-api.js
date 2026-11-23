@@ -356,7 +356,7 @@
     if (/email not confirmed/i.test(m)) return "Please confirm your email first. Check your inbox for the link.";
     if (/already registered|already been registered/i.test(m)) return "An account with that email already exists. Try logging in.";
     if (/password/i.test(m)) return m;
-    if (/rate limit|too many|only request this after|seconds/i.test(m)) return "Too many attempts. Please wait a minute and try again.";
+    if (/rate limit|too many|only request this after|seconds/i.test(m)) return "Too many attempts right now. Please try again in a little while.";
     return "We could not complete that. Please try again.";
   }
 
