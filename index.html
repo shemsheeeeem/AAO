@@ -4995,6 +4995,12 @@ V.login.init = function(){
     if(!btn)return;
     fillDemo(btn.getAttribute("data-demo"));
   });
+  /* Live mode: start on the role this person signed up or last logged in as (a virtual assistant should not land on "Client"). */
+  if(API_ON){
+    var lr=AAOApi.lastRole();
+    var lrRadio=lr&&form.querySelector('input[name="lrole"][value="'+lr+'"]');
+    if(lrRadio)lrRadio.checked=true;
+  }
   form.addEventListener("submit",function(e){
     e.preventDefault();
     note.classList.add("show");
@@ -5007,6 +5013,7 @@ V.login.init = function(){
       AAOApi.signIn(email,pwd).then(function(u){
         if(!u){note.innerHTML="<strong>Could not log in.</strong>Please try again.";return;}
         if(u.role!==want){AAOApi.signOut();note.innerHTML="<strong>Role mismatch.</strong>That account is a "+u.label.toLowerCase()+". Switch the role toggle and try again.";return;}
+        AAOApi.rememberRole(u.role);
         setDemoUser(u);
         return AAOApi.refreshMine(u).then(function(){go("dashboard");});
       }).catch(function(err){note.innerHTML="<strong>Could not log in.</strong>"+AAOApi.esc(err.message);});

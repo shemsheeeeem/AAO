@@ -77,6 +77,15 @@
     try { sessionStorage.setItem(CONFIRMED_KEY, "1"); } catch (e) { /* ignore */ }
     return true;
   }
+  /* The role (client or va) the person last signed up or logged in as, so the login page can preselect it. Not sensitive; this browser only. */
+  var ROLE_KEY = "aao_last_role";
+  function rememberRole(role) {
+    if (role !== "client" && role !== "va") return;
+    try { localStorage.setItem(ROLE_KEY, role); } catch (e) { /* ignore */ }
+  }
+  function lastRole() {
+    try { var r = localStorage.getItem(ROLE_KEY); return r === "client" || r === "va" ? r : ""; } catch (e) { return ""; }
+  }
   function emailConfirmed() {
     try { return sessionStorage.getItem(CONFIRMED_KEY) === "1"; } catch (e) { return false; }
   }
@@ -300,6 +309,7 @@
       options: { data: { role: APP_TO_ROLE[o.role], full_name: o.name, business: o.business || "" }, emailRedirectTo: window.location.origin + window.location.pathname + "?verified=1" }
     });
     if (r.error) throw ApiError(400, "AUTH", authMessage(r.error));
+    rememberRole(o.role);
     /* No session means the email must be confirmed first. */
     if (!r.data.session) { try { localStorage.setItem(SIGNUP_KEY, String(Date.now())); } catch (e) { /* ignore */ } }
     return { needsConfirmation: !r.data.session };
@@ -557,6 +567,8 @@
     cancelRecovery: cancelRecovery,
     consumeEmailConfirmation: consumeEmailConfirmation,
     emailConfirmed: emailConfirmed,
+    rememberRole: rememberRole,
+    lastRole: lastRole,
     clearEmailConfirmed: clearEmailConfirmed,
     typeIdForCat: typeIdForCat,
     maps: { AVAIL_BACK: AVAIL_BACK, JOBTYPE_BACK: JOBTYPE_BACK, UNIT_BACK: UNIT_BACK, CAT_TO_TYPE: CAT_TO_TYPE }
