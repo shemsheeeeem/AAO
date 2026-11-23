@@ -229,6 +229,12 @@ ul,ol{margin:0;padding:0;list-style:none}
 
 /* ---------- Sections ---------- */
 .sec{padding:clamp(48px,6vw,88px) 0}
+/* Live mode start-up: a loading indicator (and no footer) until the first page is drawn, so people never see an empty page with the footer at the top. */
+.boot-load{min-height:72vh;display:flex;align-items:center;justify-content:center;gap:12px;color:#9DB0CE;font-size:1rem}
+.boot-load i{width:18px;height:18px;border-radius:50%;border:2px solid rgba(157,176,206,.35);border-top-color:#DDBB68;animation:bootspin .8s linear infinite}
+@keyframes bootspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.boot-load i{animation:none}}
+body.booting .foot{visibility:hidden}
 .sec-surface{background:var(--surface)}
 .sec-navy{background:#031A36;color:var(--on-navy)}
 .muted{color:var(--muted)}
@@ -6260,6 +6266,7 @@ function render(){
   syncAuthNav();
   Array.prototype.forEach.call(document.querySelectorAll(".nav a[data-r]"),function(a){if(a.getAttribute("data-r")===key)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
   closeMenu();
+  document.body.classList.remove("booting");
   window.scrollTo(0,0);
   if(window.aaoSyncScroll)window.aaoSyncScroll();
 }
@@ -6299,6 +6306,9 @@ if(API_ON)window.addEventListener("aao-recovery",function(){current=null;render(
 initAcctMenu();
 if(API_ON){
   /* Live mode: restore the real session and load real data first (never block the page for more than 4 seconds). */
+  var appBox=$("#app");
+  if(appBox&&!appBox.firstChild)appBox.innerHTML='<div class="boot-load" role="status" aria-live="polite"><i aria-hidden="true"></i><span>Loading…</span></div>';
+  document.body.classList.add("booting");
   var bootShown=false;
   var bootTimer=setTimeout(function(){bootShown=true;render();},4000);
   AAOApi.ready().then(function(){
