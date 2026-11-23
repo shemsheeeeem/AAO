@@ -5547,7 +5547,7 @@ V.vaProfile = function(){
         '</dl><div class="vap-tests" style="margin-top:16px"><div class="vap-test"><strong>English</strong><span>'+(p.langs||(API_ON?"Not added yet":"English"))+'</span></div><div class="vap-test"><strong>Availability</strong><span>'+(p.avail||(API_ON?(p.hours||"Not added yet"):"Flexible"))+'</span></div></div></div>'+
       '</aside></div>'+
     '</div>'+
-    '<div class="vap-edit"><div class="vap-card"><h2>Edit profile</h2><p class="lede" style="margin:0 0 16px;color:#51617C">Changes save on this device until your backend is connected.</p>'+
+    '<div class="vap-edit"><div class="vap-card"><h2>Edit profile</h2><p class="lede" style="margin:0 0 16px;color:#51617C">'+(API_ON?"Your details are saved to your AAO profile. Hours per week, education, status and portfolio stay on this device only.":"Changes save on this device until your backend is connected.")+'</p>'+
       '<form class="app-form" id="vpf" novalidate>'+
         '<label class="field">Full name<input type="text" id="vp-name" required maxlength="80"></label>'+
         '<label class="field">Headline<input type="text" id="vp-headline" required maxlength="120"></label>'+
@@ -5665,7 +5665,7 @@ function vaAppShell(o){
     '<a class="app-crumb" href="#dashboard">← Back to VA desk</a>'+
     '<div class="app-card"><h1>'+o.h1+'</h1><p class="lede">'+o.p+'</p>'+o.body+
     '<div class="app-actions" style="margin-top:18px"><a class="btn btn-gold" href="'+o.ctaHref+'">'+o.cta+'</a><a class="btn btn-line" href="#dashboard">VA desk</a></div>'+
-    '<p class="app-note">Frontend only. Wire this page to your backend when ready.</p></div></div></section>';
+    (API_ON?'':'<p class="app-note">Frontend only. Wire this page to your backend when ready.</p>')+'</div></div></section>';
 }
 V.vaApplications = function(){
   var u=getDemoUser();
@@ -5689,7 +5689,6 @@ V.vaApplications.init = function(){
   if(!u||!API_ON)return;
   var box=$("#va-apps"),E=AAOApi.esc;
   if(!box)return;
-  var demoNote=document.querySelector(".app-note");if(demoNote)demoNote.remove(); /* "frontend only" note does not apply to live data */
   function when(s){try{return new Date(s).toLocaleDateString([],{dateStyle:"medium"});}catch(e){return "";}}
   function paint(){
     return AAOApi.myApplications().then(function(list){
@@ -5721,7 +5720,7 @@ V.vaSaved = function(){
   var saved=localStore("aao_va_saved_jobs",[]);
   var body;
   if(!saved.length){
-    body='<p class="app-note" style="margin-top:8px">No saved jobs yet. Open a posting and use Save when that control is wired to your API.</p>';
+    body='<p class="app-note" style="margin-top:8px">'+(API_ON?"Saving jobs is not available yet. Browse openings to find a role.":"No saved jobs yet. Open a posting and use Save when that control is wired to your API.")+'</p>';
   }else{
     body='<div class="dash-panels" style="margin-top:8px"><div class="dash-panel">'+dashRows(saved.map(function(j){return [j.title||"Saved role",j.company||"AAO client","View","#job-"+(j.id||"")];}))+'</div></div>';
   }
@@ -5733,7 +5732,15 @@ V.vaSettings = function(){
   if(!u)return V.login();
   return '<section class="app-page"><div class="wrap">'+
     '<a class="app-crumb" href="#dashboard">← Back to VA desk</a>'+
-    '<div class="app-card"><h1>Account settings</h1><p class="lede">Basic account preferences for this demo login. Connect these fields to your auth API later.</p>'+
+    '<div class="app-card"><h1>Account settings</h1>'+
+    (API_ON?
+    '<p class="lede">Your sign-in details.</p>'+
+    '<div class="app-form">'+
+      '<label class="field">Email<input type="email" value="'+String(u.email||"").replace(/"/g,"&quot;")+'" readonly></label>'+
+      '<p class="app-note">To change your name or other details, <a href="#va-profile">edit your profile</a>. To change your password, <a href="#forgot-password">request a reset link</a>.</p>'+
+      '<div class="app-actions"><a class="btn btn-line" href="#logout">Log out</a></div>'+
+    '</div></div></div></section>':
+    '<p class="lede">Basic account preferences for this demo login. Connect these fields to your auth API later.</p>'+
     '<form class="app-form" id="vsf" novalidate>'+
       '<label class="field">Email<input type="email" id="vs-email" value="'+String(u.email||"").replace(/"/g,"&quot;")+'" readonly></label>'+
       '<label class="field">Display name<input type="text" id="vs-name" maxlength="80" required></label>'+
@@ -5741,12 +5748,13 @@ V.vaSettings = function(){
       '<div class="app-actions"><button class="btn btn-gold" type="submit">Save settings</button><a class="btn btn-line" href="#logout">Log out</a></div>'+
       '<p class="app-note">Frontend only. Password and security settings will live here once the backend is ready.</p>'+
       '<div class="notice" id="vs-note" role="status"></div>'+
-    '</form></div></div></section>';
+    '</form></div></div></section>');
 };
 V.vaSettings.init = function(){
   var u=requireVaPage();
   if(!u)return;
   var form=$("#vsf"),note=$("#vs-note"),p=loadVaProfile(u);
+  if(!form)return; /* live mode has no settings form */
   var prefs=localStore("aao_va_settings",{});
   $("#vs-name").value=p.name||u.name||"";
   $("#vs-notify").value=prefs[u.email]&&prefs[u.email].notify||"all";
@@ -5768,7 +5776,7 @@ V.postJob = function(){
   if(!u)return V.login();
   return '<section class="app-page"><div class="wrap">'+
     '<a class="app-crumb" href="#dashboard">← Back to client desk</a>'+
-    '<div class="app-card"><h1>Post a job</h1><p class="lede">Describe the role. Saved locally for now — hook this form to your API when the backend is ready.</p>'+
+    '<div class="app-card"><h1>Post a job</h1><p class="lede">'+(API_ON?"Describe the role. Your job goes live as soon as you post it and stays open for 30 days.":"Describe the role. Saved locally for now — hook this form to your API when the backend is ready.")+'</p>'+
     '<form class="app-form" id="pjf" novalidate>'+
       '<label class="field">Job title<input type="text" id="pj-title" required placeholder="Part-time executive assistant" maxlength="120"></label>'+
       '<label class="field">What do you need help with?<textarea id="pj-body" required placeholder="Hours, tools, and the outcomes you want in the first 30 days"></textarea></label>'+
@@ -5778,7 +5786,7 @@ V.postJob = function(){
       '</div>'+
       '<label class="field">Skills (comma separated)<input type="text" id="pj-skills" placeholder="Calendar, email, Notion"></label>'+
       '<div class="app-actions"><button class="btn btn-gold" type="submit">Save job draft</button><a class="btn btn-line" href="#dashboard">Cancel</a></div>'+
-      '<p class="app-note">Frontend only. Replace the submit handler with your backend endpoint later.</p>'+
+      (API_ON?'':'<p class="app-note">Frontend only. Replace the submit handler with your backend endpoint later.</p>')+
       '<div class="notice" id="pj-note" role="status"></div>'+
     '</form></div></div></section>';
 };
@@ -5789,8 +5797,6 @@ V.postJob.init = function(){
   var drafts=API_ON?[]:localStore("aao_job_drafts",[]);
   if(API_ON){
     var pjBtn=form.querySelector('button[type="submit"]');if(pjBtn)pjBtn.textContent="Post job";
-    var pjLede=document.querySelector(".app-card .lede");if(pjLede)pjLede.textContent="Describe the role. Your job goes live as soon as you post it and stays open for 30 days.";
-    var pjNote=form.querySelector(".app-note");if(pjNote)pjNote.remove();
   }
   if(drafts.length){
     var last=drafts[drafts.length-1];
