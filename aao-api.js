@@ -55,6 +55,35 @@
     try { localStorage.removeItem(REQUESTED_KEY); } catch (e) { /* ignore */ }
   }
 
+  /* ---------- email confirmation ---------- */
+  var SIGNUP_KEY = "aao_signup_pending";
+  var CONFIRMED_KEY = "aao_email_confirmed";
+  var ARRIVED_VERIFIED = /[?&]verified=1(&|$)/.test(window.location.search); /* set on the confirmation link when the address is on Supabase's redirect allow-list */
+  function signupPendingRecently() {
+    try {
+      var t = parseInt(localStorage.getItem(SIGNUP_KEY) || "0", 10);
+      return t > 0 && Date.now() - t < 7 * 24 * 60 * 60 * 1000;
+    } catch (e) { return false; }
+  }
+  /* True when this visit came from the confirmation email (and not a password reset). The email is already confirmed by then, so the
+     session the link may have created is dropped: the person sees a "confirmed" page and logs in on purpose. */
+  async function consumeEmailConfirmation() {
+    if (!(ARRIVED_WITH_CODE || ARRIVED_VERIFIED)) return false;
+    try { await sb().auth.getSession(); } catch (e) { /* wait for the library to finish reading the ?code= */ }
+    if (recoveryPending() || resetRequestedRecently()) return false;
+    if (!(ARRIVED_VERIFIED || signupPendingRecently())) return false;
+    try { await sb().auth.signOut({ scope: "local" }); } catch (e) { /* ignore */ }
+    try { localStorage.removeItem(SIGNUP_KEY); } catch (e) { /* ignore */ }
+    try { sessionStorage.setItem(CONFIRMED_KEY, "1"); } catch (e) { /* ignore */ }
+    return true;
+  }
+  function emailConfirmed() {
+    try { return sessionStorage.getItem(CONFIRMED_KEY) === "1"; } catch (e) { return false; }
+  }
+  function clearEmailConfirmed() {
+    try { sessionStorage.removeItem(CONFIRMED_KEY); } catch (e) { /* ignore */ }
+  }
+
   /* ---------- text safety: the app writes these strings into innerHTML, so escape everything that came from the API ---------- */
   function esc(v) {
     return String(v == null ? "" : v)
@@ -268,10 +297,11 @@
   async function signUp(o) {
     var r = await sb().auth.signUp({
       email: o.email, password: o.password,
-      options: { data: { role: APP_TO_ROLE[o.role], full_name: o.name, business: o.business || "" }, emailRedirectTo: window.location.origin + window.location.pathname }
+      options: { data: { role: APP_TO_ROLE[o.role], full_name: o.name, business: o.business || "" }, emailRedirectTo: window.location.origin + window.location.pathname + "?verified=1" }
     });
     if (r.error) throw ApiError(400, "AUTH", authMessage(r.error));
     /* No session means the email must be confirmed first. */
+    if (!r.data.session) { try { localStorage.setItem(SIGNUP_KEY, String(Date.now())); } catch (e) { /* ignore */ } }
     return { needsConfirmation: !r.data.session };
   }
 
@@ -525,6 +555,9 @@
     updatePassword: updatePassword,
     recoveryPending: recoveryPending,
     cancelRecovery: cancelRecovery,
+    consumeEmailConfirmation: consumeEmailConfirmation,
+    emailConfirmed: emailConfirmed,
+    clearEmailConfirmed: clearEmailConfirmed,
     typeIdForCat: typeIdForCat,
     maps: { AVAIL_BACK: AVAIL_BACK, JOBTYPE_BACK: JOBTYPE_BACK, UNIT_BACK: UNIT_BACK, CAT_TO_TYPE: CAT_TO_TYPE }
   };
