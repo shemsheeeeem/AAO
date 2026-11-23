@@ -229,6 +229,12 @@ ul,ol{margin:0;padding:0;list-style:none}
 
 /* ---------- Sections ---------- */
 .sec{padding:clamp(48px,6vw,88px) 0}
+/* Live mode start-up: a loading indicator (and no footer) until the first page is drawn, so people never see an empty page with the footer at the top. */
+.boot-load{min-height:72vh;display:flex;align-items:center;justify-content:center;gap:12px;color:#9DB0CE;font-size:1rem}
+.boot-load i{width:18px;height:18px;border-radius:50%;border:2px solid rgba(157,176,206,.35);border-top-color:#DDBB68;animation:bootspin .8s linear infinite}
+@keyframes bootspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.boot-load i{animation:none}}
+body.booting .foot{visibility:hidden}
 .sec-surface{background:var(--surface)}
 .sec-navy{background:#031A36;color:var(--on-navy)}
 .muted{color:var(--muted)}
@@ -1263,6 +1269,8 @@ ul,ol{margin:0;padding:0;list-style:none}
 .login-card .note{text-align:center;margin:0;color:#51617C}
 .login-card .note a{color:#1B4B91;font-weight:600}
 .login-card .notice{background:#EAF0FA;color:#0B1A33}
+.notice.err,.login-card .notice.err{background:#FDECEC;color:#7A1010;border:1px solid #F3B8B8;border-left:4px solid #D92D20}
+.notice.err strong{color:#B42318}
 @media (prefers-reduced-motion:reduce){
   .login-aurora-glow::after{animation:none}
 }
@@ -2373,7 +2381,7 @@ p{text-wrap:pretty}
 
 </style>
 </head>
-<body>
+<body class="booting">
 <a class="skip" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="wrap bar">
@@ -2419,7 +2427,7 @@ p{text-wrap:pretty}
   </div>
 </header>
 
-<main id="main" tabindex="-1"><div id="app"></div></main>
+<main id="main" tabindex="-1"><div id="app"><div class="boot-load" role="status" aria-live="polite"><i aria-hidden="true"></i><span>Loading…</span></div></div></main>
 <div class="vmodal" id="vmodal" role="dialog" aria-modal="true" aria-label="Video introduction" aria-hidden="true"><div class="vbox"><div class="vstage"></div><div class="vcap"><div><strong class="vname"></strong><a class="vlink" href="#talent">View profile</a></div><button class="vclose" type="button">Close</button></div></div></div>
 <div class="pmod" id="pmod" role="dialog" aria-modal="true" aria-label="Portfolio sample" aria-hidden="true"><div class="pbox"><div class="pstage"></div><div class="pcap"><h3 class="ptitle"></h3><p class="pdesc"></p><div class="pactions"><a class="btn btn-gold" href="#join">Create an account</a><button class="btn btn-light pclose" type="button">Close</button></div></div></div></div>
 
@@ -4745,6 +4753,8 @@ function initLoginLogoKey(){
   video.play().catch(function(){});
 }
 var GOOGLE_BTN_SVG='<svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 5.1 29.3 3 24 3 12.3 3 3 12.3 3 24s9.3 21 21 21 21-9.3 21-21c0-1.2-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 5.1 29.3 3 24 3 16.3 3 9.6 7.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 45c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 36 26.8 37 24 37c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 40.6 16.2 45 24 45z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.1 3.1-3.5 5.5-6.5 6.6l.1.1 6.2 5.2C36.9 41.1 45 35 45 24c0-1.2-.1-2.3-.4-3.5z"/></svg>';
+/* Shows a message under a form. Errors get the red style; everything else (progress, "check your email") stays blue. */
+function setNote(note,html,isErr){note.classList.add("show");note.classList.toggle("err",!!isErr);note.innerHTML=html;}
 V.join = function(){
   return '<div class="login-shell">'+
     '<div class="login-aurora" aria-hidden="true"><div class="login-aurora-glow"></div></div>'+
@@ -4765,8 +4775,8 @@ V.join = function(){
           '<label class="field">Email<input type="email" id="je" autocomplete="email" required></label>'+
           '<label class="field">Password'+passwordFieldHtml({id:"jpw",autocomplete:"new-password",placeholder:"At least 8 characters",btnId:"jeye",extra:' minlength="8"'})+'</label>'+
           '<div class="jpath" id="jpath-find" hidden>'+
-            '<label class="field">What work do you do?<textarea id="jskills" placeholder="Skills, tools, and the kind of roles you want"></textarea></label>'+
-            '<label class="field">Availability<input type="text" id="javail" placeholder="Full-time, part-time, or hours per week" autocomplete="off"></label>'+
+            '<label class="field">What work do you do?<textarea id="jskills" placeholder="Skills, tools, and the kind of roles you want" required aria-required="true" maxlength="500"></textarea></label>'+
+            '<label class="field">Availability<input type="text" id="javail" placeholder="Full-time, part-time, or hours per week" autocomplete="off" required aria-required="true" maxlength="80"></label>'+
           '</div>'+
           '<div class="jpath" id="jpath-post" hidden>'+
             '<label class="field">Business name<input type="text" id="jorg" autocomplete="organization"></label>'+
@@ -4800,9 +4810,9 @@ V.join.init = function(){
     postPath.hidden=v!=="post";
     if(v&&copy[v]){sideH.textContent=copy[v][0];sideP.textContent=copy[v][1];}
     else{sideH.textContent=defaults[0];sideP.textContent=defaults[1];}
-    note.classList.remove("show");note.innerHTML="";
+    note.classList.remove("show");note.classList.remove("err");note.innerHTML="";
   }
-  if(g)g.addEventListener("click",function(){note.classList.add("show");note.innerHTML="<strong>Google sign-up opens soon.</strong>Please use email for now, or check back shortly.";});
+  if(g)g.addEventListener("click",function(){setNote(note,"<strong>Google sign-up opens soon.</strong>Please use email for now, or check back shortly.",false);});
   Array.prototype.forEach.call(form.querySelectorAll('input[name="jintent"]'),function(r){
     r.addEventListener("change",syncIntent);
   });
@@ -4818,16 +4828,18 @@ V.join.init = function(){
   form.addEventListener("submit",function(e){
     e.preventDefault();
     var v=intent();
-    if(!v){note.classList.add("show");note.innerHTML="<strong>Choose a path.</strong>Tell us if you want to find a job or post a job.";return;}
-    if(!$("#jn").value.trim()||!/\S+@\S+\.\S+/.test($("#je").value)){note.classList.add("show");note.innerHTML="<strong>Check your details.</strong>Enter your name and a valid email.";return;}
+    if(!v){setNote(note,"<strong>Choose a path.</strong>Tell us if you want to find a job or post a job.",true);return;}
+    if(!$("#jn").value.trim()||!/\S+@\S+\.\S+/.test($("#je").value)){setNote(note,"<strong>Check your details.</strong>Enter your name and a valid email.",true);return;}
+    if(v==="find"&&(!($("#jskills").value||"").trim()||!($("#javail").value||"").trim())){setNote(note,"<strong>Tell us about your work.</strong>Add what work you do and your availability.",true);return;}
     if(API_ON){
       var jpw=$("#jpw").value||"";
-      if(jpw.length<8){note.classList.add("show");note.innerHTML="<strong>Choose a longer password.</strong>Use at least 8 characters.";return;}
-      note.classList.add("show");note.innerHTML="<strong>Creating your account…</strong>";
+      if(jpw.length<8){setNote(note,"<strong>Choose a longer password.</strong>Use at least 8 characters.",true);return;}
+      setNote(note,"<strong>Creating your account…</strong>",false);
       AAOApi.signUp({email:$("#je").value.trim(),password:jpw,name:$("#jn").value.trim(),role:v==="post"?"client":"va",business:v==="post"?($("#jorg").value||"").trim():""}).then(function(r){
-        if(r.needsConfirmation){note.innerHTML="<strong>Check your email.</strong>We sent a confirmation link to "+AAOApi.esc($("#je").value.trim())+". Open it to finish creating your account, then log in.";return;}
+        if(v==="find")saveSignupAnswers($("#je").value.trim(),{skills:($("#jskills").value||"").trim(),availability:($("#javail").value||"").trim()});
+        if(r.needsConfirmation){setNote(note,"<strong>Check your email.</strong>We sent a confirmation link to "+AAOApi.esc($("#je").value.trim())+". Open it to finish creating your account, then log in.",false);return;}
         return AAOApi.currentUser().then(function(u){if(u){setDemoUser(u);return AAOApi.refreshMine(u).then(function(){go("dashboard");});}else{go("login");}});
-      }).catch(function(err){note.classList.add("show");note.innerHTML="<strong>We could not create your account.</strong>"+AAOApi.esc(err.message);});
+      }).catch(function(err){setNote(note,"<strong>We could not create your account.</strong>"+AAOApi.esc(err.message),true);});
       return;
     }
     var payload={intent:v,name:$("#jn").value,email:$("#je").value};
@@ -4988,28 +5000,35 @@ V.login.init = function(){
     if(radio)radio.checked=true;
     $("#le").value=u.email;
     pass.value=u.pass;
-    note.classList.remove("show");note.innerHTML="";
+    note.classList.remove("show");note.classList.remove("err");note.innerHTML="";
   }
   if(demo)demo.addEventListener("click",function(e){
     var btn=e.target.closest("[data-demo]");
     if(!btn)return;
     fillDemo(btn.getAttribute("data-demo"));
   });
+  /* Live mode: start on the role this person signed up or last logged in as (a virtual assistant should not land on "Client"). */
+  if(API_ON){
+    var lr=AAOApi.lastRole();
+    var lrRadio=lr&&form.querySelector('input[name="lrole"][value="'+lr+'"]');
+    if(lrRadio)lrRadio.checked=true;
+  }
   form.addEventListener("submit",function(e){
     e.preventDefault();
     note.classList.add("show");
     var email=($("#le").value||"").trim().toLowerCase();
     var pwd=pass.value||"";
     var want=role();
-    if(!/\S+@\S+\.\S+/.test(email)||!pwd){note.innerHTML="<strong>Check your details.</strong>Enter your email and password.";return;}
+    if(!/\S+@\S+\.\S+/.test(email)||!pwd){setNote(note,"<strong>Check your details.</strong>Enter your email and password.",true);return;}
     if(API_ON){
-      note.innerHTML="<strong>Logging in…</strong>";
+      setNote(note,"<strong>Logging in…</strong>",false);
       AAOApi.signIn(email,pwd).then(function(u){
-        if(!u){note.innerHTML="<strong>Could not log in.</strong>Please try again.";return;}
-        if(u.role!==want){AAOApi.signOut();note.innerHTML="<strong>Role mismatch.</strong>That account is a "+u.label.toLowerCase()+". Switch the role toggle and try again.";return;}
+        if(!u){setNote(note,"<strong>Could not log in.</strong>Please try again.",true);return;}
+        if(u.role!==want){AAOApi.signOut();setNote(note,"<strong>Role mismatch.</strong>That account is a "+u.label.toLowerCase()+". Switch the role toggle and try again.",true);return;}
+        AAOApi.rememberRole(u.role);
         setDemoUser(u);
         return AAOApi.refreshMine(u).then(function(){go("dashboard");});
-      }).catch(function(err){note.innerHTML="<strong>Could not log in.</strong>"+AAOApi.esc(err.message);});
+      }).catch(function(err){setNote(note,"<strong>Could not log in.</strong>"+AAOApi.esc(err.message),true);});
       return;
     }
     var match=null;
@@ -5017,8 +5036,8 @@ V.login.init = function(){
       var u=DEMO_USERS[k];
       if(u.email===email&&u.pass===pwd)match=u;
     });
-    if(!match){note.innerHTML="<strong>Demo login only.</strong>Use <code>client@aao.demo</code> or <code>va@aao.demo</code> with password <code>demo123</code>.";return;}
-    if(match.role!==want){note.innerHTML="<strong>Role mismatch.</strong>That account is a "+match.label.toLowerCase()+". Switch the role toggle, or use Fill "+(match.role==="va"?"VA":"client")+".";return;}
+    if(!match){setNote(note,"<strong>Demo login only.</strong>Use <code>client@aao.demo</code> or <code>va@aao.demo</code> with password <code>demo123</code>.",true);return;}
+    if(match.role!==want){setNote(note,"<strong>Role mismatch.</strong>That account is a "+match.label.toLowerCase()+". Switch the role toggle, or use Fill "+(match.role==="va"?"VA":"client")+".",true);return;}
     setDemoUser({email:match.email,role:match.role,name:match.name,label:match.label});
     if(window.AAOMessaging&&AAOMessaging.syncAuthWithDemo)AAOMessaging.syncAuthWithDemo({email:match.email,role:match.role,name:match.name});
     go("dashboard");
@@ -5027,13 +5046,13 @@ V.login.init = function(){
 };
 /* Password reset (live mode). The same card as the login screen. Flow: "Forgot your password?" -> #forgot-password (asks for the email, the backend of the login provider sends a link)
    -> the link opens the site with ?code=... and the library announces a recovery (see aao-api.js) -> #reset-password (choose a new password) -> back to the login. */
-function authShell(inner){
+function authShell(inner,sub){
   return '<div class="login-shell">'+
     '<div class="login-aurora" aria-hidden="true"><div class="login-aurora-glow"></div></div>'+
     '<div class="login-card">'+
       '<aside class="login-brand">'+
         '<div class="login-logo-wrap"><video class="login-logo" src="'+LOGIN_LOGO_VIDEO+'" crossorigin="anonymous" autoplay muted loop playsinline aria-label="Amazing Assistants Online"></video></div>'+
-        '<div class="login-brand-copy"><h2 class="login-brand-name">Amazing Assistants Online</h2><p class="login-brand-sub">Choose a new password and get back to work.</p></div>'+
+        '<div class="login-brand-copy"><h2 class="login-brand-name">Amazing Assistants Online</h2><p class="login-brand-sub">'+(sub||"Choose a new password and get back to work.")+'</p></div>'+
       '</aside>'+
       '<div class="login-body">'+inner+'</div>'+
     '</div>'+
@@ -5059,18 +5078,31 @@ V["forgot-password"].init = function(){
     if(busy)return;
     note.classList.add("show");
     var email=($("#fe").value||"").trim().toLowerCase();
-    if(!/\S+@\S+\.\S+/.test(email)){note.innerHTML="<strong>Check your email.</strong>Enter the email address you signed up with.";return;}
+    if(!/\S+@\S+\.\S+/.test(email)){setNote(note,"<strong>Check your email.</strong>Enter the email address you signed up with.",true);return;}
     busy=true;btn.disabled=true;
-    note.innerHTML="<strong>Sending…</strong>";
+    setNote(note,"<strong>Sending…</strong>",false);
     AAOApi.requestPasswordReset(email).then(function(){
       /* The same message whether or not an account exists, so this page never reveals who has an account. */
-      note.innerHTML="<strong>Check your email.</strong>If an account exists for "+AAOApi.esc(email)+", we sent a link to choose a new password. Open it in <strong>this same browser</strong>. It expires in 1 hour.";
+      setNote(note,"<strong>Check your email.</strong>If an account exists for "+AAOApi.esc(email)+", we sent a link to choose a new password. Open it in <strong>this same browser</strong>. It expires in 1 hour.",false);
       setTimeout(function(){busy=false;btn.disabled=false;},60000);
     }).catch(function(err){
       busy=false;btn.disabled=false;
-      note.innerHTML="<strong>We could not send that.</strong>"+AAOApi.esc(err.message);
+      setNote(note,"<strong>We could not send that.</strong>"+AAOApi.esc(err.message),true);
     });
   });
+};
+/* Where the confirmation email's button lands: a plain "confirmed" page with one button to the login page. */
+V["email-confirmed"] = function(){
+  if(!API_ON||!AAOApi.emailConfirmed())return authShell(
+    '<div><h1>Nothing to confirm here</h1><p class="login-sub">Use the button in your confirmation email to confirm your address. If you already did, log in.</p></div>'+
+    '<p><a class="btn btn-navy btn-block" href="#login">Go to log in</a></p>',"Log in to your account.");
+  return authShell(
+    '<div><h1>Email verification confirmed</h1><p class="login-sub">Your email address is confirmed. Proceed to the login page to sign in.</p></div>'+
+    '<p><a class="btn btn-navy btn-block" href="#login" id="ecgo">Proceed to login page</a></p>',"Your email is confirmed. You can log in now.");
+};
+V["email-confirmed"].init = function(){
+  var a=$("#ecgo");
+  if(a)a.addEventListener("click",function(){if(API_ON)AAOApi.clearEmailConfirmed();});
 };
 V["reset-password"] = function(){
   if(!API_ON||!AAOApi.recoveryPending())return authShell(
@@ -5097,16 +5129,16 @@ V["reset-password"].init = function(){
     if(busy)return;
     note.classList.add("show");
     var a=$("#rp1").value||"",b=$("#rp2").value||"";
-    if(a.length<8){note.innerHTML="<strong>Too short.</strong>Use at least 8 characters.";return;}
-    if(a!==b){note.innerHTML="<strong>The passwords do not match.</strong>Type the same password twice.";return;}
+    if(a.length<8){setNote(note,"<strong>Too short.</strong>Use at least 8 characters.",true);return;}
+    if(a!==b){setNote(note,"<strong>The passwords do not match.</strong>Type the same password twice.",true);return;}
     busy=true;btn.disabled=true;
-    note.innerHTML="<strong>Saving…</strong>";
+    setNote(note,"<strong>Saving…</strong>",false);
     AAOApi.updatePassword(a).then(function(){
       clearDemoUser();
       try{history.replaceState(null,"",location.pathname+"#reset-password");}catch(err){} /* drop the used ?code= from the address */
       var body=form.closest(".login-body");
       if(body)body.innerHTML='<div><h1>Password updated</h1><p class="login-sub">Your password was changed. Log in with your new password.</p></div><p><a class="btn btn-navy btn-block" href="#login">Log in</a></p>';
-    }).catch(function(err){busy=false;btn.disabled=false;note.innerHTML="<strong>We could not save that.</strong>"+AAOApi.esc(err.message);});
+    }).catch(function(err){busy=false;btn.disabled=false;setNote(note,"<strong>We could not save that.</strong>"+AAOApi.esc(err.message),true);});
   });
 };
 /* Live mode: the desks show the signed-in user's real data instead of the sample content. */
@@ -5299,7 +5331,23 @@ function requireVaPage(fallback){
   if(u.role!=="va"&&u.role!=="admin"){go(fallback||"dashboard");return null;}
   return u;
 }
+/* What a virtual assistant typed on the sign-up form (work and availability); kept on this device until they save a profile. */
+function signupAnswers(email){
+  var all=localStore("aao_signup_answers",{});
+  var a=all[String(email||"").toLowerCase()];
+  return a&&typeof a==="object"?a:{};
+}
+function saveSignupAnswers(email,a){
+  var all=localStore("aao_signup_answers",{});
+  all[String(email||"").toLowerCase()]=a;
+  localSave("aao_signup_answers",all);
+}
 function defaultVaProfile(u){
+  /* Live mode: never invent details. Start empty (plus what they typed at sign-up); the sample profile below is for the demo only. */
+  if(API_ON){
+    var su=signupAnswers(u.email);
+    return {name:u.name||"Your name",headline:"",about:"",cat:"",loc:"",avail:"",exp:"",langs:"",skills:su.skills||"",email:u.email||"",rate:"",hours:su.availability||"",education:"",memberSince:u.since||"",status:"",portfolio:"",gender:"",age:""};
+  }
   var seed=TALENT.filter(function(t){return t.name===u.name;})[0]||TALENT.filter(function(t){return t.id==="sofia";})[0];
   return {
     name:u.name||(seed?seed.name:"Your name"),
@@ -5331,6 +5379,7 @@ function vapSkillRows(p){
   var skills=String(p.skills||"").split(",").map(function(s){return s.trim();}).filter(Boolean);
   if(!skills.length)return '<p class="vap-desc">Add skills to show them here.</p>';
   return skills.slice(0,6).map(function(s,i){
+    if(API_ON)return '<div class="vap-skill"><strong>'+(p.cat?p.cat+' › ':'')+s+'</strong>'+(p.exp?'<div class="vap-skill-meta">Experience: '+p.exp+'</div>':'')+'</div>';
     return '<div class="vap-skill"><strong>'+(p.cat||"Admin")+' › '+s+'</strong><div class="vap-skill-meta">Experience: '+(p.exp||"3 years")+'</div><div class="vap-stars" aria-label="5 out of 5">'+vapStars(5-Math.min(i,1))+'</div><p>Hands-on work with '+s.toLowerCase()+' for client workflows.</p></div>';
   }).join("");
 }
@@ -5472,14 +5521,14 @@ V.vaProfile = function(){
   var initial=(p.name||"V").charAt(0).toUpperCase();
   var rate=p.rate?("$"+p.rate+"/hr"):"Rate TBD";
   var overview=
-    '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><p>Looking for '+(p.hours||p.avail||"part-time work")+' at <strong>'+rate+'</strong></p></div>'+
+    '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><p>'+((API_ON&&!(p.hours||p.avail||p.rate))?'Add your availability and rate.':'Looking for '+(p.hours||p.avail||"part-time work")+' at <strong>'+rate+'</strong>')+'</p></div>'+
     '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 4 7v5c0 4.4 3.2 7.6 8 9 4.8-1.4 8-4.6 8-9V7l-8-4z"/></svg><p>'+(p.education||"Education not listed yet")+'</p></div>'+
-    '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5c1.8-3.2 4.1-4.8 6.5-4.8s4.7 1.6 6.5 4.8"/></svg><p>Member since '+(p.memberSince||"2024")+'</p></div>';
+    '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5c1.8-3.2 4.1-4.8 6.5-4.8s4.7 1.6 6.5 4.8"/></svg><p>'+(p.memberSince?'Member since '+p.memberSince:(API_ON?'New member':'Member since 2024'))+'</p></div>';
   return '<section class="vap" id="vap"><div class="wrap">'+
     '<a class="vap-crumb" href="#dashboard">← Back to VA desk</a>'+
     '<div class="vap-view">'+
-      '<div class="vap-hero"><p class="vap-status">Current status: '+(p.status||"Open to work")+'</p><div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
-      '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+p.headline+'</p><div class="vap-badges"><span class="vap-badge gold">'+(p.avail||"Available")+'</span></div></div>'+
+      '<div class="vap-hero">'+((API_ON&&!p.status)?'':'<p class="vap-status">Current status: '+(p.status||"Open to work")+'</p>')+'<div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
+      '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+(p.headline||"Virtual assistant")+'</p><div class="vap-badges">'+((API_ON&&!(p.avail||p.hours))?'':'<span class="vap-badge gold">'+(p.avail||(API_ON?p.hours:"Available"))+'</span>')+'</div></div>'+
       '<div class="vap-actions"><button class="btn btn-gold" type="button" id="vap-edit-btn">Edit profile</button><a class="btn btn-navy" href="#talent">Browse jobs</a></div>'+
       '<div class="vap-layout"><div>'+
         '<div class="vap-card"><h2>Overview</h2><div class="vap-overview">'+overview+'</div></div>'+
@@ -5495,7 +5544,7 @@ V.vaProfile = function(){
           (p.gender?'<div><dt>Gender</dt><dd>'+p.gender+'</dd></div>':"")+
           '<div><dt>Portfolio / website</dt><dd>'+(p.portfolio?('<a href="'+p.portfolio.replace(/"/g,"&quot;")+'" target="_blank" rel="noopener noreferrer">'+p.portfolio+'</a>'):"Not added yet")+'</dd></div>'+
           '<div><dt>Email</dt><dd>'+(p.email||u.email)+'</dd></div>'+
-        '</dl><div class="vap-tests" style="margin-top:16px"><div class="vap-test"><strong>English</strong><span>'+(p.langs||"English")+'</span></div><div class="vap-test"><strong>Availability</strong><span>'+(p.avail||"Flexible")+'</span></div></div></div>'+
+        '</dl><div class="vap-tests" style="margin-top:16px"><div class="vap-test"><strong>English</strong><span>'+(p.langs||(API_ON?"Not added yet":"English"))+'</span></div><div class="vap-test"><strong>Availability</strong><span>'+(p.avail||(API_ON?(p.hours||"Not added yet"):"Flexible"))+'</span></div></div></div>'+
       '</aside></div>'+
     '</div>'+
     '<div class="vap-edit"><div class="vap-card"><h2>Edit profile</h2><p class="lede" style="margin:0 0 16px;color:#51617C">Changes save on this device until your backend is connected.</p>'+
@@ -5589,7 +5638,7 @@ V.vaProfile.init = function(){
       loc:$("#vp-loc").value.trim(),exp:$("#vp-exp").value.trim(),langs:$("#vp-langs").value.trim(),skills:$("#vp-skills").value.trim(),
       rate:$("#vp-rate").value.trim(),hours:$("#vp-hours").value.trim(),education:$("#vp-education").value.trim(),
       status:$("#vp-status").value.trim(),portfolio:$("#vp-portfolio").value.trim(),
-      memberSince:p.memberSince||"March 2024",email:u.email,updatedAt:new Date().toISOString()
+      memberSince:p.memberSince||(API_ON?(u.since||""):"March 2024"),email:u.email,updatedAt:new Date().toISOString()
     };
     if(API_ON){
       /* Live mode: save to the backend. Local-only extras (hours, education, status, portfolio) stay on this device. */
@@ -6000,7 +6049,7 @@ var hdr=$(".site-header");
 function onScroll(){var y=window.scrollY,on=hdr.classList.contains("scrolled");if(!on&&y>60)hdr.classList.add("scrolled");else if(on&&y<10)hdr.classList.remove("scrolled");}
 window.addEventListener("scroll",onScroll,{passive:true});onScroll();
 
-var TITLES = {pricing:"Pricing | AAO",faq:"FAQs | AAO",terms:"Terms and Conditions | AAO",privacy:"Privacy Policy | AAO",home:"Amazing Assistants Online | You weren’t meant to build alone",how:"How AAO works | AAO",standards:"Trust and standards | AAO",about:"About AAO | AAO",talent:"Find virtual assistants | AAO",help:"Help and support | AAO",join:"Create your account | AAO",login:"Log in | AAO",dashboard:"Dashboard | AAO","post-job":"Post a job | AAO",messages:"Messages | AAO",membership:"Membership | AAO","va-profile":"Your profile | AAO","va-applications":"Job applications | AAO","va-saved":"Saved jobs | AAO","va-settings":"Account settings | AAO","forgot-password":"Reset your password | AAO","reset-password":"Choose a new password | AAO"};
+var TITLES = {pricing:"Pricing | AAO",faq:"FAQs | AAO",terms:"Terms and Conditions | AAO",privacy:"Privacy Policy | AAO",home:"Amazing Assistants Online | You weren’t meant to build alone",how:"How AAO works | AAO",standards:"Trust and standards | AAO",about:"About AAO | AAO",talent:"Find virtual assistants | AAO",help:"Help and support | AAO",join:"Create your account | AAO",login:"Log in | AAO",dashboard:"Dashboard | AAO","post-job":"Post a job | AAO",messages:"Messages | AAO",membership:"Membership | AAO","va-profile":"Your profile | AAO","va-applications":"Job applications | AAO","va-saved":"Saved jobs | AAO","va-settings":"Account settings | AAO","forgot-password":"Reset your password | AAO","reset-password":"Choose a new password | AAO","email-confirmed":"Email confirmed | AAO"};
 var WF_HTML="<div class=\"wf\">\n<section class=\"wf-slab wf-dark wf-hero\" id=\"wf-hero\"><div class=\"wf-mq\" aria-hidden=\"true\"><div class=\"wf-row\" data-d=\"1\"><span>LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · <\/span><span>LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · <\/span><\/div><div class=\"wf-row\" data-d=\"-1\"><span>THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · <\/span><span>THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · <\/span><\/div><\/div><div class=\"wrap wf-hin\">\n<div class=\"wf-eyebrow wf-fd\" style=\"--i:0\"><span class=\"wf-ey\" aria-label=\"The Filipino Advantage\"><span class=\"wf-eyt\" aria-hidden=\"true\" data-wf-ey>The Filipino Advantage<\/span><\/span><\/div>\n<h1 aria-label=\"Why Filipino Virtual Assistants?\"><span class=\"wf-hl\" aria-hidden=\"true\" data-wf-split>Why Filipino<\/span><span class=\"wf-hl wf-g\" aria-hidden=\"true\" data-wf-split>Virtual Assistants?<\/span><\/h1>\n<p class=\"wf-sub wf-fd\" style=\"--i:3\">Lasting Partnerships. Clear Communication. Smarter Business Growth.<\/p>\n<p class=\"wf-lede wf-fd\" style=\"--i:4\">Filipino work culture often puts relationships first. Respect, cooperation and a deep sense of gratitude shape how people work, so the right assistant doesn’t just clear your task list. They stay, learn your business and grow alongside it. Add strong English communication and diverse expertise, and you get a partner you can hand things off to with confidence.<\/p>\n<div class=\"wf-btns wf-fd\" style=\"--i:5\"><a class=\"wf-cta wf-gold wf-mag\" href=\"#why-filipino\" data-wf-jump=\"wf-reasons\">See the five reasons<\/a><a class=\"wf-cta wf-ghost wf-mag\" href=\"#why-filipino\" data-wf-jump=\"wf-advantage\">The AAO advantage<\/a><\/div><\/div>\n<\/section>\n<section class=\"wf-slab wf-light\" id=\"wf-reasons\"><div class=\"wrap\">\n<div class=\"wf-shead\"><div class=\"wf-rv\"><span class=\"wf-badge\">Five reasons<\/span><h2>Here’s Why Filipino Talent Is a Smart Investment for Your Business.<\/h2><\/div><div class=\"wf-copy wf-rv\" style=\"--d:120\"><p class=\"wf-lead\">It starts with partnership. Everything else, from clear communication to versatile skills, is what makes that partnership work day to day.<\/p><p>Pick a reason to explore it, or let it play through all five.<\/p><\/div><\/div>\n<div class=\"wf-pick wf-rv\"><div class=\"wf-sels\" role=\"tablist\" aria-label=\"Five reasons\"><button class=\"wf-sel wf-on\" role=\"tab\" id=\"wf-t0\" aria-controls=\"wf-p0\" aria-selected=\"true\" tabindex=\"0\"><span class=\"wf-sn\">01<\/span><span class=\"wf-st\">They Value Strong, Lasting Partnerships<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t1\" aria-controls=\"wf-p1\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">02<\/span><span class=\"wf-st\">They Understand Your Business Needs<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t2\" aria-controls=\"wf-p2\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">03<\/span><span class=\"wf-st\">They Have the Skills to Get Things Done<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t3\" aria-controls=\"wf-p3\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">04<\/span><span class=\"wf-st\">They Are Resourceful, Adaptable &amp; Results-Driven<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t4\" aria-controls=\"wf-p4\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">05<\/span><span class=\"wf-st\">They Make Business Growth More Affordable<\/span><\/button><\/div>\n<div class=\"wf-stage\"><div class=\"wf-pn wf-on\" role=\"tabpanel\" id=\"wf-p0\" aria-labelledby=\"wf-t0\"><span class=\"wf-big\" aria-hidden=\"true\">01<\/span><p class=\"wf-pt\">Professional commitment. Meaningful relationships. Long-term support.<\/p><h3>They Value Strong, Lasting Partnerships<\/h3><p>Filipino workplace culture often emphasizes respect, cooperation and maintaining positive professional relationships.<\/p><p>The cultural value of <em>utang na loob<\/em>, commonly associated with gratitude and reciprocity, reflects the importance placed on recognizing support and building meaningful connections.<\/p><p>When businesses provide fair compensation, clear expectations and opportunities for growth, they can create an environment where Filipino professionals thrive and develop long-term working relationships.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Build a dependable working relationship with a virtual assistant who understands your business and grows alongside it.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p1\" aria-labelledby=\"wf-t1\"><span class=\"wf-big\" aria-hidden=\"true\">02<\/span><p class=\"wf-pt\">Clear communication. Less micromanagement. Better results.<\/p><h3>They Understand Your Business Needs<\/h3><p>A partnership only works when you understand each other. The Philippines is recognized as one of the world’s largest English speaking nations. According to the Philippine Department of Tourism, approximately <strong>93.5% of Filipinos speak and understand English<\/strong>, reflecting the country’s strong foundation in English communication. As an official language widely used in education, business and professional settings, English gives Filipino virtual assistants a valuable advantage when collaborating with international clients.<\/p><p>Beyond language proficiency, Filipino VAs bring a service-oriented mindset, professionalism and dedication to delivering quality work.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Spend less time explaining tasks and more time growing your business.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p2\" aria-labelledby=\"wf-t2\"><span class=\"wf-big\" aria-hidden=\"true\">03<\/span><p class=\"wf-pt\">Educated professionals. Versatile skills. Reliable support.<\/p><h3>They Have the Skills to Get Things Done<\/h3><p>With a reported literacy rate of approximately <strong>97%<\/strong> and hundreds of thousands of college graduates entering the workforce annually, the Philippines offers a broad pool of educated professionals across fields such as business, technology, marketing and communications.<\/p><p>Filipino VAs can support a wide range of business functions, from administrative assistance and customer service to digital marketing, bookkeeping and technical operations.<\/p><p>Whether you’re streamlining daily workflows or expanding your digital presence, the right Filipino virtual assistant can bring valuable expertise to your business.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Get the specialized support your business needs without the commitment of hiring a full-time employee.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p3\" aria-labelledby=\"wf-t3\"><span class=\"wf-big\" aria-hidden=\"true\">04<\/span><p class=\"wf-pt\">Strong work ethic. Practical solutions. Continuous improvement.<\/p><h3>They Are Resourceful, Adaptable &amp; Results-Driven<\/h3><p>The Philippines has developed an established international outsourcing industry, with Filipino professionals supporting businesses across customer service, technology, finance, marketing and other sectors.<\/p><p>Working with international clients often requires flexibility, problem-solving and the ability to learn new tools and processes.<\/p><p>Filipino VAs can bring these capabilities to businesses navigating changing priorities, expanding operations and evolving customer expectations.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Gain a professional who can adapt to your business needs and help keep operations moving forward.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p4\" aria-labelledby=\"wf-t4\"><span class=\"wf-big\" aria-hidden=\"true\">05<\/span><p class=\"wf-pt\">Quality talent. Competitive costs. Greater flexibility.<\/p><h3>They Make Business Growth More Affordable<\/h3><p>Hiring a traditional employee can be expensive, especially when factoring in salaries, office expenses, equipment and other employment-related costs.<\/p><p>Because living costs differ between the Philippines and many Western markets, Filipino virtual assistant services are often competitively priced.<\/p><p>This allows businesses to access professional support while managing staffing expenses more efficiently.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Allocate more resources toward growth without compromising your need for skilled support.<\/div><\/div><div class=\"wf-segs\" aria-hidden=\"true\"><i><\/i><i><\/i><i><\/i><i><\/i><i><\/i><\/div><\/div><\/div><\/div><\/section>\n<section class=\"wf-slab wf-soft\" id=\"wf-numbers\"><div class=\"wrap\"><div class=\"wf-shead\"><div class=\"wf-rv\"><span class=\"wf-badge\">By the numbers<\/span><h2>A Strong Foundation for Working Together.<\/h2><\/div><div class=\"wf-copy wf-rv\" style=\"--d:120\"><p>The figures behind the communication and skills reasons above.<\/p><\/div><\/div>\n<div class=\"wf-stats\"><div class=\"wf-stat wf-rv\"><b data-to=\"93.5\" data-dec=\"1\" data-suf=\"%\">93.5%<\/b><span>of Filipinos speak and understand English<\/span><\/div><div class=\"wf-stat wf-rv\" style=\"--d:120\"><b data-to=\"97\" data-dec=\"0\" data-suf=\"%\">97%<\/b><span>reported literacy rate across the country<\/span><\/div><div class=\"wf-stat wf-rv\" style=\"--d:240\"><b class=\"wf-odo\" aria-label=\"805,000\">805,000<\/b><span>college graduates in 2023–24 (CHED)<\/span><\/div><\/div><p class=\"wf-src\">Sources: <a href=\"https://www.pna.gov.ph/articles/1076349\" target=\"_blank\" rel=\"noopener noreferrer\">Department of Tourism via Philippine News Agency (2019)<\/a> · <a href=\"https://psa.gov.ph/statistics/population-and-housing/node/1684059980\" target=\"_blank\" rel=\"noopener noreferrer\">Philippine Statistics Authority, 2020 Census<\/a> · <a href=\"https://www.gmanetwork.com/news/topstories/nation/957206/2-3-million-filipino-students-benefit-from-free-college-ched/story\" target=\"_blank\" rel=\"noopener noreferrer\">CHED via GMA News<\/a><\/p><\/div><\/section>\n<div class=\"wf-band\" aria-hidden=\"true\"><div class=\"wf-row\" data-d=\"-1\"><span>You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> <\/span><span>You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> <\/span><\/div><\/div>\n<section class=\"wf-slab wf-dark\" id=\"wf-advantage\"><div class=\"wrap\"><div class=\"wf-shead\"><div class=\"wf-rv\"><span class=\"wf-badge\">The AAO Advantage<\/span><h2>More Than Virtual Assistance. Find Someone Who Understands Your Goals.<\/h2><\/div><div class=\"wf-copy wf-rv\" style=\"--d:120\"><p>Amazing Assistants Online connects business owners with skilled Filipino virtual assistants who bring more than technical expertise to the table.<\/p><p>Lasting partnerships don’t happen by accident. They need clear expectations, fair terms, ongoing growth and support on both sides, so that’s what we build into every match.<\/p><p class=\"wf-strong\">Explore our assistants, discover their skills and experience, and get to know the people behind their profiles before deciding who you’d like to connect with.<\/p><\/div><\/div>\n<div class=\"wf-bento\"><article class=\"wf-bn wf-b1 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">01<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-type\"><span class=\"wf-tw\"><\/span><i class=\"wf-caret\"><\/i><\/div><\/div><h3>Clear expectations<\/h3><p>Interview first, and agree on the work before day one.<\/p><\/article><article class=\"wf-bn wf-b2 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">02<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-sk\"><span style=\"--s:0;--w:100%\"><\/span><span style=\"--s:1;--w:78%\"><\/span><span style=\"--s:2;--w:60%\"><\/span><\/div><\/div><h3>Fair, transparent terms<\/h3><p>You know the rate up front. They know it’s fair.<\/p><\/article><article class=\"wf-bn wf-b3 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">03<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-tr\"><i class=\"wf-m\" style=\"--p:0%;--q:0\"><\/i><i class=\"wf-m\" style=\"--p:33%;--q:1\"><\/i><i class=\"wf-m\" style=\"--p:66%;--q:2\"><\/i><i class=\"wf-m\" style=\"--p:100%;--q:3\"><\/i><\/div><\/div><h3>Ongoing training<\/h3><p>AAO keeps developing them after the hire.<\/p><\/article><article class=\"wf-bn wf-b4 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">04<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-zoom\"><i style=\"--z:0\"><\/i><i style=\"--z:1\"><\/i><i style=\"--z:2\"><\/i><i style=\"--z:3\"><\/i><\/div><\/div><h3>Growing together<\/h3><p>The longer they stay, the more of your business they carry.<\/p><\/article><\/div>\n<div class=\"wf-cbar wf-rv\"><p>Ready for an assistant who’s in it for the long run? <span>Start the partnership.<\/span><\/p><a class=\"wf-cta wf-gold\" href=\"#talent\">Meet our assistants<\/a><\/div><\/div><\/section>\n<\/div>";
 
 /* ==== Why Filipino VAs page (route #why-filipino) ==== */
@@ -6221,6 +6270,7 @@ function render(){
   syncAuthNav();
   Array.prototype.forEach.call(document.querySelectorAll(".nav a[data-r]"),function(a){if(a.getAttribute("data-r")===key)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current");});
   closeMenu();
+  document.body.classList.remove("booting");
   window.scrollTo(0,0);
   if(window.aaoSyncScroll)window.aaoSyncScroll();
 }
@@ -6260,9 +6310,17 @@ if(API_ON)window.addEventListener("aao-recovery",function(){current=null;render(
 initAcctMenu();
 if(API_ON){
   /* Live mode: restore the real session and load real data first (never block the page for more than 4 seconds). */
+  var appBox=$("#app");
+  if(appBox&&!appBox.firstChild)appBox.innerHTML='<div class="boot-load" role="status" aria-live="polite"><i aria-hidden="true"></i><span>Loading…</span></div>';
+  document.body.classList.add("booting");
   var bootShown=false;
   var bootTimer=setTimeout(function(){bootShown=true;render();},4000);
   AAOApi.ready().then(function(){
+    /* Arrived from the confirmation email? Show the "confirmed" page instead of dropping the person on the home page signed in. */
+    return AAOApi.consumeEmailConfirmation().catch(function(){return false;}).then(function(confirmed){
+      if(confirmed){clearDemoUser();current="email-confirmed";try{history.replaceState(null,"",location.pathname+"#email-confirmed");}catch(e){}}
+    });
+  }).then(function(){
     return Promise.all([
       AAOApi.currentUser().then(function(u){if(u){setDemoUser(u);return AAOApi.refreshMine(u);}clearDemoUser();}).catch(function(){clearDemoUser();}),
       AAOApi.loadCatalog().then(function(c){TALENT.push.apply(TALENT,c.talent);JOBS.push.apply(JOBS,c.jobs);}).catch(function(e){console.warn("AAO: could not load listings",e);})
