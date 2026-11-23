@@ -4765,8 +4765,8 @@ V.join = function(){
           '<label class="field">Email<input type="email" id="je" autocomplete="email" required></label>'+
           '<label class="field">Password'+passwordFieldHtml({id:"jpw",autocomplete:"new-password",placeholder:"At least 8 characters",btnId:"jeye",extra:' minlength="8"'})+'</label>'+
           '<div class="jpath" id="jpath-find" hidden>'+
-            '<label class="field">What work do you do?<textarea id="jskills" placeholder="Skills, tools, and the kind of roles you want"></textarea></label>'+
-            '<label class="field">Availability<input type="text" id="javail" placeholder="Full-time, part-time, or hours per week" autocomplete="off"></label>'+
+            '<label class="field">What work do you do?<textarea id="jskills" placeholder="Skills, tools, and the kind of roles you want" required aria-required="true" maxlength="500"></textarea></label>'+
+            '<label class="field">Availability<input type="text" id="javail" placeholder="Full-time, part-time, or hours per week" autocomplete="off" required aria-required="true" maxlength="80"></label>'+
           '</div>'+
           '<div class="jpath" id="jpath-post" hidden>'+
             '<label class="field">Business name<input type="text" id="jorg" autocomplete="organization"></label>'+
@@ -4820,11 +4820,13 @@ V.join.init = function(){
     var v=intent();
     if(!v){note.classList.add("show");note.innerHTML="<strong>Choose a path.</strong>Tell us if you want to find a job or post a job.";return;}
     if(!$("#jn").value.trim()||!/\S+@\S+\.\S+/.test($("#je").value)){note.classList.add("show");note.innerHTML="<strong>Check your details.</strong>Enter your name and a valid email.";return;}
+    if(v==="find"&&(!($("#jskills").value||"").trim()||!($("#javail").value||"").trim())){note.classList.add("show");note.innerHTML="<strong>Tell us about your work.</strong>Add what work you do and your availability.";return;}
     if(API_ON){
       var jpw=$("#jpw").value||"";
       if(jpw.length<8){note.classList.add("show");note.innerHTML="<strong>Choose a longer password.</strong>Use at least 8 characters.";return;}
       note.classList.add("show");note.innerHTML="<strong>Creating your account…</strong>";
       AAOApi.signUp({email:$("#je").value.trim(),password:jpw,name:$("#jn").value.trim(),role:v==="post"?"client":"va",business:v==="post"?($("#jorg").value||"").trim():""}).then(function(r){
+        if(v==="find")saveSignupAnswers($("#je").value.trim(),{skills:($("#jskills").value||"").trim(),availability:($("#javail").value||"").trim()});
         if(r.needsConfirmation){note.innerHTML="<strong>Check your email.</strong>We sent a confirmation link to "+AAOApi.esc($("#je").value.trim())+". Open it to finish creating your account, then log in.";return;}
         return AAOApi.currentUser().then(function(u){if(u){setDemoUser(u);return AAOApi.refreshMine(u).then(function(){go("dashboard");});}else{go("login");}});
       }).catch(function(err){note.classList.add("show");note.innerHTML="<strong>We could not create your account.</strong>"+AAOApi.esc(err.message);});
@@ -5319,7 +5321,23 @@ function requireVaPage(fallback){
   if(u.role!=="va"&&u.role!=="admin"){go(fallback||"dashboard");return null;}
   return u;
 }
+/* What a virtual assistant typed on the sign-up form (work and availability); kept on this device until they save a profile. */
+function signupAnswers(email){
+  var all=localStore("aao_signup_answers",{});
+  var a=all[String(email||"").toLowerCase()];
+  return a&&typeof a==="object"?a:{};
+}
+function saveSignupAnswers(email,a){
+  var all=localStore("aao_signup_answers",{});
+  all[String(email||"").toLowerCase()]=a;
+  localSave("aao_signup_answers",all);
+}
 function defaultVaProfile(u){
+  /* Live mode: never invent details. Start empty (plus what they typed at sign-up); the sample profile below is for the demo only. */
+  if(API_ON){
+    var su=signupAnswers(u.email);
+    return {name:u.name||"Your name",headline:"",about:"",cat:"",loc:"",avail:"",exp:"",langs:"",skills:su.skills||"",email:u.email||"",rate:"",hours:su.availability||"",education:"",memberSince:u.since||"",status:"",portfolio:"",gender:"",age:""};
+  }
   var seed=TALENT.filter(function(t){return t.name===u.name;})[0]||TALENT.filter(function(t){return t.id==="sofia";})[0];
   return {
     name:u.name||(seed?seed.name:"Your name"),
@@ -5351,6 +5369,7 @@ function vapSkillRows(p){
   var skills=String(p.skills||"").split(",").map(function(s){return s.trim();}).filter(Boolean);
   if(!skills.length)return '<p class="vap-desc">Add skills to show them here.</p>';
   return skills.slice(0,6).map(function(s,i){
+    if(API_ON)return '<div class="vap-skill"><strong>'+(p.cat?p.cat+' › ':'')+s+'</strong>'+(p.exp?'<div class="vap-skill-meta">Experience: '+p.exp+'</div>':'')+'</div>';
     return '<div class="vap-skill"><strong>'+(p.cat||"Admin")+' › '+s+'</strong><div class="vap-skill-meta">Experience: '+(p.exp||"3 years")+'</div><div class="vap-stars" aria-label="5 out of 5">'+vapStars(5-Math.min(i,1))+'</div><p>Hands-on work with '+s.toLowerCase()+' for client workflows.</p></div>';
   }).join("");
 }
@@ -5492,14 +5511,14 @@ V.vaProfile = function(){
   var initial=(p.name||"V").charAt(0).toUpperCase();
   var rate=p.rate?("$"+p.rate+"/hr"):"Rate TBD";
   var overview=
-    '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><p>Looking for '+(p.hours||p.avail||"part-time work")+' at <strong>'+rate+'</strong></p></div>'+
+    '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><p>'+((API_ON&&!(p.hours||p.avail||p.rate))?'Add your availability and rate.':'Looking for '+(p.hours||p.avail||"part-time work")+' at <strong>'+rate+'</strong>')+'</p></div>'+
     '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 4 7v5c0 4.4 3.2 7.6 8 9 4.8-1.4 8-4.6 8-9V7l-8-4z"/></svg><p>'+(p.education||"Education not listed yet")+'</p></div>'+
-    '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5c1.8-3.2 4.1-4.8 6.5-4.8s4.7 1.6 6.5 4.8"/></svg><p>Member since '+(p.memberSince||"2024")+'</p></div>';
+    '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5c1.8-3.2 4.1-4.8 6.5-4.8s4.7 1.6 6.5 4.8"/></svg><p>'+(p.memberSince?'Member since '+p.memberSince:(API_ON?'New member':'Member since 2024'))+'</p></div>';
   return '<section class="vap" id="vap"><div class="wrap">'+
     '<a class="vap-crumb" href="#dashboard">← Back to VA desk</a>'+
     '<div class="vap-view">'+
-      '<div class="vap-hero"><p class="vap-status">Current status: '+(p.status||"Open to work")+'</p><div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
-      '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+p.headline+'</p><div class="vap-badges"><span class="vap-badge gold">'+(p.avail||"Available")+'</span></div></div>'+
+      '<div class="vap-hero">'+((API_ON&&!p.status)?'':'<p class="vap-status">Current status: '+(p.status||"Open to work")+'</p>')+'<div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
+      '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+(p.headline||"Virtual assistant")+'</p><div class="vap-badges">'+((API_ON&&!(p.avail||p.hours))?'':'<span class="vap-badge gold">'+(p.avail||(API_ON?p.hours:"Available"))+'</span>')+'</div></div>'+
       '<div class="vap-actions"><button class="btn btn-gold" type="button" id="vap-edit-btn">Edit profile</button><a class="btn btn-navy" href="#talent">Browse jobs</a></div>'+
       '<div class="vap-layout"><div>'+
         '<div class="vap-card"><h2>Overview</h2><div class="vap-overview">'+overview+'</div></div>'+
@@ -5515,7 +5534,7 @@ V.vaProfile = function(){
           (p.gender?'<div><dt>Gender</dt><dd>'+p.gender+'</dd></div>':"")+
           '<div><dt>Portfolio / website</dt><dd>'+(p.portfolio?('<a href="'+p.portfolio.replace(/"/g,"&quot;")+'" target="_blank" rel="noopener noreferrer">'+p.portfolio+'</a>'):"Not added yet")+'</dd></div>'+
           '<div><dt>Email</dt><dd>'+(p.email||u.email)+'</dd></div>'+
-        '</dl><div class="vap-tests" style="margin-top:16px"><div class="vap-test"><strong>English</strong><span>'+(p.langs||"English")+'</span></div><div class="vap-test"><strong>Availability</strong><span>'+(p.avail||"Flexible")+'</span></div></div></div>'+
+        '</dl><div class="vap-tests" style="margin-top:16px"><div class="vap-test"><strong>English</strong><span>'+(p.langs||(API_ON?"Not added yet":"English"))+'</span></div><div class="vap-test"><strong>Availability</strong><span>'+(p.avail||(API_ON?(p.hours||"Not added yet"):"Flexible"))+'</span></div></div></div>'+
       '</aside></div>'+
     '</div>'+
     '<div class="vap-edit"><div class="vap-card"><h2>Edit profile</h2><p class="lede" style="margin:0 0 16px;color:#51617C">Changes save on this device until your backend is connected.</p>'+
@@ -5609,7 +5628,7 @@ V.vaProfile.init = function(){
       loc:$("#vp-loc").value.trim(),exp:$("#vp-exp").value.trim(),langs:$("#vp-langs").value.trim(),skills:$("#vp-skills").value.trim(),
       rate:$("#vp-rate").value.trim(),hours:$("#vp-hours").value.trim(),education:$("#vp-education").value.trim(),
       status:$("#vp-status").value.trim(),portfolio:$("#vp-portfolio").value.trim(),
-      memberSince:p.memberSince||"March 2024",email:u.email,updatedAt:new Date().toISOString()
+      memberSince:p.memberSince||(API_ON?(u.since||""):"March 2024"),email:u.email,updatedAt:new Date().toISOString()
     };
     if(API_ON){
       /* Live mode: save to the backend. Local-only extras (hours, education, status, portfolio) stay on this device. */
