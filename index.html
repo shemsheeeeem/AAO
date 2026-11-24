@@ -5159,6 +5159,7 @@ V.dashboardLive = function(){
         ["Browse new openings","Open roles from clients","View jobs","#talent"],
         ["Read your inquiries","Clients who contacted you","Open","#messages"]
       ])+'<div class="dash-row"><div><strong>Verify your identity</strong><span id="dl-id">Upload a photo of your government ID</span></div><a class="dash-act" href="#va-settings" id="dl-id-act">Upload</a></div>'+
+      '<div class="dash-row"><div><strong>Take the three tests</strong><span id="dl-tests">Typing, DISC and aptitude</span></div><a class="dash-act" href="#va-settings" id="dl-tests-act">Start</a></div>'+
       '<p class="dash-note">Signed in as '+E(u.email)+'</p></div></div></div></section>';
   }
   var memOn=isAaOMember();
@@ -5182,6 +5183,12 @@ V.dashboardLive.init = function(){
       if(!line||!document.body.contains(line))return;
       line.textContent=idStatusText(st).label;
       if(act)act.textContent=st.status==="approved"?"View":(st.status==="submitted"?"View":"Upload");
+    }).catch(function(){});
+    AAOApi.assessmentStatus().then(function(st){
+      var line=$("#dl-tests"),act=$("#dl-tests-act");
+      if(!line||!document.body.contains(line))return;
+      line.textContent=testsStatusText(st).label;
+      if(act)act.textContent=st.status==="none"?"Start":(st.status==="rejected"?"Fix":"View");
     }).catch(function(){});
     return;
   }
@@ -5778,6 +5785,58 @@ function bindIdSection(){
     });
   });
 }
+/* Live mode: test results (typing, DISC, aptitude). The assistant takes each test on the linked site and types in the result. */
+function testsStatusText(st){
+  var E=AAOApi.esc;
+  if(!st||st.status==="none")return {label:"Not done yet",text:"Take the three tests below and enter your results."};
+  if(st.status==="submitted")return {label:"Waiting for review",text:"Thanks. AAO will check your results."};
+  if(st.status==="verified")return {label:"Verified",text:"Your test results are verified."};
+  return {label:"Not accepted",text:"Your results were not accepted"+(st.review_note?": "+E(st.review_note):"")+". Please check them and save again."};
+}
+function testsSectionHtml(){
+  function field(id,label,link,site,ph){
+    return '<label class="field">'+label+'<input type="text" id="'+id+'" maxlength="120" placeholder="'+ph+'"><span class="field-hint">Take it on <a href="'+link+'" target="_blank" rel="noopener noreferrer">'+site+'</a>, then type your result here. Save the results page as a PDF in case AAO asks for it.</span></label>';
+  }
+  return '<form class="app-form" id="vtf" novalidate style="margin-top:26px">'+
+    '<h2 style="margin:0">Your test results</h2>'+
+    '<p class="app-note" id="vtf-status">Checking…</p>'+
+    field("vtf-typing","Typing test","https://www.typing.com/","typing.com","e.g. 65 WPM, 98% accuracy")+
+    field("vtf-disc","DISC test","https://www.tonyrobbins.com/disc/","the Tony Robbins DISC assessment","e.g. DI")+
+    field("vtf-aptitude","Aptitude test","https://jobcannon.io/tests/cognitive-aptitude","the JobCannon cognitive aptitude test","e.g. Score 85 / 100")+
+    '<p class="app-note">Only AAO staff can see your results. They are never shown on your profile.</p>'+
+    '<div class="app-actions"><button class="btn btn-gold" type="submit">Save results</button></div>'+
+    '<div class="notice" id="vtf-note" role="status"></div>'+
+  '</form>';
+}
+function bindTestsSection(){
+  var form=$("#vtf"),status=$("#vtf-status"),note=$("#vtf-note");
+  if(!form||!status)return;
+  var typing=$("#vtf-typing"),disc=$("#vtf-disc"),apt=$("#vtf-aptitude"),btn=form.querySelector('button[type="submit"]');
+  function show(st){
+    var t=testsStatusText(st);
+    status.innerHTML="<strong>"+t.label+".</strong> "+t.text;
+  }
+  AAOApi.assessmentStatus().then(function(st){
+    typing.value=st.typing_result||"";disc.value=st.disc_result||"";apt.value=st.aptitude_result||"";
+    show(st);
+  }).catch(function(){status.textContent="We could not load your test results. Please refresh the page.";});
+  form.addEventListener("submit",function(e){
+    e.preventDefault();
+    var o={typing:typing.value.trim(),disc:disc.value.trim(),aptitude:apt.value.trim()};
+    note.classList.add("show");
+    if(!o.typing&&!o.disc&&!o.aptitude){note.innerHTML="<strong>Enter at least one result.</strong>";return;}
+    var short=[["typing",o.typing],["DISC",o.disc],["aptitude",o.aptitude]].filter(function(x){return x[1]&&x[1].length<2;});
+    if(short.length){note.innerHTML="<strong>That result is too short.</strong>Check your "+short[0][0]+" result.";return;}
+    btn.disabled=true;note.innerHTML="<strong>Saving…</strong>";
+    AAOApi.saveAssessment(o).then(function(st){
+      btn.disabled=false;show(st);
+      note.innerHTML="<strong>Results saved.</strong>AAO will check them.";
+    }).catch(function(err){
+      btn.disabled=false;
+      note.innerHTML="<strong>We could not save that.</strong>"+AAOApi.esc(err.status===403?"Please confirm your email address first (check your inbox), then try again.":err.message);
+    });
+  });
+}
 V.vaSettings = function(){
   var u=getDemoUser();
   if(!u)return V.login();
@@ -5790,7 +5849,7 @@ V.vaSettings = function(){
       '<label class="field">Email<input type="email" value="'+String(u.email||"").replace(/"/g,"&quot;")+'" readonly></label>'+
       '<p class="app-note">To change your name or other details, <a href="#va-profile">edit your profile</a>. To change your password, <a href="#forgot-password">request a reset link</a>.</p>'+
       '<div class="app-actions"><a class="btn btn-line" href="#logout">Log out</a></div>'+
-    '</div>'+idSectionHtml()+'</div></div></section>':
+    '</div>'+idSectionHtml()+testsSectionHtml()+'</div></div></section>':
     '<p class="lede">Basic account preferences for this demo login. Connect these fields to your auth API later.</p>'+
     '<form class="app-form" id="vsf" novalidate>'+
       '<label class="field">Email<input type="email" id="vs-email" value="'+String(u.email||"").replace(/"/g,"&quot;")+'" readonly></label>'+
@@ -5805,7 +5864,7 @@ V.vaSettings.init = function(){
   var u=requireVaPage();
   if(!u)return;
   var form=$("#vsf"),note=$("#vs-note"),p=loadVaProfile(u);
-  if(!form){if(API_ON)bindIdSection();return;} /* live mode: no settings form, only the ID check */
+  if(!form){if(API_ON){bindIdSection();bindTestsSection();}return;} /* live mode: no settings form, only the ID check and test results */
   var prefs=localStore("aao_va_settings",{});
   $("#vs-name").value=p.name||u.name||"";
   $("#vs-notify").value=prefs[u.email]&&prefs[u.email].notify||"all";
