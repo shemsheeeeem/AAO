@@ -547,6 +547,15 @@
     var r = await call("PUT", "/me/identity", { file: a.data.file }, { auth: true });
     return r.data;
   }
+  /* ---------- test results (typing, DISC, aptitude); private: only the owner and AAO administrators can see them ---------- */
+  async function assessmentStatus() {
+    var r = await call("GET", "/me/assessments", undefined, { auth: true, fresh: true });
+    return r.data;
+  }
+  async function saveAssessment(o) {
+    var r = await call("PUT", "/me/assessments", { typing_result: o.typing || null, disc_result: o.disc || null, aptitude_result: o.aptitude || null }, { auth: true });
+    return r.data;
+  }
   function myPhotoUrl() {
     return mine && mine.kind === "talent" && mine.data ? safeUrl(mine.data.photo_url) : "";
   }
@@ -583,6 +592,7 @@
     uploadPhoto: uploadPhoto,
     identityStatus: identityStatus,
     uploadIdentity: uploadIdentity, myPhotoUrl: myPhotoUrl,
+    assessmentStatus: assessmentStatus, saveAssessment: saveAssessment,
     hasTalentProfile: function () { return !!(mine && mine.kind === "talent" && mine.data); },
     jobFromOwn: jobFromOwn,
     sentInquiries: sentInquiries,
