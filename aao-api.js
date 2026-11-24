@@ -228,6 +228,8 @@
     base.video = safeUrl(d.video_url);
     base.certs = (d.certifications || []).map(function (c) { return { t: esc(c.title), s: esc(c.issuer || "") }; });
     base.edu = esc(d.education || "");
+    /* Detailed skills (decision 77): raw text here; the page escapes it when it draws it. */
+    base.skillDetails = (d.skill_details || []).map(function (s) { return { name: String(s.name || ""), category: String(s.category || "Other"), rating: Number(s.rating) || 0, isTop: !!s.is_top }; });
     base.work = workFromApi(d.work_experience);
     base.port = (d.portfolio || []).map(function (p) {
       var file = safeUrl(p.file_url);
@@ -401,7 +403,12 @@
       education: esc(d.education || ""),
       hours: d.hours_per_week ? d.hours_per_week + " hours/week" : "",
       subs: esc((d.sub_specialties || []).join(", ")),
-      work: workFromApi(d.work_experience)
+      work: workFromApi(d.work_experience),
+      /* Raw text for the skill editor, which escapes what it draws. */
+      skillRatings: (d.skill_details || []).map(function (s) {
+        var cat = String(s.category || "Other");
+        return { name: String(s.name || ""), category: cat, path: [cat, String(s.name || "")], rating: Number(s.rating) || 3, about: String(s.note || ""), isTop: !!s.is_top, custom: cat === "Other" };
+      })
     };
   }
 
@@ -432,6 +439,7 @@
     }
     if (row.subs !== undefined) body.sub_specialties = splitList(row.subs, 5);
     if (Array.isArray(row.work)) body.work_experience = row.work;
+    if (Array.isArray(row.skillDetails)) body.skill_details = row.skillDetails;
     var r = await call("PUT", "/me/talent-profile", body, { auth: true });
     mine = { kind: "talent", data: r.data };
     return r.data;
