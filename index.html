@@ -4385,11 +4385,13 @@ V.profile = function(id){
    '<div class="profile-hero"><div class="portrait"><div class="ph sq">'+picOf("t",t)+'</div></div><div>'+(hired?'<div class="profile-hired">Hired</div>':"")+'<h1>'+t.name+'</h1><p class="hl">'+t.headline+'</p><div class="tags">'+(hired?tag("Hired","gold on-navy"):"")+tag(t.avail,"gold on-navy live")+tag(t.loc,"on-navy")+tag(t.exp+" experience","on-navy")+'</div></div></div></div></section>'+
   '<section class="sec" style="padding-top:clamp(40px,5vw,64px)"><div class="wrap detail"><div>'+
    '<div class="dsec"><h2>About</h2><div class="prose"><p>'+t.about+'</p></div></div>'+
+   ((t.work&&t.work.length)?'<div class="dsec"><h2>Work experience</h2><div class="prose">'+workListHtml(t.work)+'</div></div>':"")+
    '<div class="dsec"><h2>Portfolio</h2><div class="port">'+t.port.map(function(p){return portCard(p,t);}).join("")+'</div></div>'+
    (t.certs.length?'<div class="dsec"><h2>Certificates and training</h2><ul class="certs">'+t.certs.map(function(c){return '<li><div><strong>'+c.t+'</strong><span class="m">'+c.s+'</span></div></li>';}).join("")+'</ul></div>':"")+
   '</div><aside class="aside">'+
    profileMeetPanel(t)+
-   '<div class="panel"><h3>Details</h3><dl class="dl"><div><dt>Experience</dt><dd>'+t.exp+'</dd></div><div><dt>Availability</dt><dd>'+t.avail+'</dd></div><div><dt>Location</dt><dd>'+t.loc+'</dd></div><div><dt>Languages</dt><dd>'+t.langs+'</dd></div></dl></div>'+
+   '<div class="panel"><h3>Details</h3><dl class="dl"><div><dt>Experience</dt><dd>'+t.exp+'</dd></div><div><dt>Availability</dt><dd>'+t.avail+'</dd></div><div><dt>Location</dt><dd>'+t.loc+'</dd></div><div><dt>Languages</dt><dd>'+t.langs+'</dd></div>'+(t.hours?'<div><dt>Hours</dt><dd>'+t.hours+'</dd></div>':"")+(t.edu?'<div><dt>Education</dt><dd>'+t.edu+'</dd></div>':"")+'</dl></div>'+
+   ((t.subs&&t.subs.length)?'<div class="panel"><h3>Specialties</h3><div class="tags">'+t.subs.map(function(s){return tag(s);}).join("")+'</div></div>':"")+
    '<div class="panel"><h3>Skills</h3><div class="tags">'+t.skills.map(function(s){return tag(s);}).join("")+'</div></div>'+
   '</aside></div></section>';
 };
@@ -5406,7 +5408,48 @@ function loadVaProfile(u){
   var base=defaultVaProfile(u);
   if(!saved||typeof saved!=="object")return base;
   Object.keys(base).forEach(function(k){if(saved[k]!=null&&saved[k]!=="")base[k]=saved[k];});
+  if(API_ON){if(saved.subs!=null)base.subs=saved.subs;if(Array.isArray(saved.work))base.work=saved.work;}
   return base;
+}
+/* Live mode: work experience editor rows. Values from the backend are already HTML-escaped, so they go straight into attributes/textarea. */
+function workEntryHtml(w){
+  w=w||{};
+  return '<div class="vpj" style="border:1px solid var(--vap-line);border-radius:12px;padding:14px;margin:10px 0">'+
+    '<div class="two"><label class="field">Role<input type="text" class="vpj-role" maxlength="80" placeholder="e.g. Social media assistant" value="'+(w.role||"")+'"></label>'+
+    '<label class="field">Type of business<input type="text" class="vpj-business" maxlength="80" placeholder="e.g. Real estate agency" value="'+(w.business||"")+'"></label></div>'+
+    '<div class="two"><label class="field">Start year<input type="number" class="vpj-start" min="1950" max="2100" placeholder="2022" value="'+(w.start||"")+'"></label>'+
+    '<label class="field">End year (empty if you still work there)<input type="number" class="vpj-end" min="1950" max="2100" placeholder="2024" value="'+(w.end||"")+'"></label></div>'+
+    '<label class="field">What you did and achieved (one per line, 1 to 5 lines)<textarea class="vpj-bullets" maxlength="900">'+(w.bullets||[]).join("\n")+'</textarea></label>'+
+    '<label class="field">Tools you used<input type="text" class="vpj-tools" maxlength="120" placeholder="e.g. Canva, HubSpot" value="'+(w.tools||"")+'"></label>'+
+    '<button type="button" class="btn btn-line vpj-remove">Remove this job</button>'+
+  '</div>';
+}
+function collectWork(){
+  var out=[],err="";
+  Array.prototype.forEach.call(document.querySelectorAll("#vp-work .vpj"),function(el,i){
+    if(err)return;
+    var v=function(c){var x=el.querySelector(c);return x?x.value.trim():"";};
+    var role=v(".vpj-role"),start=v(".vpj-start"),end=v(".vpj-end");
+    var bullets=v(".vpj-bullets").split("\n").map(function(s){return s.trim();}).filter(Boolean);
+    if(!role&&!start&&!bullets.length&&!v(".vpj-business")&&!v(".vpj-tools"))return; /* an empty row is ignored */
+    var n="Job "+(i+1)+": ";
+    if(!role){err=n+"add the role.";return;}
+    if(!/^\d{4}$/.test(start)){err=n+"add the start year (for example 2022).";return;}
+    if(end&&!/^\d{4}$/.test(end)){err=n+"the end year should look like 2024, or stay empty.";return;}
+    if(end&&Number(end)<Number(start)){err=n+"the end year is before the start year.";return;}
+    if(!bullets.length||bullets.length>5){err=n+"add 1 to 5 lines about what you did.";return;}
+    if(bullets.some(function(b){return b.length>160;})){err=n+"keep each line under 160 characters.";return;}
+    out.push({role:role,business:v(".vpj-business")||null,start:Number(start),end:end?Number(end):null,bullets:bullets,tools:v(".vpj-tools")||null});
+  });
+  if(!err&&out.length>10)err="Add at most 10 jobs.";
+  return {list:out,error:err};
+}
+function workListHtml(list){
+  return (list||[]).map(function(w){
+    return '<div style="margin:0 0 16px"><strong>'+w.role+'</strong>'+(w.business?' · '+w.business:"")+'<br><span class="m">'+w.start+' – '+(w.end||"present")+'</span>'+
+      '<ul style="margin:8px 0 6px 18px;list-style:disc">'+(w.bullets||[]).map(function(b){return '<li>'+b+'</li>';}).join("")+'</ul>'+
+      (w.tools?'<span class="m">Tools: '+w.tools+'</span>':"")+'</div>';
+  }).join("");
 }
 function saveVaProfile(u, profile){
   var all=localStore("aao_va_profiles",{});
@@ -5548,10 +5591,12 @@ V.vaProfile = function(){
       '<div class="vap-layout"><div>'+
         '<div class="vap-card"><h2>Overview</h2><div class="vap-overview">'+overview+'</div></div>'+
         '<div class="vap-card"><h2>Profile description</h2><p class="vap-desc">'+(p.about||"Add a short description of how you work.")+'</p></div>'+
+        (API_ON?'<div class="vap-card"><h2>Work experience</h2>'+((p.work&&p.work.length)?workListHtml(p.work):'<p class="vap-desc">Add the jobs you have done: role, type of business, years, and what you achieved.</p>')+'</div>':"")+
         '<div class="vap-card"><div class="vap-card-head"><h2>Top skills</h2><button class="vap-edit-toggle" type="button" data-vap-edit>Update skills</button></div>'+vapSkillRows(p)+'</div>'+
       '</div><aside>'+
         '<div class="vap-card"><h2>Basic information</h2><dl class="vap-dl">'+
           '<div><dt>Field</dt><dd>'+(CATS[p.cat]||p.cat||"—")+'</dd></div>'+
+          (API_ON?'<div><dt>Specialties</dt><dd>'+(p.subs||"—")+'</dd></div>':"")+
           '<div><dt>Experience</dt><dd>'+(p.exp||"—")+'</dd></div>'+
           '<div><dt>Languages</dt><dd>'+(p.langs||"—")+'</dd></div>'+
           '<div><dt>Location</dt><dd>'+(p.loc||"—")+'</dd></div>'+
@@ -5562,7 +5607,7 @@ V.vaProfile = function(){
         '</dl><div class="vap-tests" style="margin-top:16px"><div class="vap-test"><strong>English</strong><span>'+(p.langs||(API_ON?"Not added yet":"English"))+'</span></div><div class="vap-test"><strong>Availability</strong><span>'+(p.avail||(API_ON?(p.hours||"Not added yet"):"Flexible"))+'</span></div></div></div>'+
       '</aside></div>'+
     '</div>'+
-    '<div class="vap-edit"><div class="vap-card"><h2>Edit profile</h2><p class="lede" style="margin:0 0 16px;color:#51617C">'+(API_ON?"Your details are saved to your AAO profile. Hours per week, education, status and portfolio stay on this device only.":"Changes save on this device until your backend is connected.")+'</p>'+
+    '<div class="vap-edit"><div class="vap-card"><h2>Edit profile</h2><p class="lede" style="margin:0 0 16px;color:#51617C">'+(API_ON?"Your details are saved to your AAO profile. Status and portfolio stay on this device only.":"Changes save on this device until your backend is connected.")+'</p>'+
       '<form class="app-form" id="vpf" novalidate>'+
         '<label class="field">Full name<input type="text" id="vp-name" required maxlength="80"></label>'+
         '<label class="field">Headline<input type="text" id="vp-headline" required maxlength="120"></label>'+
@@ -5577,7 +5622,7 @@ V.vaProfile = function(){
         '</div>'+
         '<div class="two">'+
           '<label class="field">Hourly rate (USD)<input type="number" id="vp-rate" min="1" step="1" placeholder="18"></label>'+
-          '<label class="field">Hours / week<input type="text" id="vp-hours" maxlength="80" placeholder="Part-time · 20 hours/week"></label>'+
+          '<label class="field">Hours / week<input type="text" id="vp-hours" maxlength="80" placeholder="'+(API_ON?"e.g. 20":"Part-time · 20 hours/week")+'"></label>'+
         '</div>'+
         '<div class="two">'+
           '<label class="field">Education<input type="text" id="vp-education" maxlength="120"></label>'+
@@ -5585,6 +5630,8 @@ V.vaProfile = function(){
         '</div>'+
         '<label class="field">Languages<input type="text" id="vp-langs" maxlength="120"></label>'+
         '<label class="field">Skills (comma separated)<input type="text" id="vp-skills" maxlength="240"></label>'+
+        (API_ON?'<label class="field">Specialties (up to 5, comma separated)<input type="text" id="vp-subs" maxlength="230" placeholder="e.g. Bookkeeping, Inbox management"></label>'+
+          '<div class="field"><span>Work experience</span><div id="vp-work"></div><button type="button" class="btn btn-line" id="vp-work-add">Add a job</button></div>':"")+
         '<label class="field">Portfolio / website<input type="url" id="vp-portfolio" maxlength="200" placeholder="https://"></label>'+
         '<div class="app-actions"><button class="btn btn-gold" type="submit">Save profile</button><button class="btn btn-navy" type="button" id="vap-cancel">Cancel</button></div>'+
         '<div class="notice" id="vp-note" role="status"></div>'+
@@ -5610,6 +5657,12 @@ V.vaProfile.init = function(){
     $("#vp-education").value=p.education||"";
     $("#vp-status").value=p.status||"";
     $("#vp-portfolio").value=p.portfolio||"";
+    if(API_ON){
+      $("#vp-education").value=U(p.education||"");
+      $("#vp-hours").value=U(p.hours||"");
+      if($("#vp-subs"))$("#vp-subs").value=U(p.subs||"");
+      var wl=$("#vp-work");if(wl)wl.innerHTML=(p.work||[]).map(workEntryHtml).join("");
+    }
   }
   function setEditing(on){
     if(!root)return;
@@ -5635,6 +5688,14 @@ V.vaProfile.init = function(){
       input.value="";
     });
   }
+  var workAdd=$("#vp-work-add"),workBox=$("#vp-work");
+  if(workAdd&&workBox){
+    workAdd.addEventListener("click",function(){
+      if(workBox.querySelectorAll(".vpj").length>=10)return;
+      workBox.insertAdjacentHTML("beforeend",workEntryHtml());
+    });
+    workBox.addEventListener("click",function(e){var b=e.target.closest(".vpj-remove");if(b)b.closest(".vpj").remove();});
+  }
   var editBtn=$("#vap-edit-btn"),cancel=$("#vap-cancel");
   if(editBtn)editBtn.addEventListener("click",function(){setEditing(true);});
   Array.prototype.forEach.call(document.querySelectorAll("[data-vap-edit]"),function(btn){
@@ -5656,10 +5717,14 @@ V.vaProfile.init = function(){
       memberSince:p.memberSince||(API_ON?(u.since||""):"March 2024"),email:u.email,updatedAt:new Date().toISOString()
     };
     if(API_ON){
-      /* Live mode: save to the backend. Local-only extras (hours, education, status, portfolio) stay on this device. */
+      /* Live mode: save to the backend. Local-only extras (status, portfolio) stay on this device. */
+      var wk=collectWork();
+      if(wk.error){note.innerHTML="<strong>Check your work experience.</strong>"+wk.error;return;}
+      row.work=wk.list;
+      row.subs=$("#vp-subs")?$("#vp-subs").value.trim():undefined;
       note.innerHTML="<strong>Saving…</strong>";
       AAOApi.saveTalentProfile(row).then(function(){
-        saveVaProfile(u,{hours:row.hours,education:row.education,status:row.status,portfolio:row.portfolio,memberSince:row.memberSince});
+        saveVaProfile(u,{status:row.status,portfolio:row.portfolio,memberSince:row.memberSince});
         setDemoUser(Object.assign({},u,{name:name}));
         return reloadCatalog();
       }).then(function(){syncAuthNav();go("va-profile");}).catch(function(err){
