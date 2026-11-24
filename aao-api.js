@@ -507,6 +507,46 @@
     mine = { kind: "talent", data: r.data };
     return safeUrl(r.data.photo_url);
   }
+  /* ---------- government ID (private; only the owner and AAO administrators can see it) ---------- */
+  /* Redraws the photo as a JPEG of at most 1600 px. This keeps it under the 5 MB limit and drops the camera's hidden details (such as location). */
+  function idPhotoAsJpeg(file) {
+    return new Promise(function (resolve, reject) {
+      if (!file || !/^image\//.test(file.type || "")) { reject(ApiError(400, "VALIDATION_ERROR", "Please choose a photo of your ID (JPEG, PNG or WebP).")); return; }
+      if (file.size > 20 * 1024 * 1024) { reject(ApiError(400, "VALIDATION_ERROR", "That photo is too large. Please choose one under 20 MB.")); return; }
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        try {
+          var scale = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+          var c = document.createElement("canvas");
+          c.width = Math.max(1, Math.round(img.naturalWidth * scale));
+          c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+          c.toBlob(function (b) { b ? resolve(b) : reject(ApiError(400, "VALIDATION_ERROR", "We could not read that photo. Please try another one.")); }, "image/jpeg", 0.85);
+        } catch (e) { URL.revokeObjectURL(url); reject(ApiError(400, "VALIDATION_ERROR", "We could not read that photo. Please try another one.")); }
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(ApiError(400, "VALIDATION_ERROR", "We could not read that photo. Please take it again as a JPEG or PNG.")); };
+      img.src = url;
+    });
+  }
+  async function identityStatus() {
+    var r = await call("GET", "/me/identity", undefined, { auth: true, fresh: true });
+    return r.data;
+  }
+  async function uploadIdentity(file) {
+    var blob = await idPhotoAsJpeg(file);
+    if (blob.size > 5 * 1024 * 1024) throw ApiError(400, "VALIDATION_ERROR", "That photo is still too large after resizing. Please try another one.");
+    var a = await call("POST", "/me/identity/upload-url", { content_type: "image/jpeg", size: blob.size }, { auth: true });
+    var up = a.data.upload, put;
+    try {
+      put = await fetch(up.url, { method: "PUT", headers: up.headers, body: blob });
+    } catch (err) {
+      throw ApiError(0, "NETWORK", "The upload failed. Check your connection and try again.");
+    }
+    if (!put.ok) throw ApiError(put.status, "UPLOAD", "The upload was not accepted. Please try again.");
+    var r = await call("PUT", "/me/identity", { file: a.data.file }, { auth: true });
+    return r.data;
+  }
   function myPhotoUrl() {
     return mine && mine.kind === "talent" && mine.data ? safeUrl(mine.data.photo_url) : "";
   }
@@ -540,7 +580,9 @@
     myJobs: myJobs, closeJob: closeJob, reopenJob: reopenJob,
     report: report,
     turnstileSiteKey: function () { return cfg.turnstileSiteKey || ""; },
-    uploadPhoto: uploadPhoto, myPhotoUrl: myPhotoUrl,
+    uploadPhoto: uploadPhoto,
+    identityStatus: identityStatus,
+    uploadIdentity: uploadIdentity, myPhotoUrl: myPhotoUrl,
     hasTalentProfile: function () { return !!(mine && mine.kind === "talent" && mine.data); },
     jobFromOwn: jobFromOwn,
     sentInquiries: sentInquiries,

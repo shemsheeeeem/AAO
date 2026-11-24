@@ -5158,7 +5158,8 @@ V.dashboardLive = function(){
         [has?"Update your profile":"Create your profile","Skills, availability and a short introduction",has?"Edit profile":"Start","#va-profile"],
         ["Browse new openings","Open roles from clients","View jobs","#talent"],
         ["Read your inquiries","Clients who contacted you","Open","#messages"]
-      ])+'<p class="dash-note">Signed in as '+E(u.email)+'</p></div></div></div></section>';
+      ])+'<div class="dash-row"><div><strong>Verify your identity</strong><span id="dl-id">Upload a photo of your government ID</span></div><a class="dash-act" href="#va-settings" id="dl-id-act">Upload</a></div>'+
+      '<p class="dash-note">Signed in as '+E(u.email)+'</p></div></div></div></section>';
   }
   var memOn=isAaOMember();
   var memAct=memOn?'<a class="btn btn-line" href="#messages">Messages</a>':membershipLink("btn btn-gold","Unlock membership")+'<a class="btn btn-line" href="#membership">Membership</a>';
@@ -5176,6 +5177,12 @@ V.dashboardLive.init = function(){
   if(!root)return;
   if(u.role==="va"){
     AAOApi.receivedInquiries().then(function(l){var c=$("#dl-count");if(c&&document.body.contains(c))c.textContent=l.length;}).catch(function(){var c=$("#dl-count");if(c)c.textContent="–";});
+    AAOApi.identityStatus().then(function(st){
+      var line=$("#dl-id"),act=$("#dl-id-act");
+      if(!line||!document.body.contains(line))return;
+      line.textContent=idStatusText(st).label;
+      if(act)act.textContent=st.status==="approved"?"View":(st.status==="submitted"?"View":"Upload");
+    }).catch(function(){});
     return;
   }
   var box=$("#dl-jobs");
@@ -5728,6 +5735,49 @@ V.vaSaved = function(){
   return vaAppShell({h1:"Saved jobs",p:(API_ON?"Jobs you save while browsing will appear here.":"Jobs you’ve bookmarked while browsing openings."),cta:"Browse openings",ctaHref:"#talent",body:body});
 };
 V.vaSaved.init = function(){requireVaPage();};
+/* Live mode: government ID check (private: only the assistant and AAO staff can see the photo). */
+function idStatusText(st){
+  var E=AAOApi.esc;
+  if(!st||st.status==="none")return {label:"Not uploaded yet",text:"Upload a clear photo of a government-issued ID so AAO can verify you."};
+  if(st.status==="submitted")return {label:"Waiting for review",text:"Thanks. Your ID was uploaded and AAO will review it."};
+  if(st.status==="approved")return {label:"Verified",text:"Your identity is verified."};
+  return {label:"Not accepted",text:"Your ID photo was not accepted"+(st.review_note?": "+E(st.review_note):"")+". Please upload a new, clear photo."};
+}
+function idSectionHtml(){
+  return '<div class="app-form" id="vid" style="margin-top:26px">'+
+    '<h2 style="margin:0">Verify your identity</h2>'+
+    '<p class="app-note" id="vid-status">Checking…</p>'+
+    '<label class="field">Photo of your government ID<input type="file" id="vid-file" accept="image/*"></label>'+
+    '<p class="app-note">Used only to verify you. Only AAO staff can see it, and it is never shown on your profile. Make sure all four corners and the text are clear.</p>'+
+    '<div class="app-actions"><button class="btn btn-gold" type="button" id="vid-send">Upload ID</button></div>'+
+    '<div class="notice" id="vid-note" role="status"></div>'+
+  '</div>';
+}
+function bindIdSection(){
+  var status=$("#vid-status"),file=$("#vid-file"),send=$("#vid-send"),note=$("#vid-note");
+  if(!status||!file||!send)return;
+  function show(st){
+    var t=idStatusText(st);
+    status.innerHTML="<strong>"+t.label+".</strong> "+t.text;
+    send.textContent=st&&st.status!=="none"?"Upload a new photo":"Upload ID";
+  }
+  AAOApi.identityStatus().then(show).catch(function(){status.textContent="We could not load your ID status. Please refresh the page.";});
+  send.addEventListener("click",function(){
+    var f=file.files&&file.files[0];
+    note.classList.add("show");
+    if(!f){note.innerHTML="<strong>Choose a photo first.</strong>Take or pick a clear photo of your ID.";return;}
+    send.disabled=true;
+    note.innerHTML="<strong>Uploading…</strong>";
+    AAOApi.uploadIdentity(f).then(function(st){
+      send.disabled=false;file.value="";
+      show(st);
+      note.innerHTML="<strong>ID uploaded.</strong>AAO will review it.";
+    }).catch(function(err){
+      send.disabled=false;
+      note.innerHTML="<strong>We could not upload that.</strong>"+AAOApi.esc(err.status===403?"Please confirm your email address first (check your inbox), then try again.":err.message);
+    });
+  });
+}
 V.vaSettings = function(){
   var u=getDemoUser();
   if(!u)return V.login();
@@ -5740,7 +5790,7 @@ V.vaSettings = function(){
       '<label class="field">Email<input type="email" value="'+String(u.email||"").replace(/"/g,"&quot;")+'" readonly></label>'+
       '<p class="app-note">To change your name or other details, <a href="#va-profile">edit your profile</a>. To change your password, <a href="#forgot-password">request a reset link</a>.</p>'+
       '<div class="app-actions"><a class="btn btn-line" href="#logout">Log out</a></div>'+
-    '</div></div></div></section>':
+    '</div>'+idSectionHtml()+'</div></div></section>':
     '<p class="lede">Basic account preferences for this demo login. Connect these fields to your auth API later.</p>'+
     '<form class="app-form" id="vsf" novalidate>'+
       '<label class="field">Email<input type="email" id="vs-email" value="'+String(u.email||"").replace(/"/g,"&quot;")+'" readonly></label>'+
@@ -5755,7 +5805,7 @@ V.vaSettings.init = function(){
   var u=requireVaPage();
   if(!u)return;
   var form=$("#vsf"),note=$("#vs-note"),p=loadVaProfile(u);
-  if(!form)return; /* live mode has no settings form */
+  if(!form){if(API_ON)bindIdSection();return;} /* live mode: no settings form, only the ID check */
   var prefs=localStore("aao_va_settings",{});
   $("#vs-name").value=p.name||u.name||"";
   $("#vs-notify").value=prefs[u.email]&&prefs[u.email].notify||"all";
