@@ -576,6 +576,22 @@
     var r = await call("GET", "/me/assessments", undefined, { auth: true, fresh: true });
     return r.data;
   }
+  /* Attaches the result PDF of one test ("typing", "disc" or "aptitude"). Private: only the owner and AAO administrators can open it. */
+  async function uploadAssessmentPdf(test, file) {
+    if (!file || (file.type && file.type !== "application/pdf" && !/\.pdf$/i.test(file.name || ""))) throw ApiError(400, "VALIDATION_ERROR", "Please choose the PDF of your result.");
+    if (!file.size) throw ApiError(400, "VALIDATION_ERROR", "That file is empty.");
+    if (file.size > 5 * 1024 * 1024) throw ApiError(400, "VALIDATION_ERROR", "That PDF is larger than 5 MB. Please save a smaller one.");
+    var a = await call("POST", "/me/assessments/upload-url", { content_type: "application/pdf", size: file.size }, { auth: true });
+    var up = a.data.upload, put;
+    try {
+      put = await fetch(up.url, { method: "PUT", headers: up.headers, body: file });
+    } catch (err) {
+      throw ApiError(0, "NETWORK", "The upload failed. Check your connection and try again.");
+    }
+    if (!put.ok) throw ApiError(put.status, "UPLOAD", "The upload was not accepted. Please check that it is a PDF and try again.");
+    var r = await call("PUT", "/me/assessments/pdf", { test: test, file: a.data.file }, { auth: true });
+    return r.data;
+  }
   async function saveAssessment(o) {
     var r = await call("PUT", "/me/assessments", { typing_result: o.typing || null, disc_result: o.disc || null, aptitude_result: o.aptitude || null }, { auth: true });
     return r.data;
@@ -616,7 +632,7 @@
     uploadPhoto: uploadPhoto,
     identityStatus: identityStatus,
     uploadIdentity: uploadIdentity, myPhotoUrl: myPhotoUrl,
-    assessmentStatus: assessmentStatus, saveAssessment: saveAssessment,
+    assessmentStatus: assessmentStatus, saveAssessment: saveAssessment, uploadAssessmentPdf: uploadAssessmentPdf,
     hasTalentProfile: function () { return !!(mine && mine.kind === "talent" && mine.data); },
     jobFromOwn: jobFromOwn,
     sentInquiries: sentInquiries,

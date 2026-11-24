@@ -5859,16 +5859,17 @@ function testsStatusText(st){
   return {label:"Not accepted",text:"Your results were not accepted"+(st.review_note?": "+E(st.review_note):"")+". Please check them and save again."};
 }
 function testsSectionHtml(){
-  function field(id,label,link,site,ph){
-    return '<label class="field">'+label+'<input type="text" id="'+id+'" maxlength="120" placeholder="'+ph+'"><span class="field-hint">Take it on <a href="'+link+'" target="_blank" rel="noopener noreferrer">'+site+'</a>, then type your result here. Save the results page as a PDF in case AAO asks for it.</span></label>';
+  function field(id,label,link,site,ph,test){
+    return '<label class="field">'+label+'<input type="text" id="'+id+'" maxlength="120" placeholder="'+ph+'"><span class="field-hint">Take it on <a href="'+link+'" target="_blank" rel="noopener noreferrer">'+site+'</a>, type your result here, and attach the results page saved as a PDF.</span></label>'+
+      '<label class="field">PDF of your '+label.toLowerCase()+' result<input type="file" accept="application/pdf,.pdf" data-test-pdf="'+test+'"><span class="field-hint" data-pdf-state="'+test+'">No PDF attached yet.</span></label>';
   }
   return '<form class="app-form" id="vtf" novalidate style="margin-top:26px">'+
     '<h2 style="margin:0">Your test results</h2>'+
     '<p class="app-note" id="vtf-status">Checking…</p>'+
-    field("vtf-typing","Typing test","https://www.typing.com/","typing.com","e.g. 65 WPM, 98% accuracy")+
-    field("vtf-disc","DISC test","https://www.tonyrobbins.com/disc/","the Tony Robbins DISC assessment","e.g. DI")+
-    field("vtf-aptitude","Aptitude test","https://jobcannon.io/tests/cognitive-aptitude","the JobCannon cognitive aptitude test","e.g. Score 85 / 100")+
-    '<p class="app-note">Only AAO staff can see your results. They are never shown on your profile.</p>'+
+    field("vtf-typing","Typing test","https://www.typing.com/","typing.com","e.g. 65 WPM, 98% accuracy","typing")+
+    field("vtf-disc","DISC test","https://www.tonyrobbins.com/disc/","the Tony Robbins DISC assessment","e.g. DI","disc")+
+    field("vtf-aptitude","Aptitude test","https://jobcannon.io/tests/cognitive-aptitude","the JobCannon cognitive aptitude test","e.g. Score 85 / 100","aptitude")+
+    '<p class="app-note">Only AAO staff can see your results and PDFs. They are never shown on your profile. A PDF uploads as soon as you choose it.</p>'+
     '<div class="app-actions"><button class="btn btn-gold" type="submit">Save results</button></div>'+
     '<div class="notice" id="vtf-note" role="status"></div>'+
   '</form>';
@@ -5880,7 +5881,25 @@ function bindTestsSection(){
   function show(st){
     var t=testsStatusText(st);
     status.innerHTML="<strong>"+t.label+".</strong> "+t.text;
+    ["typing","disc","aptitude"].forEach(function(k){
+      var el=form.querySelector('[data-pdf-state="'+k+'"]');
+      if(el)el.textContent=st&&st["has_"+k+"_pdf"]?"PDF attached. Choose a new file to replace it.":"No PDF attached yet.";
+    });
   }
+  Array.prototype.forEach.call(form.querySelectorAll("[data-test-pdf]"),function(input){
+    input.addEventListener("change",function(){
+      var f=input.files&&input.files[0],k=input.getAttribute("data-test-pdf"),state=form.querySelector('[data-pdf-state="'+k+'"]');
+      if(!f)return;
+      input.disabled=true;if(state)state.textContent="Uploading…";
+      AAOApi.uploadAssessmentPdf(k,f).then(function(st){
+        input.disabled=false;input.value="";show(st);
+        note.classList.add("show");note.innerHTML="<strong>PDF uploaded.</strong>AAO will check it.";
+      }).catch(function(err){
+        input.disabled=false;input.value="";
+        if(state)state.textContent="We could not upload that: "+(err.status===403?"please confirm your email address first, then try again.":err.message);
+      });
+    });
+  });
   AAOApi.assessmentStatus().then(function(st){
     typing.value=st.typing_result||"";disc.value=st.disc_result||"";apt.value=st.aptitude_result||"";
     show(st);
