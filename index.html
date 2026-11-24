@@ -955,6 +955,20 @@ body.booting .foot{visibility:hidden}
 .vap-skill strong{display:block;color:var(--vap-ink)}
 .vap-skill .vap-skill-meta{margin:4px 0 6px;color:var(--vap-muted);font-size:.88rem}
 .vap-stars{color:#C49B3F;letter-spacing:.08em;font-size:.95rem}
+/* Banner and personal photos (decision 78) */
+.media-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.media-banner{aspect-ratio:4/1;min-height:90px;border-radius:12px;background:#0B1A33 center/cover no-repeat;margin:6px 0 10px}
+.media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.media-grid figure{margin:0}
+.media-grid img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;background:#0B1A33}
+.media-grid figcaption{margin-top:6px;font-size:.85rem;color:var(--muted,#51617C)}
+.media-list{list-style:none;margin:8px 0;padding:0;display:grid;gap:10px}
+.media-row{display:grid;grid-template-columns:72px minmax(0,1fr);gap:10px;align-items:center}
+.media-row img{width:72px;height:54px;object-fit:cover;border-radius:8px;background:#0B1A33}
+.media-row .media-btns{grid-column:2;display:flex;flex-wrap:wrap;gap:6px}
+.media-row .media-btns .btn{padding:.4em .8em;font-size:.82rem}
+.vap-hero.has-banner{background-size:cover;background-repeat:no-repeat}
+
 /* Outline buttons on the light edit card (Add a job, Add custom skill, Remove this job) need dark text there. */
 #vap .vap-edit .btn-line{color:#1B4B91;background:#fff;border-color:#9FB3D1}
 #vap .vap-edit .btn-line:hover:not(:disabled){background:#EAF0FA;color:#0B1A33}
@@ -3167,6 +3181,102 @@ function mountSkillEditor(px,initial,onChange){
 }
 
 /* Live mode skill lists. Names, categories and notes are escaped here; nothing is invented when a skill has no note. */
+
+/* Live mode: profile banner and personal photos (decision 78). URLs come from the API (https only); text is escaped here. */
+var PHOTO_MAX=5;
+function bannerStyle(b){return 'background-image:url(&quot;'+escAttr(b.url)+'&quot;);background-position:'+Number(b.x||0)+'% '+Number(b.y||0)+'%;background-size:cover';}
+function photoGridHtml(list){
+  return '<div class="media-grid">'+(list||[]).map(function(p){
+    return '<figure><img src="'+escAttr(p.url)+'" alt="'+escAttr(p.caption?p.caption:"Photo")+'" loading="lazy" decoding="async">'+(p.caption?'<figcaption>'+p.caption+'</figcaption>':'')+'</figure>';
+  }).join("")+'</div>';
+}
+function mediaSectionHtml(){
+  return '<div class="field media-edit"><span>Banner</span>'+
+      '<div class="media-banner" id="vp-bn-prev" aria-hidden="true"></div>'+
+      '<div class="two" id="vp-bn-pos" hidden><label class="field">Left – right<input type="range" id="vp-bn-x" min="0" max="100" step="1"></label><label class="field">Top – bottom<input type="range" id="vp-bn-y" min="0" max="100" step="1"></label></div>'+
+      '<div class="media-actions"><label class="btn btn-line" style="cursor:pointer">Choose banner image<input type="file" id="vp-bn-file" accept="image/jpeg,image/png,image/webp" hidden></label><button type="button" class="btn btn-line" id="vp-bn-remove" hidden>Remove banner</button></div>'+
+      '<small class="muted">A wide image (about 4 : 1) that shows you or your work. Shown at the top of your public profile. No contact details.</small>'+
+      '<small class="muted" id="vp-bn-note" role="status"></small>'+
+    '</div>'+
+    '<div class="field media-edit"><span>Personal photos <small class="muted" id="vp-ph-count"></small></span>'+
+      '<ol class="media-list" id="vp-ph-list"></ol>'+
+      '<div class="media-actions"><label class="btn btn-line" style="cursor:pointer" id="vp-ph-addbtn">Add a photo<input type="file" id="vp-ph-file" accept="image/jpeg,image/png,image/webp" hidden></label></div>'+
+      '<small class="muted">Up to '+PHOTO_MAX+' photos: your work setup, you at work, a headshot. Shown on your public profile. No contact details.</small>'+
+      '<small class="muted" id="vp-ph-note" role="status"></small>'+
+    '</div>';
+}
+function bindMediaSection(){
+  var prev=$("#vp-bn-prev"),pos=$("#vp-bn-pos"),rx=$("#vp-bn-x"),ry=$("#vp-bn-y"),file=$("#vp-bn-file"),rm=$("#vp-bn-remove"),note=$("#vp-bn-note");
+  var list=$("#vp-ph-list"),pfile=$("#vp-ph-file"),pnote=$("#vp-ph-note"),count=$("#vp-ph-count"),addBtn=$("#vp-ph-addbtn");
+  if(!prev||!list)return;
+  var has=AAOApi.hasTalentProfile();
+  if(!has){
+    note.textContent="Save your profile first, then add a banner and photos.";
+    file.disabled=true;pfile.disabled=true;return;
+  }
+  var p=(AAOApi.myTalentForUi()||{}),banner=p.banner||null,timer=null,photos=[];
+  function showBanner(){
+    if(banner){prev.setAttribute("style",bannerStyle(banner).replace(/&quot;/g,'"'));rx.value=banner.x;ry.value=banner.y;}
+    else prev.removeAttribute("style");
+    pos.hidden=!banner;rm.hidden=!banner;
+  }
+  showBanner();
+  file.addEventListener("change",function(){
+    var f=file.files&&file.files[0];if(!f)return;
+    note.textContent="Uploading…";
+    AAOApi.uploadBanner(f).then(function(b){banner=b;showBanner();note.textContent="Banner saved.";}).catch(function(err){note.textContent=err.message;});
+    file.value="";
+  });
+  function moved(){
+    if(!banner)return;
+    banner.x=Number(rx.value);banner.y=Number(ry.value);showBanner();
+    clearTimeout(timer);
+    timer=setTimeout(function(){AAOApi.setBannerPosition(banner.x,banner.y).then(function(){note.textContent="Position saved.";}).catch(function(err){note.textContent=err.message;});},400);
+  }
+  rx.addEventListener("input",moved);ry.addEventListener("input",moved);
+  rm.addEventListener("click",function(){
+    if(!window.confirm("Remove your banner?"))return;
+    AAOApi.removeBanner().then(function(){banner=null;showBanner();note.textContent="Banner removed.";}).catch(function(err){note.textContent=err.message;});
+  });
+  function draw(){
+    count.textContent="("+photos.length+" of "+PHOTO_MAX+")";
+    addBtn.hidden=photos.length>=PHOTO_MAX;
+    if(!photos.length){list.innerHTML='<li class="muted">No photos yet.</li>';return;}
+    list.innerHTML=photos.map(function(ph,i){
+      return '<li class="media-row" data-ph="'+escAttr(ph.id)+'"><img src="'+escAttr(ph.url)+'" alt="">'+
+        '<input type="text" maxlength="80" placeholder="Caption (optional)" value="'+escAttr(ph.caption)+'" data-ph-cap>'+
+        '<span class="media-btns"><button type="button" class="btn btn-line" data-ph-up'+(i===0?" disabled":"")+' aria-label="Move up">↑</button>'+
+        '<button type="button" class="btn btn-line" data-ph-down'+(i===photos.length-1?" disabled":"")+' aria-label="Move down">↓</button>'+
+        '<button type="button" class="btn btn-line" data-ph-save>Save caption</button>'+
+        '<button type="button" class="btn btn-line" data-ph-del>Delete</button></span></li>';
+    }).join("");
+  }
+  function load(){return AAOApi.myPhotos().then(function(l){photos=l;draw();}).catch(function(err){pnote.textContent=err.message;});}
+  load();
+  pfile.addEventListener("change",function(){
+    var f=pfile.files&&pfile.files[0];if(!f)return;
+    pnote.textContent="Uploading…";
+    AAOApi.addPhoto(f,"").then(function(){pnote.textContent="Photo added.";return load();}).catch(function(err){pnote.textContent=err.message;});
+    pfile.value="";
+  });
+  list.addEventListener("click",function(e){
+    var row=e.target.closest("[data-ph]");if(!row)return;
+    var id=row.getAttribute("data-ph"),i=photos.findIndex(function(x){return x.id===id;});if(i<0)return;
+    if(e.target.closest("[data-ph-del]")){
+      if(!window.confirm("Delete this photo?"))return;
+      AAOApi.deletePhoto(id).then(function(){pnote.textContent="Photo deleted.";return load();}).catch(function(err){pnote.textContent=err.message;});
+    }else if(e.target.closest("[data-ph-save]")){
+      var cap=row.querySelector("[data-ph-cap]").value.trim();
+      AAOApi.updatePhoto(id,{caption:cap||null}).then(function(){pnote.textContent="Caption saved.";return load();}).catch(function(err){pnote.textContent=err.message;});
+    }else if(e.target.closest("[data-ph-up]")||e.target.closest("[data-ph-down]")){
+      var j=e.target.closest("[data-ph-up]")?i-1:i+1;if(j<0||j>=photos.length)return;
+      var a=photos[i],b=photos[j];
+      Promise.all([AAOApi.updatePhoto(a.id,{sort_order:j}),AAOApi.updatePhoto(b.id,{sort_order:i})].concat(photos.map(function(x,k){return k!==i&&k!==j&&x.sort!==k?AAOApi.updatePhoto(x.id,{sort_order:k}):null;}).filter(Boolean)))
+        .then(function(){pnote.textContent="Order saved.";return load();}).catch(function(err){pnote.textContent=err.message;});
+    }
+  });
+}
+
 function liveSkillRows(list){
   var skills=orderTopSkills((list||[]).slice(0,SKILL_MAX));
   if(!skills.length)return '<p class="vap-desc">Add your skills with Edit profile: pick from the list, rate yourself, and choose up to '+SKILL_TOP_MAX+' top skills.</p>';
@@ -4792,10 +4902,12 @@ V.profile = function(id){
   if(!t)return V.notfound();
   var hired=isHired(t.id);
   return '<section class="page-head"><div class="wrap"><a class="crumb" href="#talent">Back to all assistants</a>'+
-   '<div class="profile-hero"><div class="portrait"><div class="ph sq">'+picOf("t",t)+'</div></div><div>'+(hired?'<div class="profile-hired">Hired</div>':"")+'<h1>'+t.name+'</h1><p class="hl">'+t.headline+'</p><div class="tags">'+(hired?tag("Hired","gold on-navy"):"")+tag(t.avail,"gold on-navy live")+tag(t.loc,"on-navy")+tag(t.exp+" experience","on-navy")+'</div></div></div></div></section>'+
+   (t.banner?'<div class="media-banner" style="'+bannerStyle(t.banner)+'" role="img" aria-label="'+escAttr("Banner of "+U(t.name))+'"></div>':"")+
+   '<div class="profile-hero"><div class="portrait"><div class="ph sq">'+picOf("t",t)+'</div></div><div>'+(hired?'<div class="profile-hired">Hired</div>':"")+'<h1>'+t.name+'</h1><p class="hl">'+t.headline+'</p><div class="tags">'+(hired?tag("Hired","gold on-navy"):"")+tag(t.avail,"gold on-navy live")+tag(t.loc,"on-navy")+tag(/^Experience not listed/.test(t.exp)?t.exp:t.exp+" experience","on-navy")+'</div></div></div></div></section>'+
   '<section class="sec" style="padding-top:clamp(40px,5vw,64px)"><div class="wrap detail"><div>'+
    '<div class="dsec"><h2>About</h2><div class="prose"><p>'+t.about+'</p></div></div>'+
    ((t.work&&t.work.length)?'<div class="dsec"><h2>Work experience</h2><div class="prose">'+workListHtml(t.work)+'</div></div>':"")+
+   ((t.photos&&t.photos.length)?'<div class="dsec"><h2>Photos</h2>'+photoGridHtml(t.photos)+'</div>':"")+
    '<div class="dsec"><h2>Portfolio</h2><div class="port">'+t.port.map(function(p){return portCard(p,t);}).join("")+'</div></div>'+
    (t.certs.length?'<div class="dsec"><h2>Certificates and training</h2><ul class="certs">'+t.certs.map(function(c){return '<li><div><strong>'+c.t+'</strong><span class="m">'+c.s+'</span></div></li>';}).join("")+'</ul></div>':"")+
   '</div><aside class="aside">'+
@@ -5818,7 +5930,7 @@ function loadVaProfile(u){
   var base=defaultVaProfile(u);
   if(!saved||typeof saved!=="object")return base;
   Object.keys(base).forEach(function(k){if(saved[k]!=null&&saved[k]!=="")base[k]=saved[k];});
-  if(API_ON){if(saved.subs!=null)base.subs=saved.subs;if(Array.isArray(saved.work))base.work=saved.work;if(Array.isArray(saved.skillRatings))base.skillRatings=saved.skillRatings;}
+  if(API_ON){if(saved.subs!=null)base.subs=saved.subs;if(Array.isArray(saved.work))base.work=saved.work;if(Array.isArray(saved.skillRatings))base.skillRatings=saved.skillRatings;if(saved.banner)base.banner=saved.banner;}
   return base;
 }
 /* Live mode: work experience editor rows. Values from the backend are already HTML-escaped, so they go straight into attributes/textarea. */
@@ -5995,12 +6107,13 @@ V.vaProfile = function(){
   return '<section class="vap" id="vap"><div class="wrap">'+
     '<a class="vap-crumb" href="#dashboard">← Back to VA desk</a>'+
     '<div class="vap-view">'+
-      '<div class="vap-hero">'+((API_ON&&!p.status)?'':'<p class="vap-status">Current status: '+(p.status||"Open to work")+'</p>')+'<div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
+      '<div class="vap-hero'+(API_ON&&p.banner?' has-banner" style="'+bannerStyle(p.banner):'')+'">'+((API_ON&&!p.status)?'':'<p class="vap-status">Current status: '+(p.status||"Open to work")+'</p>')+'<div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
       '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+(p.headline||"Virtual assistant")+'</p><div class="vap-badges">'+((API_ON&&!(p.avail||p.hours))?'':'<span class="vap-badge gold">'+(p.avail||(API_ON?p.hours:"Available"))+'</span>')+'</div></div>'+
       '<div class="vap-actions"><button class="btn btn-gold" type="button" id="vap-edit-btn">Edit profile</button><a class="btn btn-navy" href="#talent">Browse jobs</a></div>'+
       '<div class="vap-layout"><div>'+
         '<div class="vap-card"><h2>Overview</h2><div class="vap-overview">'+overview+'</div></div>'+
         '<div class="vap-card"><h2>Profile description</h2><p class="vap-desc">'+(p.about||"Add a short description of how you work.")+'</p></div>'+
+        (API_ON?'<div class="vap-card"><h2>Personal photos</h2><div id="vap-photos"><p class="vap-desc">Loading…</p></div></div>':"")+
         (API_ON?'<div class="vap-card"><h2>Work experience</h2>'+((p.work&&p.work.length)?workListHtml(p.work):'<p class="vap-desc">Add the jobs you have done: role, type of business, years, and what you achieved.</p>')+'</div>':"")+
         '<div class="vap-card"><div class="vap-card-head"><h2>Top skills</h2><button class="vap-edit-toggle" type="button" data-vap-edit>Update skills</button></div>'+(API_ON?liveSkillRows(p.skillRatings):vapSkillRows(p))+'</div>'+
       '</div><aside>'+
@@ -6041,7 +6154,7 @@ V.vaProfile = function(){
         '<label class="field">Languages<input type="text" id="vp-langs" maxlength="120"></label>'+
         (API_ON?skillEditorHtml("vp",{title:"Skills",copy:"Search for a skill or add your own, then rate yourself from 1 (beginner) to 5 (expert). Up to "+SKILL_MAX+" skills. Your notes are seen only by you and AAO staff."}):'<label class="field">Skills (comma separated)<input type="text" id="vp-skills" maxlength="240"></label>')+
         (API_ON?'<label class="field">Specialties (up to 5, comma separated)<input type="text" id="vp-subs" maxlength="230" placeholder="e.g. Bookkeeping, Inbox management"></label>'+
-          '<div class="field"><span>Work experience</span><div id="vp-work"></div><button type="button" class="btn btn-line" id="vp-work-add">Add a job</button></div>':"")+
+          '<div class="field"><span>Work experience</span><div id="vp-work"></div><button type="button" class="btn btn-line" id="vp-work-add">Add a job</button></div>'+mediaSectionHtml():"")+
         '<label class="field">Portfolio / website<input type="url" id="vp-portfolio" maxlength="200" placeholder="https://"></label>'+
         '<div class="app-actions"><button class="btn btn-gold" type="submit">Save profile</button><button class="btn btn-navy" type="button" id="vap-cancel">Cancel</button></div>'+
         '<div class="notice" id="vp-note" role="status"></div>'+
@@ -6052,6 +6165,13 @@ V.vaProfile.init = function(){
   var u=requireVaPage();
   if(!u)return;
   var root=$("#vap"),form=$("#vpf"),note=$("#vp-note"),p=loadVaProfile(u);
+  if(API_ON&&$("#vap-photos")){
+    var phBox=$("#vap-photos");
+    (AAOApi.hasTalentProfile()?AAOApi.myPhotos():Promise.resolve([])).then(function(l){
+      if(!document.body.contains(phBox))return;
+      phBox.innerHTML=l.length?photoGridHtml(l.map(function(x){return {url:x.url,caption:escHtml(x.caption)};})):'<p class="vap-desc">Add up to '+PHOTO_MAX+' photos with Edit profile.</p>';
+    }).catch(function(){phBox.innerHTML='<p class="vap-desc">We could not load your photos.</p>';});
+  }
   function fill(){
     $("#vp-name").value=U(p.name||"");
     $("#vp-headline").value=U(p.headline||"");
@@ -6094,9 +6214,19 @@ V.vaProfile.init = function(){
       if(!f)return;
       if(!AAOApi.hasTalentProfile()){pn.textContent="Save your profile first, then add a photo.";input.value="";return;}
       pn.textContent="Uploading…";
-      AAOApi.uploadPhoto(f).then(function(url){pn.textContent="Photo saved.";showPhoto(url);return reloadCatalog();}).catch(function(err){pn.textContent=err.message;});
+      AAOApi.uploadPhoto(f).then(function(url){pn.textContent="Photo saved.";showPhoto(url);photoRm.hidden=false;return reloadCatalog();}).catch(function(err){pn.textContent=err.message;});
       input.value="";
     });
+    var photoRm=document.createElement("button");
+    photoRm.type="button";photoRm.className="btn btn-line";photoRm.textContent="Remove photo";photoRm.hidden=!AAOApi.myPhotoUrl();
+    photoField.insertAdjacentElement("afterend",photoRm);
+    photoRm.addEventListener("click",function(){
+      if(!window.confirm("Remove your profile photo?"))return;
+      var pn=$("#vp-photo-note");pn.textContent="Removing…";
+      AAOApi.removeProfilePhoto().then(function(){pn.textContent="Photo removed.";photoRm.hidden=true;if(avatarEl)avatarEl.textContent=initialOf();return reloadCatalog();}).catch(function(err){pn.textContent=err.message;});
+    });
+    function initialOf(){return (($("#vp-name")&&$("#vp-name").value)||"V").charAt(0).toUpperCase();}
+    bindMediaSection();
   }
   var skillEd=API_ON&&$("#vp-skill-picker")?mountSkillEditor("vp",p.skillRatings||[]):null;
   var workAdd=$("#vp-work-add"),workBox=$("#vp-work");

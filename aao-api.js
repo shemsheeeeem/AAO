@@ -229,6 +229,8 @@
     base.certs = (d.certifications || []).map(function (c) { return { t: esc(c.title), s: esc(c.issuer || "") }; });
     base.edu = esc(d.education || "");
     /* Detailed skills (decision 77): raw text here; the page escapes it when it draws it. */
+    base.banner = d.banner && safeUrl(d.banner.url) ? { url: safeUrl(d.banner.url), x: Number(d.banner.x) || 0, y: Number(d.banner.y) || 0 } : null;
+    base.photos = (d.photos || []).map(function (p) { return { url: safeUrl(p.url), caption: esc(p.caption || "") }; }).filter(function (p) { return p.url; });
     base.skillDetails = (d.skill_details || []).map(function (s) { return { name: String(s.name || ""), category: String(s.category || "Other"), rating: Number(s.rating) || 0, isTop: !!s.is_top }; });
     base.work = workFromApi(d.work_experience);
     base.port = (d.portfolio || []).map(function (p) {
@@ -405,6 +407,7 @@
       subs: esc((d.sub_specialties || []).join(", ")),
       work: workFromApi(d.work_experience),
       /* Raw text for the skill editor, which escapes what it draws. */
+      banner: d.banner && safeUrl(d.banner.url) ? { url: safeUrl(d.banner.url), x: Number(d.banner.x) || 0, y: Number(d.banner.y) || 0 } : null,
       skillRatings: (d.skill_details || []).map(function (s) {
         var cat = String(s.category || "Other");
         return { name: String(s.name || ""), category: cat, path: [cat, String(s.name || "")], rating: Number(s.rating) || 3, about: String(s.note || ""), isTop: !!s.is_top, custom: cat === "Other" };
@@ -604,6 +607,73 @@
     var r = await call("PUT", "/me/assessments", { typing_result: o.typing || null, disc_result: o.disc || null, aptitude_result: o.aptitude || null }, { auth: true });
     return r.data;
   }
+  /* ---------- banner and personal photos (public; decision 78) ---------- */
+  /* Redraws an image as a JPEG of at most maxSide px (keeps uploads small and drops hidden camera details such as location). */
+  function imageAsJpeg(file, maxSide) {
+    return new Promise(function (resolve, reject) {
+      if (!file || ["image/jpeg", "image/png", "image/webp"].indexOf(file.type) < 0) { reject(ApiError(400, "VALIDATION_ERROR", "Please choose a JPG, PNG or WebP image.")); return; }
+      if (file.size > 20 * 1024 * 1024) { reject(ApiError(400, "VALIDATION_ERROR", "That image is too large. Please choose one under 20 MB.")); return; }
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        try {
+          var scale = Math.min(1, maxSide / Math.max(img.naturalWidth, img.naturalHeight));
+          var c = document.createElement("canvas");
+          c.width = Math.max(1, Math.round(img.naturalWidth * scale));
+          c.height = Math.max(1, Math.round(img.naturalHeight * scale));
+          c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+          c.toBlob(function (b) { b ? resolve(b) : reject(ApiError(400, "VALIDATION_ERROR", "We could not read that image.")); }, "image/jpeg", 0.85);
+        } catch (e) { URL.revokeObjectURL(url); reject(ApiError(400, "VALIDATION_ERROR", "We could not read that image.")); }
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(ApiError(400, "VALIDATION_ERROR", "We could not read that image. Please try another one.")); };
+      img.src = url;
+    });
+  }
+  async function uploadMedia(kindPath, file, maxSide) {
+    var blob = await imageAsJpeg(file, maxSide);
+    if (blob.size > 5 * 1024 * 1024) throw ApiError(400, "VALIDATION_ERROR", "That image is still too large after resizing. Please try another one.");
+    var a = await call("POST", "/me/talent-profile/" + kindPath + "/upload-url", { content_type: "image/jpeg", size: blob.size }, { auth: true });
+    var up = a.data.upload, put;
+    try { put = await fetch(up.url, { method: "PUT", headers: up.headers, body: blob }); }
+    catch (err) { throw ApiError(0, "NETWORK", "The upload failed. Check your connection and try again."); }
+    if (!put.ok) throw ApiError(put.status, "UPLOAD", "The upload was not accepted. Please try again.");
+    return a.data.file;
+  }
+  async function uploadBanner(file) {
+    var name = await uploadMedia("banner", file, 1600);
+    var r = await call("PUT", "/me/talent-profile/banner", { file: name }, { auth: true });
+    mine = { kind: "talent", data: r.data };
+    return r.data.banner;
+  }
+  async function setBannerPosition(x, y) {
+    var r = await call("PATCH", "/me/talent-profile/banner", { x: x, y: y }, { auth: true });
+    mine = { kind: "talent", data: r.data };
+    return r.data.banner;
+  }
+  async function removeBanner() {
+    var r = await call("DELETE", "/me/talent-profile/banner", undefined, { auth: true });
+    mine = { kind: "talent", data: r.data };
+  }
+  async function myPhotos() {
+    var r = await call("GET", "/me/talent-profile/photos", undefined, { auth: true, fresh: true });
+    return (r.data || []).map(function (p) { return { id: p.id, url: safeUrl(p.url), caption: p.caption || "", sort: p.sort_order }; });
+  }
+  async function addPhoto(file, caption) {
+    var name = await uploadMedia("photos", file, 1200);
+    var r = await call("POST", "/me/talent-profile/photos", { file: name, caption: caption || null }, { auth: true });
+    return r.data;
+  }
+  async function updatePhoto(id, o) {
+    var r = await call("PATCH", "/me/talent-profile/photos/" + encodeURIComponent(id), o, { auth: true });
+    return r.data;
+  }
+  async function deletePhoto(id) {
+    await call("DELETE", "/me/talent-profile/photos/" + encodeURIComponent(id), undefined, { auth: true });
+  }
+  async function removeProfilePhoto() {
+    var r = await call("DELETE", "/me/talent-profile/photo", undefined, { auth: true });
+    mine = { kind: "talent", data: r.data };
+  }
   function myPhotoUrl() {
     return mine && mine.kind === "talent" && mine.data ? safeUrl(mine.data.photo_url) : "";
   }
@@ -637,7 +707,9 @@
     myJobs: myJobs, closeJob: closeJob, reopenJob: reopenJob,
     report: report,
     turnstileSiteKey: function () { return cfg.turnstileSiteKey || ""; },
-    uploadPhoto: uploadPhoto,
+    uploadPhoto: uploadPhoto, removeProfilePhoto: removeProfilePhoto,
+    uploadBanner: uploadBanner, setBannerPosition: setBannerPosition, removeBanner: removeBanner,
+    myPhotos: myPhotos, addPhoto: addPhoto, updatePhoto: updatePhoto, deletePhoto: deletePhoto,
     identityStatus: identityStatus,
     uploadIdentity: uploadIdentity, myPhotoUrl: myPhotoUrl,
     assessmentStatus: assessmentStatus, saveAssessment: saveAssessment, uploadAssessmentPdf: uploadAssessmentPdf,
