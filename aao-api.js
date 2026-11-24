@@ -182,6 +182,7 @@
     if (status === 404) return m || "Not found.";
     if (status === 429) return "Too many requests. Please wait a bit and try again.";
     if (status >= 500) return "Something went wrong on our side. Please try again shortly.";
+    if (e && e.code === "CONTACT_INFO" && m) return m;
     if (e && e.details && e.details.body && e.details.body.length) {
       var d = e.details.body[0];
       return (d.field ? d.field + " " : "") + (d.message || "is invalid");
@@ -208,8 +209,17 @@
       langs: esc((t.languages || []).join(", ") || "English"),
       skills: (t.skills || []).map(esc),
       about: "", port: [], certs: [], rate: t.hourly_rate == null ? null : t.hourly_rate,
+      hours: t.hours_per_week ? t.hours_per_week + " hours/week" : "",
+      subs: (t.sub_specialties || []).map(esc),
       _full: false
     };
+  }
+
+  /* Work experience entries with every text HTML-escaped (years are numbers; end null = present). */
+  function workFromApi(list) {
+    return (list || []).map(function (w) {
+      return { role: esc(w.role), business: esc(w.business || ""), start: w.start, end: w.end == null ? null : w.end, bullets: (w.bullets || []).map(esc), tools: esc(w.tools || "") };
+    });
   }
 
   function talentDetailFrom(d) {
@@ -217,6 +227,8 @@
     base.about = esc(d.bio || "");
     base.video = safeUrl(d.video_url);
     base.certs = (d.certifications || []).map(function (c) { return { t: esc(c.title), s: esc(c.issuer || "") }; });
+    base.edu = esc(d.education || "");
+    base.work = workFromApi(d.work_experience);
     base.port = (d.portfolio || []).map(function (p) {
       var file = safeUrl(p.file_url);
       var isImg = /\.(png|jpe?g|webp)(\?|$)/i.test(file);
@@ -385,7 +397,11 @@
       avail: AVAIL[d.availability] || AVAIL.part_time,
       loc: esc(d.location || ""), exp: d.experience_years == null ? "" : d.experience_years + (d.experience_years === 1 ? " year" : " years"),
       langs: esc((d.languages || []).join(", ")), skills: esc((d.skills || []).join(", ")),
-      rate: d.hourly_rate == null ? "" : String(d.hourly_rate)
+      rate: d.hourly_rate == null ? "" : String(d.hourly_rate),
+      education: esc(d.education || ""),
+      hours: d.hours_per_week ? d.hours_per_week + " hours/week" : "",
+      subs: esc((d.sub_specialties || []).join(", ")),
+      work: workFromApi(d.work_experience)
     };
   }
 
@@ -408,6 +424,14 @@
       video_url: prev.video_url || null,
       hourly_rate: rate > 0 ? Math.round(rate * 100) / 100 : null, show_rate: rate > 0
     };
+    /* Profile sections (decision 75). Sent only when the screen has them, so an older screen never clears them. */
+    if (row.education !== undefined) body.education = String(row.education || "").trim() || null;
+    if (row.hours !== undefined) {
+      var hrs = parseInt(String(row.hours || "").replace(/[^0-9]/g, ""), 10);
+      body.hours_per_week = hrs >= 1 && hrs <= 80 ? hrs : null;
+    }
+    if (row.subs !== undefined) body.sub_specialties = splitList(row.subs, 5);
+    if (Array.isArray(row.work)) body.work_experience = row.work;
     var r = await call("PUT", "/me/talent-profile", body, { auth: true });
     mine = { kind: "talent", data: r.data };
     return r.data;
