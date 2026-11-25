@@ -4890,11 +4890,10 @@ V.jobLive = function(j){
   if(u&&u.role==="va"){
     /* The designed "Send a letter" form, unchanged; only the made-up applicant count in the summary is left out. */
     var defPay=j.pay||"";
-    panel='<div class="jd-apply"><h2>Send a letter.</h2>'+budget+'<div class="jd-ask"><strong>How to stand out</strong>In your letter, name one similar project and how soon you can start.</div>'+
+    panel='<div class="jd-apply"><h2>Send a letter.</h2>'+budget+'<div class="jd-ask"><strong>How to stand out</strong>In your letter, name one similar project and how soon you can start. Show samples in your portfolio pages; outside links are not shared.</div>'+
       '<form class="jd-form" id="japf">'+
         '<label class="field">Your price for the project<div class="jd-price"><span class="cur">$</span><input id="jap-pay" name="pay" type="number" min="1" step="1" value="'+defPay+'" required><span class="unit">'+(j.payUnit==="hr"?"USD / hr":(j.payUnit==="mo"?"USD / mo":"USD total"))+'</span></div></label>'+
         '<label class="field">Can start<select id="jap-start" name="start"><option>Immediately</option><option>Within a week</option><option>In 2 weeks</option><option>In a month</option></select></label>'+
-        '<label class="field">Link to similar work<input id="jap-link" name="link" type="url" placeholder="https://"></label>'+
         '<label class="field">Letter<textarea id="jap-letter" name="letter" required minlength="20" placeholder="Say why you fit this role. At least 20 characters."></textarea></label>'+
         '<button class="btn btn-gold btn-block" type="submit">Submit application</button>'+
         '<div class="notice" id="jnote" role="status"></div>'+

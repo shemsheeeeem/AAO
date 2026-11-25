@@ -749,7 +749,6 @@
     var body = { letter: o.letter, start_when: START_FROM_LABEL[o.start] || "immediately" };
     var amount = parseFloat(o.amount);
     if (amount > 0) body.proposed_amount = Math.round(amount * 100) / 100;
-    if (o.link) body.link_url = o.link;
     var r = await call("POST", "/jobs/" + encodeURIComponent(jobId) + "/applications", body, { auth: true });
     return r.data;
   }
