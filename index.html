@@ -1741,6 +1741,9 @@ body.booting .foot{visibility:hidden}
 .ph .shot-bg{display:none}
 .pc .ph .shot-bg{display:block;position:absolute;inset:-24px;background-position:center;background-size:cover;background-repeat:no-repeat;filter:blur(18px) brightness(.8);z-index:0}
 .pc .ph .shot{object-fit:contain;z-index:1}
+/* Photos with see-through parts (PNG/WebP) must not show the drawn placeholder underneath: plain backing in lists and on the profile. */
+.ph .shot,.trow-photo .shot{background:#fff}
+.pc .ph .shot{background:transparent}
 .pc:hover .ph .art svg,.pc:hover .ph .shot{transform:scale(1.05)}
 .ph.sq{aspect-ratio:1/1;width:172px;border-radius:20px}
 .ph.wide{aspect-ratio:2/1;border-radius:20px;margin-bottom:30px}
