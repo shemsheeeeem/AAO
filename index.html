@@ -6368,7 +6368,8 @@ V.vaProfile = function(){
         '</div>'+
         '<div class="two">'+
           '<label class="field">Hourly rate (USD)<input type="number" id="vp-rate" min="1" step="1" placeholder="18"></label>'+
-          '<label class="field">Hours / week<input type="text" id="vp-hours" maxlength="80" placeholder="'+(API_ON?"e.g. 20":"Part-time · 20 hours/week")+'"></label>'+
+          (API_ON?'<label class="field">Hours per week<input type="number" id="vp-hours" min="1" max="80" step="1" inputmode="numeric" placeholder="e.g. 40"></label>':
+            '<label class="field">Hours / week<input type="text" id="vp-hours" maxlength="80" placeholder="Part-time · 20 hours/week"></label>')+
         '</div>'+
         '<div class="two">'+
           '<label class="field">Education<input type="text" id="vp-education" maxlength="120"></label>'+
@@ -6424,7 +6425,8 @@ V.vaProfile.init = function(){
     if($("#vp-portfolio"))$("#vp-portfolio").value=p.portfolio||"";
     if(API_ON){
       $("#vp-education").value=U(p.education||"");
-      $("#vp-hours").value=U(p.hours||"");
+      /* Hours per week is a number box in live mode: "40 hours/week" -> 40 (text without a number stays empty). */
+      $("#vp-hours").value=(String(U(p.hours||"")).match(/[0-9]{1,2}/)||[""])[0];
       if($("#vp-subs"))$("#vp-subs").value=U(p.subs||"");
       var wl=$("#vp-work");if(wl)wl.innerHTML=(p.work||[]).map(workEntryHtml).join("");
     }
@@ -6494,6 +6496,10 @@ V.vaProfile.init = function(){
     var about=$("#vp-about").value.trim();
     note.classList.add("show");
     if(name.length<2||headline.length<6||about.length<20){note.innerHTML="<strong>Add more detail.</strong>Name, headline, and a short about section are required.";return;}
+    if(API_ON){
+      var hEl=$("#vp-hours"),hv=hEl.value.trim();
+      if((hEl.validity&&hEl.validity.badInput)||(hv&&(!/^[0-9]{1,2}$/.test(hv)||+hv<1||+hv>80))){note.innerHTML="<strong>Check hours per week.</strong>Enter a number from 1 to 80, for example 40.";hEl.focus();return;}
+    }
     var row={
       name:name,headline:headline,about:about,cat:$("#vp-cat").value,avail:$("#vp-avail").value,
       loc:$("#vp-loc").value.trim(),exp:$("#vp-exp").value.trim(),langs:$("#vp-langs").value.trim(),skills:$("#vp-skills")?$("#vp-skills").value.trim():"",
