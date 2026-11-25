@@ -5125,7 +5125,7 @@ V.profile = function(id){
    (t.certs.length?'<div class="dsec"><h2>Certificates and training</h2><ul class="certs">'+t.certs.map(function(c){return '<li><div><strong>'+c.t+'</strong><span class="m">'+c.s+'</span></div></li>';}).join("")+'</ul></div>':"")+
   '</div><aside class="aside">'+
    profileMeetPanel(t)+
-   '<div class="panel"><h3>Details</h3><dl class="dl"><div><dt>Experience</dt><dd>'+t.exp+'</dd></div><div><dt>Availability</dt><dd>'+t.avail+'</dd></div><div><dt>Location</dt><dd>'+t.loc+'</dd></div><div><dt>Languages</dt><dd>'+t.langs+'</dd></div>'+(t.hours?'<div><dt>Hours</dt><dd>'+t.hours+'</dd></div>':"")+(t.edu?'<div><dt>Education</dt><dd>'+t.edu+'</dd></div>':"")+'</dl></div>'+
+   '<div class="panel"><h3>Details</h3><dl class="dl"><div><dt>Experience</dt><dd>'+t.exp+'</dd></div><div><dt>Availability</dt><dd>'+t.avail+'</dd></div><div><dt>Location</dt><dd>'+t.loc+'</dd></div><div><dt>Languages</dt><dd>'+t.langs+'</dd></div>'+(t.hours?'<div><dt>Hours</dt><dd>'+t.hours+'</dd></div>':"")+(t.start?'<div><dt>Can start</dt><dd>'+t.start+'</dd></div>':"")+(t.edu?'<div><dt>Education</dt><dd>'+t.edu+'</dd></div>':"")+'</dl></div>'+
    ((t.subs&&t.subs.length)?'<div class="panel"><h3>Specialties</h3><div class="tags">'+t.subs.map(function(s){return tag(s);}).join("")+'</div></div>':"")+
    '<div class="panel"><h3>Skills</h3>'+((t.skillDetails&&t.skillDetails.length)?publicSkillsHtml(t.skillDetails):'<div class="tags">'+t.skills.map(function(s){return tag(s);}).join("")+'</div>')+'</div>'+
   '</aside></div></section>';
@@ -6145,7 +6145,7 @@ function loadVaProfile(u){
   var base=defaultVaProfile(u);
   if(!saved||typeof saved!=="object")return base;
   Object.keys(base).forEach(function(k){if(saved[k]!=null&&saved[k]!=="")base[k]=saved[k];});
-  if(API_ON){if(saved.subs!=null)base.subs=saved.subs;if(Array.isArray(saved.work))base.work=saved.work;if(Array.isArray(saved.skillRatings))base.skillRatings=saved.skillRatings;if(saved.banner)base.banner=saved.banner;}
+  if(API_ON){if(saved.start!=null)base.start=saved.start;if(saved.subs!=null)base.subs=saved.subs;if(Array.isArray(saved.work))base.work=saved.work;if(Array.isArray(saved.skillRatings))base.skillRatings=saved.skillRatings;if(saved.banner)base.banner=saved.banner;}
   return base;
 }
 /* Live mode: work experience editor rows. Values from the backend are already HTML-escaped, so they go straight into attributes/textarea. */
@@ -6319,13 +6319,13 @@ V.vaProfile = function(){
   var availWord=/full/i.test(p.avail||"")?"Full-time":(/part/i.test(p.avail||"")?"Part-time":"");
   var availLine=hrsNum?("Available for "+hrsNum[1]+" hrs/week"+(availWord?" · "+availWord:"")):(p.avail||(p.hours?"Available: "+p.hours:""));
   var overview=
-    '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><p>'+(availLine?'<strong>'+availLine+'</strong>':'Add your availability and hours per week.')+'</p></div>'+
+    '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><p>'+(availLine?'<strong>'+availLine+'</strong>':'Add your availability and hours per week.')+(API_ON&&p.start?'<br>Can start: <strong>'+AAOApi.startLabel(p.start)+'</strong>':'')+'</p></div>'+
     '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 4 7v5c0 4.4 3.2 7.6 8 9 4.8-1.4 8-4.6 8-9V7l-8-4z"/></svg><p>'+(p.education||"Education not listed yet")+'</p></div>'+
     '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5c1.8-3.2 4.1-4.8 6.5-4.8s4.7 1.6 6.5 4.8"/></svg><p>'+(p.memberSince?'Member since '+p.memberSince:(API_ON?'New member':'Member since 2024'))+'</p></div>';
   return '<section class="vap" id="vap"><div class="wrap">'+
     '<a class="vap-crumb" href="#dashboard">← Back to VA desk</a>'+
     '<div class="vap-view">'+
-      '<div class="vap-hero'+(API_ON&&p.banner?' has-banner" style="'+bannerStyle(p.banner):'')+'">'+((API_ON&&!p.status)?'':'<p class="vap-status">Current status: '+(p.status||"Open to work")+'</p>')+'<div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
+      '<div class="vap-hero'+(API_ON&&p.banner?' has-banner" style="'+bannerStyle(p.banner):'')+'">'+(API_ON?'':'<p class="vap-status">Current status: '+(p.status||"Open to work")+'</p>')+'<div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
       '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+(p.headline||"Virtual assistant")+'</p><div class="vap-badges">'+((API_ON&&!(p.avail||p.hours))?'':'<span class="vap-badge gold">'+(p.avail||(API_ON?p.hours:"Available"))+'</span>')+'</div></div>'+
       '<div class="vap-actions"><button class="btn btn-gold" type="button" id="vap-edit-btn">Edit profile</button><a class="btn btn-navy" href="#talent">Browse jobs</a></div>'+
       '<div class="vap-layout"><div>'+
@@ -6349,7 +6349,7 @@ V.vaProfile = function(){
         '</dl><div class="vap-tests" style="margin-top:16px"><div class="vap-test"><strong>English</strong><span>'+(p.langs||(API_ON?"Not added yet":"English"))+'</span></div></div></div>'+
       '</aside></div>'+
     '</div>'+
-    '<div class="vap-edit"><div class="vap-card"><h2>Edit profile</h2><p class="lede" style="margin:0 0 16px;color:#51617C">'+(API_ON?"Your details are saved to your AAO profile. Status stays on this device only.":"Changes save on this device until your backend is connected.")+'</p>'+
+    '<div class="vap-edit"><div class="vap-card"><h2>Edit profile</h2><p class="lede" style="margin:0 0 16px;color:#51617C">'+(API_ON?"Your details are saved to your AAO profile.":"Changes save on this device until your backend is connected.")+'</p>'+
       '<form class="app-form" id="vpf" novalidate>'+
         '<label class="field">Full name<input type="text" id="vp-name" required maxlength="80"></label>'+
         '<label class="field">Headline<input type="text" id="vp-headline" required maxlength="120"></label>'+
@@ -6368,7 +6368,8 @@ V.vaProfile = function(){
         '</div>'+
         '<div class="two">'+
           '<label class="field">Education<input type="text" id="vp-education" maxlength="120"></label>'+
-          '<label class="field">Status<input type="text" id="vp-status" maxlength="80" placeholder="Open to work"></label>'+
+          (API_ON?'<label class="field">When can you start?<select id="vp-start"><option value="">Not said yet</option><option value="immediately">Immediately</option><option value="within_week">Within a week</option><option value="in_two_weeks">In 2 weeks</option><option value="in_a_month">In a month</option></select></label>':
+            '<label class="field">Status<input type="text" id="vp-status" maxlength="80" placeholder="Open to work"></label>')+
         '</div>'+
         '<label class="field">Languages<input type="text" id="vp-langs" maxlength="120"></label>'+
         (API_ON?skillEditorHtml("vp",{title:"Skills",copy:"Search for a skill or add your own, then rate yourself from 1 (beginner) to 5 (expert). Up to "+SKILL_MAX+" skills. Your notes are seen only by you and AAO staff."}):'<label class="field">Skills (comma separated)<input type="text" id="vp-skills" maxlength="240"></label>')+
@@ -6414,7 +6415,8 @@ V.vaProfile.init = function(){
     $("#vp-rate").value=p.rate||"";
     $("#vp-hours").value=p.hours||"";
     $("#vp-education").value=p.education||"";
-    $("#vp-status").value=p.status||"";
+    if($("#vp-status"))$("#vp-status").value=p.status||"";
+    if($("#vp-start"))$("#vp-start").value=p.start||"";
     if($("#vp-portfolio"))$("#vp-portfolio").value=p.portfolio||"";
     if(API_ON){
       $("#vp-education").value=U(p.education||"");
@@ -6492,7 +6494,7 @@ V.vaProfile.init = function(){
       name:name,headline:headline,about:about,cat:$("#vp-cat").value,avail:$("#vp-avail").value,
       loc:$("#vp-loc").value.trim(),exp:$("#vp-exp").value.trim(),langs:$("#vp-langs").value.trim(),skills:$("#vp-skills")?$("#vp-skills").value.trim():"",
       rate:$("#vp-rate").value.trim(),hours:$("#vp-hours").value.trim(),education:$("#vp-education").value.trim(),
-      status:$("#vp-status").value.trim(),portfolio:(($("#vp-portfolio")||{}).value||"").trim(),
+      status:(($("#vp-status")||{}).value||"").trim(),start:$("#vp-start")?$("#vp-start").value:undefined,portfolio:(($("#vp-portfolio")||{}).value||"").trim(),
       memberSince:p.memberSince||(API_ON?(u.since||""):"March 2024"),email:u.email,updatedAt:new Date().toISOString()
     };
     if(API_ON){
