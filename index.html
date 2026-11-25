@@ -973,6 +973,15 @@ body.booting .foot{visibility:hidden}
 .vap-headline.is-empty{font-size:1rem;font-weight:500;color:var(--vap-muted)}
 /* Before the first save, one clear notice instead of upload buttons that cannot work yet (Toni, 25 Nov). */
 .jobs-side input[type="radio"],.jobs-side input[type="checkbox"]{color-scheme:light}
+/* Edit profile sections (live) */
+#vpf input,#vpf select,#vpf textarea{color-scheme:light}
+.vpf-intro{margin:0 0 6px;color:var(--vap-muted);font-size:.92rem}
+.vpf-req{color:#B4232A;font-weight:700}
+.vpf-sec{border:0;border-top:1px solid var(--vap-line);margin:22px 0 0;padding:18px 0 0;min-width:0}
+.vpf-sec legend{padding:0;margin:0 0 10px;font-weight:700;font-size:1.08rem;color:var(--vap-ink)}
+.vpf-sec.vpf-private{background:#F7F9FC;border:1px solid var(--vap-line);border-radius:12px;padding:4px 16px 12px}
+.vpf-sec.vpf-private legend{padding:0 6px;margin:0 0 6px}
+.vpf-tip{display:block;margin:4px 0 8px;color:var(--vap-muted);font-weight:400;font-size:.84rem;line-height:1.4}
 .vp-locked{margin:6px 0 0;padding:12px 14px;border-radius:10px;background:#FFF6E0;border:1px solid #E9C96B;color:#5A4410;font-size:.95rem;line-height:1.45}
 /* Photo viewer: click a photo to open it large, then move with the arrows, the keyboard or a swipe (Toni, 25 Nov). */
 .mg-open{display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in;border-radius:10px}
@@ -6386,6 +6395,7 @@ V.vaProfile = function(){
     '</div>'+
     '<div class="vap-edit"><div class="vap-card"><h2>Edit profile</h2><p class="lede" style="margin:0 0 16px;color:#51617C">'+(API_ON?"Your details are saved to your AAO profile.":"Changes save on this device until your backend is connected.")+'</p>'+
       '<form class="app-form" id="vpf" novalidate>'+
+        (API_ON?vpLiveFields():(''+
         '<label class="field">Full name<input type="text" id="vp-name" required maxlength="80"></label>'+
         '<label class="field">Headline<input type="text" id="vp-headline" required maxlength="120"></label>'+
         '<label class="field">About you<textarea id="vp-about" required></textarea></label>'+
@@ -6413,12 +6423,54 @@ V.vaProfile = function(){
           '<div class="field"><span>Work experience</span><div id="vp-work"></div><button type="button" class="btn btn-line" id="vp-work-add">Add a job</button></div>'+
           (AAOApi.hasTalentProfile()?mediaSectionHtml()+pagesSectionHtml():
             '<div class="field media-edit"><span>Photos, banner and portfolio pages</span><p class="vp-locked" id="vp-first-save"><strong>Save your profile first.</strong> Fill in the details above and press <strong>Save profile</strong> at the bottom. This page then opens again here so you can add your profile photo, a banner, personal photos and portfolio pages.</p></div>'):"")+
-        (API_ON?'':'<label class="field">Portfolio / website<input type="url" id="vp-portfolio" maxlength="200" placeholder="https://"></label>')+
+        (API_ON?'':'<label class="field">Portfolio / website<input type="url" id="vp-portfolio" maxlength="200" placeholder="https://"></label>')))+
         '<div class="app-actions"><button class="btn btn-gold" type="submit">Save profile</button><button class="btn btn-navy" type="button" id="vap-cancel">Cancel</button></div>'+
         '<div class="notice" id="vp-note" role="status"></div>'+
       '</form></div></div>'+
     '</div></section>';
 };
+/* Live Edit profile form: six sections, each field with a plain label and an example. Ids match the save code. */
+function vpTip(t){return '<small class="vpf-tip">'+t+'</small>';}
+function vpReq(t){return '<span>'+t+' <span class="vpf-req" aria-hidden="true">*</span></span>';}
+function vpLiveFields(){
+  var startOpts='<option value="">Not said yet</option><option value="immediately">Immediately</option><option value="within_week">Within a week</option><option value="in_two_weeks">In 2 weeks</option><option value="in_a_month">In a month</option>';
+  return '<p class="vpf-intro">Fields marked <span class="vpf-req">*</span> are required. Everything except section 5 is shown on your public profile. For your safety, do not add phone numbers, emails or links.</p>'+
+    '<fieldset class="vpf-sec"><legend>1. About you</legend>'+
+      '<label class="field">'+vpReq("Full name")+'<input type="text" id="vp-name" required maxlength="80" autocomplete="name">'+vpTip("Your real name, as clients will see it.")+'</label>'+
+      '<label class="field">'+vpReq("Headline")+'<input type="text" id="vp-headline" required maxlength="120" placeholder="e.g. Customer support specialist for online stores">'+vpTip("One line that sums up what you do. Shown above your Overview.")+'</label>'+
+      '<label class="field">'+vpReq("About you")+'<textarea id="vp-about" required placeholder="e.g. I help small online stores answer every customer within the hour. I manage inboxes, live chat and returns, and I keep short daily reports."></textarea>'+vpTip("2 to 4 sentences: what you do, who you help and how you work.")+'</label>'+
+    '</fieldset>'+
+    '<fieldset class="vpf-sec"><legend>2. Your work</legend>'+
+      '<div class="two">'+
+        '<label class="field">Main field<select id="vp-cat">'+Object.keys(CATS).map(function(k){return '<option value="'+k.replace(/"/g,"&quot;")+'">'+CATS[k]+'</option>';}).join("")+'</select>'+vpTip("The kind of work you do most.")+'</label>'+
+        '<label class="field">Years of experience<input type="number" id="vp-exp" min="0" max="60" step="1" inputmode="numeric" placeholder="e.g. 3">'+vpTip("As a virtual assistant or in similar work.")+'</label>'+
+      '</div>'+
+      '<label class="field">Specialties<input type="text" id="vp-subs" maxlength="230" placeholder="e.g. Bookkeeping, Inbox management">'+vpTip("Up to 5, separated by commas. Shown under your name.")+'</label>'+
+      skillEditorHtml("vp",{title:"Skills",copy:"Search for a skill or add your own, then rate yourself from 1 (beginner) to 5 (expert). Up to "+SKILL_MAX+" skills. Your notes are seen only by you and AAO staff."})+
+      '<div class="field"><span>Work experience</span>'+vpTip("Jobs you have done: your role, the type of business, the years, and what you achieved.")+'<div id="vp-work"></div><button type="button" class="btn btn-line" id="vp-work-add">Add a job</button></div>'+
+    '</fieldset>'+
+    '<fieldset class="vpf-sec"><legend>3. Availability</legend>'+
+      '<div class="two">'+
+        '<label class="field">Full-time or part-time<select id="vp-avail"><option>Available full-time</option><option>Available part-time</option></select></label>'+
+        '<label class="field">Hours per week<input type="number" id="vp-hours" min="1" max="80" step="1" inputmode="numeric" placeholder="e.g. 40">'+vpTip("A number from 1 to 80.")+'</label>'+
+      '</div>'+
+      '<label class="field">When can you start?<select id="vp-start">'+startOpts+'</select></label>'+
+    '</fieldset>'+
+    '<fieldset class="vpf-sec"><legend>4. Location and background</legend>'+
+      '<div class="two">'+
+        '<label class="field">Where you live<input type="text" id="vp-loc" maxlength="80" placeholder="e.g. Tanjay, Negros Oriental">'+vpTip("City or town, and province.")+'</label>'+
+        '<label class="field">Languages<input type="text" id="vp-langs" maxlength="120" placeholder="e.g. English, Filipino">'+vpTip("Separated by commas.")+'</label>'+
+      '</div>'+
+      '<label class="field">Education<input type="text" id="vp-education" maxlength="120" placeholder="e.g. BS Accountancy, University of San Carlos">'+vpTip("Your highest degree or course.")+'</label>'+
+    '</fieldset>'+
+    '<fieldset class="vpf-sec vpf-private"><legend>5. Private: only you and AAO see this</legend>'+
+      '<label class="field">Hourly rate (USD)<input type="number" id="vp-rate" min="1" step="1" placeholder="e.g. 8">'+vpTip("Never shown to clients. AAO uses it when matching you with work.")+'</label>'+
+    '</fieldset>'+
+    '<fieldset class="vpf-sec"><legend>6. Photos and portfolio</legend>'+
+      (AAOApi.hasTalentProfile()?'<div id="vp-photo-slot"></div>'+mediaSectionHtml()+pagesSectionHtml():
+        '<p class="vp-locked" id="vp-first-save"><strong>Save your profile first.</strong> Fill in sections 1 to 5 and press <strong>Save profile</strong> at the bottom. This page then opens again here so you can add your profile photo, a banner, personal photos and portfolio pages.</p>')+
+    '</fieldset>';
+}
 V.vaProfile.init = function(){
   var u=requireVaPage();
   if(!u)return;
@@ -6445,7 +6497,7 @@ V.vaProfile.init = function(){
     $("#vp-cat").value=p.cat||"Admin";
     $("#vp-avail").value=p.avail||"Available full-time";
     $("#vp-loc").value=U(p.loc||"");
-    $("#vp-exp").value=U(p.exp||"");
+    $("#vp-exp").value=API_ON?(String(U(p.exp||"")).match(/[0-9]{1,2}/)||[""])[0]:U(p.exp||"");
     $("#vp-langs").value=U(p.langs||"");
     if($("#vp-skills"))$("#vp-skills").value=U(p.skills||"");
     $("#vp-rate").value=p.rate||"";
@@ -6476,7 +6528,8 @@ V.vaProfile.init = function(){
     var photoField=document.createElement("label");
     photoField.className="field";
     photoField.innerHTML='Profile photo<input type="file" id="vp-photo" accept="image/jpeg,image/png,image/webp"><small id="vp-photo-note" class="muted">JPEG, PNG or WebP, up to 2 MB.</small>';
-    form.insertBefore(photoField,form.querySelector(".app-actions"));
+    var photoSlot=$("#vp-photo-slot");
+    if(photoSlot)photoSlot.parentNode.insertBefore(photoField,photoSlot);else form.insertBefore(photoField,form.querySelector(".app-actions"));
     if(!AAOApi.hasTalentProfile())photoField.hidden=true; /* the notice above explains it; the photo can be added after the first save */
     $("#vp-photo").addEventListener("change",function(){
       var input=this,f=input.files[0],pn=$("#vp-photo-note");
