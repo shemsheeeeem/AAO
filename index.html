@@ -1738,6 +1738,9 @@ body.booting .foot{visibility:hidden}
 .ph .art,.ph .shot{position:absolute;inset:0;width:100%;height:100%;display:block}
 .ph .art svg{width:100%;height:100%;display:block;transition:transform .8s var(--ease)}
 .ph .shot{object-fit:cover;transition:transform .8s var(--ease)}
+.ph .shot-bg{display:none}
+.pc .ph .shot-bg{display:block;position:absolute;inset:-24px;background-position:center;background-size:cover;background-repeat:no-repeat;filter:blur(18px) brightness(.8);z-index:0}
+.pc .ph .shot{object-fit:contain;z-index:1}
 .pc:hover .ph .art svg,.pc:hover .ph .shot{transform:scale(1.05)}
 .ph.sq{aspect-ratio:1/1;width:172px;border-radius:20px}
 .ph.wide{aspect-ratio:2/1;border-radius:20px;margin-bottom:30px}
@@ -3597,7 +3600,8 @@ function personArt(i,name,headset){
 function picOf(kind,x){
   var a=personArt(TALENT.indexOf(x),x.name,x.cat==="Customer support"||x.id==="joy");
   var src=x.photo&&/^https?:\/\//i.test(String(x.photo))?escAttr(x.photo):(x.photo&&String(x.photo).indexOf("images/")===0?escAttr(x.photo):"");
-  return '<span class="art">'+a+'</span>'+(src?'<img class="shot" src="'+src+'" alt="'+escAttr(x.name)+'" loading="lazy">':'');
+  /* Cards show the whole photo (no cropping) over a soft blurred copy of it (Neil, 25 Nov); the blurred copy is hidden elsewhere. */
+  return '<span class="art">'+a+'</span>'+(src?'<span class="shot-bg" aria-hidden="true" style="background-image:url(&quot;'+src+'&quot;)"></span><img class="shot" src="'+src+'" alt="'+escAttr(x.name)+'" loading="lazy">':'');
 }
 document.addEventListener("error",function(e){var t=e.target;if(t&&t.classList&&t.classList.contains("shot"))t.style.display="none";},true);
 
@@ -3708,7 +3712,7 @@ function talentListRow(t){
   var about=String(t.about||"");
   if(about.length>220)about=about.slice(0,217).replace(/\s+\S*$/,"")+"…";
   var hired=typeof isHired==="function"&&isHired(t.id);
-  return '<a class="trow" href="#talent-'+t.id+'"><span class="trow-photo" aria-hidden="true">'+picOf("t",t)+'</span><span><span class="trow-title">'+t.name+'</span><div class="trow-role">'+t.headline+'</div><p class="trow-body">'+about+'</p><div class="tags">'+(hired?tag("Hired","gold"):"")+tag(availShort(t.avail))+t.skills.slice(0,4).map(function(s){return tag(s);}).join("")+'</div><div class="trow-foot"><span>'+t.exp+' experience</span><span>'+t.loc+'</span><span>'+(CATS[t.cat]||t.cat)+'</span></div></span></a>';
+  return '<a class="trow" href="#talent-'+t.id+'"><span class="trow-photo" aria-hidden="true">'+picOf("t",t)+'</span><span><span class="trow-title">'+t.name+'</span><div class="trow-role">'+t.headline+'</div><p class="trow-body">'+about+'</p><div class="tags">'+(hired?tag("Hired","gold"):"")+tag(availShort(t.avail))+t.skills.slice(0,4).map(function(s){return tag(s);}).join("")+'</div><div class="trow-foot"><span>'+(/^Experience not listed/.test(t.exp)?t.exp:t.exp+' experience')+'</span><span>'+t.loc+'</span><span>'+(CATS[t.cat]||t.cat)+'</span></div></span></a>';
 }
 function payLabel(j){
   if(!j.pay)return "Pay TBD";
@@ -4802,8 +4806,8 @@ V.talent = function(){
         '</div>'+
       '</div></div></section>';
   }
-  var desk=u?'<a class="textlink" href="#dashboard">Open client desk</a>':'<a class="textlink" href="#join">Create an account</a>';
-  var blurb=u&&u.role==="client"
+  var desk=u?'<a class="textlink" href="#dashboard">'+(u.role==="va"?"Open VA desk":"Open client desk")+'</a>':'<a class="textlink" href="#join">Create an account</a>';
+  var blurb=u&&u.role==="va"?"Browse AAO assistants by field, availability, and skills.":u&&u.role==="client"
     ?"Browse professional profiles by field, availability, and skills, then message the people you like from your client desk."
     :"Browse professional profiles by field, availability, and skills, then create an account to message the people you like.";
   var catOpts=[["","Any field"]].concat(Object.keys(CATS).map(function(k){return [k,CATS[k]];}));
@@ -7453,10 +7457,6 @@ function render(){
   if(h==="dashboard"){
     var du=getDemoUser();
     title=(du&&du.role==="va"?"VA desk":"Client desk")+" | AAO";
-  }
-  if(h==="talent"){
-    var vu=getDemoUser();
-    if(vu&&vu.role==="va")title="Job openings | AAO";
   }
   closeVideo();
   if(highlightStackOff){highlightStackOff();highlightStackOff=null;}
