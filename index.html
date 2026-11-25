@@ -975,6 +975,7 @@ body.booting .foot{visibility:hidden}
 .jobs-side input[type="radio"],.jobs-side input[type="checkbox"]{color-scheme:light}
 /* Edit profile sections (live) */
 #vpf input,#vpf select,#vpf textarea{color-scheme:light}
+.vp-photo-prev{width:96px;height:96px;object-fit:cover;border-radius:50%;margin:6px 0 4px;border:1px solid var(--vap-line);background:#F3F6FB}
 .vpf-intro{margin:0 0 6px;color:var(--vap-muted);font-size:.92rem}
 .vpf-req{color:#B4232A;font-weight:700}
 .vpf-sec{border:0;border-top:1px solid var(--vap-line);margin:22px 0 0;padding:18px 0 0;min-width:0}
@@ -6523,14 +6524,18 @@ V.vaProfile.init = function(){
   if(API_ON){
     /* Live mode: profile photo. Needs an existing profile; uploads straight to storage through a signed URL, then registers the file. */
     var avatarEl=root.querySelector(".vap-avatar");
-    function showPhoto(url){if(avatarEl&&url)avatarEl.innerHTML='<img src="'+url+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">';}
-    showPhoto(AAOApi.myPhotoUrl());
+    /* The current photo also shows as a preview in the Profile photo box of the form. */
+    function showPhoto(url){
+      if(avatarEl&&url)avatarEl.innerHTML='<img src="'+url+'" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit">';
+      var pv=$("#vp-photo-prev");if(pv){if(url){pv.src=url;pv.hidden=false;}else{pv.removeAttribute("src");pv.hidden=true;}}
+    }
     var photoField=document.createElement("label");
     photoField.className="field";
-    photoField.innerHTML='Profile photo<input type="file" id="vp-photo" accept="image/jpeg,image/png,image/webp"><small id="vp-photo-note" class="muted">JPEG, PNG or WebP, up to 2 MB.</small>';
+    photoField.innerHTML='Profile photo<img id="vp-photo-prev" class="vp-photo-prev" alt="Your current profile photo" hidden><input type="file" id="vp-photo" accept="image/jpeg,image/png,image/webp"><small id="vp-photo-note" class="muted">JPEG, PNG or WebP, up to 2 MB.</small>';
     var photoSlot=$("#vp-photo-slot");
     if(photoSlot)photoSlot.parentNode.insertBefore(photoField,photoSlot);else form.insertBefore(photoField,form.querySelector(".app-actions"));
     if(!AAOApi.hasTalentProfile())photoField.hidden=true; /* the notice above explains it; the photo can be added after the first save */
+    showPhoto(AAOApi.myPhotoUrl());
     $("#vp-photo").addEventListener("change",function(){
       var input=this,f=input.files[0],pn=$("#vp-photo-note");
       if(!f)return;
@@ -6545,7 +6550,7 @@ V.vaProfile.init = function(){
     photoRm.addEventListener("click",function(){
       if(!window.confirm("Remove your profile photo?"))return;
       var pn=$("#vp-photo-note");pn.textContent="Removing…";
-      AAOApi.removeProfilePhoto().then(function(){pn.textContent="Photo removed.";photoRm.hidden=true;if(avatarEl)avatarEl.textContent=initialOf();return reloadCatalog();}).catch(function(err){pn.textContent=err.message;});
+      AAOApi.removeProfilePhoto().then(function(){pn.textContent="Photo removed.";photoRm.hidden=true;showPhoto("");if(avatarEl)avatarEl.textContent=initialOf();return reloadCatalog();}).catch(function(err){pn.textContent=err.message;});
     });
     function initialOf(){return (($("#vp-name")&&$("#vp-name").value)||"V").charAt(0).toUpperCase();}
     bindMediaSection();
