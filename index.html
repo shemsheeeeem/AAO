@@ -968,6 +968,22 @@ body.booting .foot{visibility:hidden}
 .media-row .media-btns{grid-column:2;display:flex;flex-wrap:wrap;gap:6px}
 .media-row .media-btns .btn{padding:.4em .8em;font-size:.82rem}
 .vap-hero.has-banner{background-size:cover;background-repeat:no-repeat}
+/* Portfolio pages (decision 79) */
+.ppages{display:grid;gap:18px}
+.ppage{border:1px solid rgba(127,140,160,.35);border-radius:14px;padding:16px 18px;background:transparent}
+.ppage h3{margin:0 0 8px;font-size:1.08rem;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ppage .ppage-feat{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#7A5A12;background:#F5E7C4;border-radius:999px;padding:.2em .7em}
+.ppage .media-grid{margin:10px 0}
+.ppage-body p{margin:.4em 0}
+.ppage-body ul{margin:.4em 0;padding-left:1.2em;list-style:disc}
+.pp-edit{border:1px solid rgba(11,26,51,.14);border-radius:12px;padding:12px;margin:10px 0;display:grid;gap:8px}
+.pp-edit textarea{min-height:90px}
+.pp-imgs{display:flex;flex-wrap:wrap;gap:8px}
+.pp-imgs figure{margin:0;display:grid;gap:4px;justify-items:start}
+.pp-imgs img{width:96px;height:72px;object-fit:cover;border-radius:8px;background:#0B1A33}
+.pp-imgs .btn,.pp-edit .media-btns .btn{padding:.4em .8em;font-size:.82rem}
+.pp-edit .media-btns{display:flex;flex-wrap:wrap;gap:6px}
+.pp-check{display:flex;align-items:center;gap:8px;font-size:.92rem}
 
 /* Outline buttons on the light edit card (Add a job, Add custom skill, Remove this job) need dark text there. */
 #vap .vap-edit .btn-line{color:#1B4B91;background:#fff;border-color:#9FB3D1}
@@ -3277,6 +3293,108 @@ function bindMediaSection(){
   });
 }
 
+/* Live mode: portfolio pages (decision 79). Text is escaped first, then "**bold**" and lines starting with "- " are formatted. Images are API URLs. */
+var PAGE_MAX=10,PAGE_IMG_MAX=4;
+function pageBodyHtml(text){
+  var out=[],list=[];
+  function flush(){if(list.length){out.push('<ul>'+list.join("")+'</ul>');list=[];}}
+  function inline(line){return escHtml(line).replace(/\*\*([^*\n]+?)\*\*/g,"<strong>$1</strong>");}
+  String(text||"").split(/\r?\n/).forEach(function(line){
+    var m=/^\s*[-•]\s+(.*)$/.exec(line);
+    if(m){list.push('<li>'+inline(m[1])+'</li>');return;}
+    flush();
+    if(line.trim())out.push('<p>'+inline(line.trim())+'</p>');
+  });
+  flush();
+  return out.join("");
+}
+function pagesHtml(pages){
+  return '<div class="ppages">'+(pages||[]).map(function(pg){
+    return '<article class="ppage">'+
+      ((pg.title||pg.featured)?'<h3>'+escHtml(pg.title||"")+(pg.featured?'<span class="ppage-feat">Featured</span>':'')+'</h3>':'')+
+      ((pg.images&&pg.images.length)?photoGridHtml(pg.images.map(function(u){return {url:u,caption:""};})):'')+
+      (pg.body?'<div class="ppage-body">'+pageBodyHtml(pg.body)+'</div>':'')+
+    '</article>';
+  }).join("")+'</div>';
+}
+function pagesSectionHtml(){
+  return '<div class="field media-edit"><span>Portfolio pages <small class="muted" id="vp-pg-count"></small></span>'+
+      '<div id="vp-pg-list"></div>'+
+      '<div class="pp-edit" id="vp-pg-new">'+
+        '<label class="field">Title<input type="text" id="vp-pg-title" maxlength="80" placeholder="For example: Inbox clean-up for a real estate team"></label>'+
+        '<label class="field">Text<textarea id="vp-pg-body" maxlength="800" placeholder="What you did and the result. **bold** and lines starting with - become bullets."></textarea></label>'+
+        '<label class="pp-check"><input type="checkbox" id="vp-pg-feat"> Featured (shows first)</label>'+
+        '<div class="media-actions"><button type="button" class="btn btn-line" id="vp-pg-add">Add page</button></div>'+
+      '</div>'+
+      '<small class="muted">Up to '+PAGE_MAX+' pages, each with a title or text and up to '+PAGE_IMG_MAX+' images of your work. Shown on your public profile. No contact details or outside links.</small>'+
+      '<small class="muted" id="vp-pg-note" role="status"></small>'+
+    '</div>';
+}
+function bindPagesSection(){
+  var list=$("#vp-pg-list"),note=$("#vp-pg-note"),count=$("#vp-pg-count"),box=$("#vp-pg-new");
+  if(!list)return;
+  if(!AAOApi.hasTalentProfile()){note.textContent="Save your profile first, then add portfolio pages.";box.hidden=true;return;}
+  var pages=[];
+  function draw(){
+    count.textContent="("+pages.length+" of "+PAGE_MAX+")";
+    box.hidden=pages.length>=PAGE_MAX;
+    list.innerHTML=pages.map(function(pg,i){
+      return '<div class="pp-edit" data-pg="'+escAttr(pg.id)+'">'+
+        '<label class="field">Title<input type="text" maxlength="80" value="'+escAttr(pg.title)+'" data-pg-title></label>'+
+        '<label class="field">Text<textarea maxlength="800" data-pg-body>'+escHtml(pg.body)+'</textarea></label>'+
+        '<label class="pp-check"><input type="checkbox" data-pg-feat'+(pg.featured?" checked":"")+'> Featured (shows first)</label>'+
+        '<div class="pp-imgs">'+pg.images.map(function(im){return '<figure><img src="'+escAttr(im.url)+'" alt=""><button type="button" class="btn btn-line" data-pg-imgdel="'+escAttr(im.id)+'">Remove image</button></figure>';}).join("")+'</div>'+
+        '<div class="media-btns">'+
+          (pg.images.length<PAGE_IMG_MAX?'<label class="btn btn-line" style="cursor:pointer">Add image<input type="file" accept="image/jpeg,image/png,image/webp" hidden data-pg-file></label>':'')+
+          '<button type="button" class="btn btn-line" data-pg-up'+(i===0?" disabled":"")+' aria-label="Move up">↑</button>'+
+          '<button type="button" class="btn btn-line" data-pg-down'+(i===pages.length-1?" disabled":"")+' aria-label="Move down">↓</button>'+
+          '<button type="button" class="btn btn-line" data-pg-save>Save page</button>'+
+          '<button type="button" class="btn btn-line" data-pg-del>Delete page</button>'+
+        '</div></div>';
+    }).join("")||'<p class="muted">No portfolio pages yet.</p>';
+  }
+  function fail(err){note.textContent=err.message;}
+  function load(){return AAOApi.myPages().then(function(l){pages=l;draw();}).catch(fail);}
+  load();
+  $("#vp-pg-add").addEventListener("click",function(){
+    var t=$("#vp-pg-title").value.trim(),b=$("#vp-pg-body").value.trim();
+    if(!t&&!b){note.textContent="Add a title or some text first.";return;}
+    note.textContent="Saving…";
+    AAOApi.addPage({title:t,body:b,featured:$("#vp-pg-feat").checked}).then(function(){
+      $("#vp-pg-title").value="";$("#vp-pg-body").value="";$("#vp-pg-feat").checked=false;
+      note.textContent="Page added. You can add images to it below.";return load();
+    }).catch(fail);
+  });
+  list.addEventListener("change",function(e){
+    var inp=e.target.closest("[data-pg-file]");if(!inp)return;
+    var row=e.target.closest("[data-pg]"),f=inp.files&&inp.files[0];if(!row||!f)return;
+    note.textContent="Uploading…";
+    AAOApi.addPageImage(row.getAttribute("data-pg"),f).then(function(){note.textContent="Image added.";return load();}).catch(fail);
+    inp.value="";
+  });
+  list.addEventListener("click",function(e){
+    var row=e.target.closest("[data-pg]");if(!row)return;
+    var id=row.getAttribute("data-pg"),i=pages.findIndex(function(x){return x.id===id;});if(i<0)return;
+    var imgDel=e.target.closest("[data-pg-imgdel]");
+    if(imgDel){
+      if(!window.confirm("Remove this image?"))return;
+      AAOApi.deletePageImage(id,imgDel.getAttribute("data-pg-imgdel")).then(function(){note.textContent="Image removed.";return load();}).catch(fail);
+    }else if(e.target.closest("[data-pg-del]")){
+      if(!window.confirm("Delete this page and its images?"))return;
+      AAOApi.deletePage(id).then(function(){note.textContent="Page deleted.";return load();}).catch(fail);
+    }else if(e.target.closest("[data-pg-save]")){
+      var t=row.querySelector("[data-pg-title]").value.trim(),b=row.querySelector("[data-pg-body]").value.trim();
+      if(!t&&!b){note.textContent="A page needs a title or some text.";return;}
+      AAOApi.updatePage(id,{title:t||null,body:b||null,featured:row.querySelector("[data-pg-feat]").checked}).then(function(){note.textContent="Page saved.";return load();}).catch(fail);
+    }else if(e.target.closest("[data-pg-up]")||e.target.closest("[data-pg-down]")){
+      var j=e.target.closest("[data-pg-up]")?i-1:i+1;if(j<0||j>=pages.length)return;
+      var order=pages.slice();order[i]=pages[j];order[j]=pages[i];
+      Promise.all(order.map(function(x,k){return x.sort!==k?AAOApi.updatePage(x.id,{sort_order:k}):null;}).filter(Boolean))
+        .then(function(){note.textContent="Order saved.";return load();}).catch(fail);
+    }
+  });
+}
+
 function liveSkillRows(list){
   var skills=orderTopSkills((list||[]).slice(0,SKILL_MAX));
   if(!skills.length)return '<p class="vap-desc">Add your skills with Edit profile: pick from the list, rate yourself, and choose up to '+SKILL_TOP_MAX+' top skills.</p>';
@@ -4908,7 +5026,7 @@ V.profile = function(id){
    '<div class="dsec"><h2>About</h2><div class="prose"><p>'+t.about+'</p></div></div>'+
    ((t.work&&t.work.length)?'<div class="dsec"><h2>Work experience</h2><div class="prose">'+workListHtml(t.work)+'</div></div>':"")+
    ((t.photos&&t.photos.length)?'<div class="dsec"><h2>Photos</h2>'+photoGridHtml(t.photos)+'</div>':"")+
-   '<div class="dsec"><h2>Portfolio</h2><div class="port">'+t.port.map(function(p){return portCard(p,t);}).join("")+'</div></div>'+
+   (((t.pages&&t.pages.length)||t.port.length)?'<div class="dsec"><h2>Portfolio</h2>'+((t.pages&&t.pages.length)?pagesHtml(t.pages):'')+(t.port.length?'<div class="port">'+t.port.map(function(p){return portCard(p,t);}).join("")+'</div>':'')+'</div>':"")+
    (t.certs.length?'<div class="dsec"><h2>Certificates and training</h2><ul class="certs">'+t.certs.map(function(c){return '<li><div><strong>'+c.t+'</strong><span class="m">'+c.s+'</span></div></li>';}).join("")+'</ul></div>':"")+
   '</div><aside class="aside">'+
    profileMeetPanel(t)+
@@ -6114,6 +6232,7 @@ V.vaProfile = function(){
         '<div class="vap-card"><h2>Overview</h2><div class="vap-overview">'+overview+'</div></div>'+
         '<div class="vap-card"><h2>Profile description</h2><p class="vap-desc">'+(p.about||"Add a short description of how you work.")+'</p></div>'+
         (API_ON?'<div class="vap-card"><h2>Personal photos</h2><div id="vap-photos"><p class="vap-desc">Loading…</p></div></div>':"")+
+        (API_ON?'<div class="vap-card"><h2>Portfolio pages</h2><div id="vap-pages"><p class="vap-desc">Loading…</p></div></div>':"")+
         (API_ON?'<div class="vap-card"><h2>Work experience</h2>'+((p.work&&p.work.length)?workListHtml(p.work):'<p class="vap-desc">Add the jobs you have done: role, type of business, years, and what you achieved.</p>')+'</div>':"")+
         '<div class="vap-card"><div class="vap-card-head"><h2>Top skills</h2><button class="vap-edit-toggle" type="button" data-vap-edit>Update skills</button></div>'+(API_ON?liveSkillRows(p.skillRatings):vapSkillRows(p))+'</div>'+
       '</div><aside>'+
@@ -6154,7 +6273,7 @@ V.vaProfile = function(){
         '<label class="field">Languages<input type="text" id="vp-langs" maxlength="120"></label>'+
         (API_ON?skillEditorHtml("vp",{title:"Skills",copy:"Search for a skill or add your own, then rate yourself from 1 (beginner) to 5 (expert). Up to "+SKILL_MAX+" skills. Your notes are seen only by you and AAO staff."}):'<label class="field">Skills (comma separated)<input type="text" id="vp-skills" maxlength="240"></label>')+
         (API_ON?'<label class="field">Specialties (up to 5, comma separated)<input type="text" id="vp-subs" maxlength="230" placeholder="e.g. Bookkeeping, Inbox management"></label>'+
-          '<div class="field"><span>Work experience</span><div id="vp-work"></div><button type="button" class="btn btn-line" id="vp-work-add">Add a job</button></div>'+mediaSectionHtml():"")+
+          '<div class="field"><span>Work experience</span><div id="vp-work"></div><button type="button" class="btn btn-line" id="vp-work-add">Add a job</button></div>'+mediaSectionHtml()+pagesSectionHtml():"")+
         '<label class="field">Portfolio / website<input type="url" id="vp-portfolio" maxlength="200" placeholder="https://"></label>'+
         '<div class="app-actions"><button class="btn btn-gold" type="submit">Save profile</button><button class="btn btn-navy" type="button" id="vap-cancel">Cancel</button></div>'+
         '<div class="notice" id="vp-note" role="status"></div>'+
@@ -6171,6 +6290,14 @@ V.vaProfile.init = function(){
       if(!document.body.contains(phBox))return;
       phBox.innerHTML=l.length?photoGridHtml(l.map(function(x){return {url:x.url,caption:escHtml(x.caption)};})):'<p class="vap-desc">Add up to '+PHOTO_MAX+' photos with Edit profile.</p>';
     }).catch(function(){phBox.innerHTML='<p class="vap-desc">We could not load your photos.</p>';});
+  }
+  if(API_ON&&$("#vap-pages")){
+    var pgBox=$("#vap-pages");
+    (AAOApi.hasTalentProfile()?AAOApi.myPages():Promise.resolve([])).then(function(l){
+      if(!document.body.contains(pgBox))return;
+      l=l.slice().sort(function(a,b){return (b.featured?1:0)-(a.featured?1:0)||a.sort-b.sort;});
+      pgBox.innerHTML=l.length?pagesHtml(l.map(function(x){return {title:x.title,body:x.body,featured:x.featured,images:x.images.map(function(im){return im.url;})};})):'<p class="vap-desc">Show your best work: add up to '+PAGE_MAX+' pages with Edit profile.</p>';
+    }).catch(function(){pgBox.innerHTML='<p class="vap-desc">We could not load your portfolio pages.</p>';});
   }
   function fill(){
     $("#vp-name").value=U(p.name||"");
@@ -6227,6 +6354,7 @@ V.vaProfile.init = function(){
     });
     function initialOf(){return (($("#vp-name")&&$("#vp-name").value)||"V").charAt(0).toUpperCase();}
     bindMediaSection();
+    bindPagesSection();
   }
   var skillEd=API_ON&&$("#vp-skill-picker")?mountSkillEditor("vp",p.skillRatings||[]):null;
   var workAdd=$("#vp-work-add"),workBox=$("#vp-work");
