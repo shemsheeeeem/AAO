@@ -972,6 +972,7 @@ body.booting .foot{visibility:hidden}
 .vap-headline{margin:0;font-size:clamp(1.1rem,2.1vw,1.3rem);font-weight:700;color:var(--vap-ink);line-height:1.35}
 .vap-headline.is-empty{font-size:1rem;font-weight:500;color:var(--vap-muted)}
 /* Before the first save, one clear notice instead of upload buttons that cannot work yet (Toni, 25 Nov). */
+.jobs-side input[type="radio"],.jobs-side input[type="checkbox"]{color-scheme:light}
 .vp-locked{margin:6px 0 0;padding:12px 14px;border-radius:10px;background:#FFF6E0;border:1px solid #E9C96B;color:#5A4410;font-size:.95rem;line-height:1.45}
 /* Photo viewer: click a photo to open it large, then move with the arrows, the keyboard or a swipe (Toni, 25 Nov). */
 .mg-open{display:block;width:100%;padding:0;border:0;background:none;cursor:zoom-in;border-radius:10px}
@@ -2586,7 +2587,7 @@ p{text-wrap:pretty}
     <button class="menu-btn" id="menuBtn" aria-expanded="false" aria-controls="nav" aria-label="Open menu"></button>
     <nav class="nav" id="nav" aria-label="Main">
       <a href="#home" data-r="home" data-nav="guest">Home</a>
-      <a href="#talent" data-r="talent">Assistants</a>
+      <a href="#talent" data-r="talent" id="navFind">Assistants</a>
       <a href="#why-filipino" data-r="why-filipino" data-nav="guest">Why Filipino VAs</a>
       <a href="#messages" data-r="messages" data-nav="auth" hidden>Messages</a>
       <a href="#admin" data-r="admin" data-nav="admin" hidden>Admin review</a>
@@ -4087,7 +4088,7 @@ V.home = function(){
           '<p class="lede">Self-leadership is our culture. Hire virtual assistants who care about your goals, think in systems, and solve problems before they cost you.</p>'+
         '</div>'+
       '</div>'+
-      '<div class="btn-row"><a class="btn btn-gold" href="#how">Find jobs</a><a class="btn btn-light" href="#join" data-jintent="post">Post a job</a></div>'+
+      '<div class="btn-row"><a class="btn btn-gold" href="#jobs">Find jobs</a><a class="btn btn-light" href="#join" data-jintent="post">Post a job</a></div>'+
     '</div>'+
   '</section>'+
 
@@ -4773,7 +4774,7 @@ V.about = function(){
 
 V.talent = function(){
   var u=getDemoUser();
-  if(u&&u.role==="va"){
+  if(currentRoute()==="jobs"){
     var catOpts=[["","Any category"]].concat(Object.keys(CATS).map(function(k){return [k,CATS[k]];}));
     var typeOpts=[["","Any job type"],["Part-time","Part-time"],["Full-time","Full-time"],["Project-based","Project-based"]];
     return '<section class="jobs-board"><div class="wrap">'+
@@ -4786,7 +4787,7 @@ V.talent = function(){
         '<div class="jobs-main">'+
           '<button type="button" class="jobs-filter-toggle" id="jfilt-toggle" aria-expanded="false" aria-controls="jf"><span>Filters</span><span class="jobs-filter-meta">Category, type</span></button>'+
           '<form class="jobs-search" id="jsearch" action="#" method="get"><input type="search" id="jq" placeholder="Search by title, skill, or company" autocomplete="off" value=""><button type="submit">Search</button></form>'+
-          '<div class="jobs-toolbar"><span id="jcount" aria-live="polite"></span><a class="textlink" href="#dashboard">Open VA desk</a></div>'+
+          '<div class="jobs-toolbar"><span id="jcount" aria-live="polite"></span>'+(u&&u.role==="va"?'<a class="textlink" href="#dashboard">Open VA desk</a>':(u?'<a class="textlink" href="#dashboard">Open client desk</a>':'<a class="textlink" href="#join">Create an account to apply</a>'))+'</div>'+
           '<div class="jobs-list" id="jres"></div><nav class="pager" id="jpager" aria-label="Job pages"></nav>'+
         '</div>'+
       '</div></div></section>';
@@ -4823,7 +4824,7 @@ function bindJobsFilterToggle(btnId,sideId){
 }
 V.talent.init = function(){
   var u=getDemoUser();
-  if(u&&u.role==="va"){
+  if(currentRoute()==="jobs"){
     var q=$("#jq"),side=$("#jf"),search=$("#jsearch"),PAGE=8,page=1;
     q.value=state.jq||"";
     function selected(name){
@@ -5045,7 +5046,7 @@ V.job = function(id){
     '<div class="jd-badges"><span class="jd-pill open">Open</span><span class="jd-pill cat">'+(j.cat||"Role")+"</span>"+(j.fromClient?'<span class="jd-pill cat">Client post</span>':"")+"</div>"+
     "<h1 class=\"jd-title\">"+j.title+"</h1>"+
     '<p class="jd-payline">'+payMain+"</p>"+
-    '<p class="jd-meta"><a href="#talent">'+j.company+"</a><span>"+j.loc+'</span><span>'+m.applicants+" applied · "+m.posted+"</span></p>"+
+    '<p class="jd-meta"><a href="#jobs">'+j.company+"</a><span>"+j.loc+'</span><span>'+m.applicants+" applied · "+m.posted+"</span></p>"+
     '<dl class="jd-facts">'+
       "<div><dt>Pay</dt><dd>"+payLabel(j)+" "+paySuffix(j)+"<small>"+paySub+"</small></dd></div>"+
       "<div><dt>Experience</dt><dd>"+m.experience+"</dd></div>"+
@@ -5139,7 +5140,7 @@ function profileMeetPanel(t){
     return '<div class="panel navy"><h3>Ready to meet '+first+'?</h3><p style="margin-bottom:18px">You’re signed in as '+u.name+'. Message '+first+', or mark them as hired when you’re ready.</p><div class="stack"><a class="btn btn-gold btn-block" href="#messages-'+t.id+'">Message '+first+'</a><button class="btn btn-line-dark btn-block" type="button" id="phire" data-hire-id="'+t.id+'">Hire '+first+'</button><a class="btn btn-line-dark btn-block" href="#dashboard">Open client desk</a><div class="notice" id="phire-note" role="status"></div></div></div>';
   }
   if(u&&u.role==="va"){
-    return '<div class="panel navy"><h3>Browsing as a VA</h3><p style="margin-bottom:18px">You’re on the VA desk. Open roles are on the jobs board.</p><div class="stack"><a class="btn btn-gold btn-block" href="#dashboard">Open VA desk</a><a class="btn btn-line-dark btn-block" href="#talent">Browse openings</a></div></div>';
+    return '<div class="panel navy"><h3>Browsing as a VA</h3><p style="margin-bottom:18px">You’re on the VA desk. Open roles are on the jobs board.</p><div class="stack"><a class="btn btn-gold btn-block" href="#dashboard">Open VA desk</a><a class="btn btn-line-dark btn-block" href="#jobs">Browse openings</a></div></div>';
   }
   return '<div class="panel navy"><h3>Ready to meet '+first+'?</h3><p style="margin-bottom:18px">Create an account to message this assistant, then decide if they’re the right fit.</p><div class="stack"><a class="btn btn-gold btn-block" href="#join">Create an account</a><a class="btn btn-line-dark btn-block" href="#login">Log in</a></div></div>';
 }
@@ -5643,14 +5644,14 @@ function syncAuthNav(){
   var u=getDemoUser();
   var loginLink=document.querySelector('.nav a[data-r="login"], .nav a[data-r="dashboard"]');
   var cta=document.querySelector(".nav a.btn.btn-gold, .nav a.btn[data-auth-cta]");
-  var talentLink=document.querySelector('.nav a[data-r="talent"]');
+  var talentLink=document.getElementById("navFind");
   var guestLinks=document.querySelectorAll('.nav [data-nav="guest"]');
   var authLinks=document.querySelectorAll('.nav [data-nav="auth"]');
   var vaLinks=document.querySelectorAll('.nav [data-nav="auth-va"]');
   var adminLinks=document.querySelectorAll('.nav [data-nav="admin"]');
   Array.prototype.forEach.call(adminLinks,function(el){el.hidden=!(API_ON&&u&&u.isAdmin===true);});
   var isVa=!!(u&&u.role==="va");
-  if(talentLink)talentLink.textContent=isVa?"Jobs":"Assistants";
+  if(talentLink){talentLink.textContent=isVa?"Jobs":"Assistants";talentLink.setAttribute("href",isVa?"#jobs":"#talent");talentLink.setAttribute("data-r",isVa?"jobs":"talent");}
   Array.prototype.forEach.call(guestLinks,function(el){el.hidden=!!u;});
   Array.prototype.forEach.call(authLinks,function(el){el.hidden=!u;});
   Array.prototype.forEach.call(vaLinks,function(el){el.hidden=!isVa;});
@@ -5923,12 +5924,12 @@ V.dashboardLive = function(){
     var has=AAOApi.hasTalentProfile();
     return '<section class="dash"><div class="wrap">'+
       '<div class="dash-head"><div><div class="dash-badge"><em>VA desk</em></div><h1>Welcome back, '+first+'.</h1><p>'+(has?"Your profile is live. Keep it current so clients can find you.":"Create your profile so clients can find you.")+'</p></div>'+
-      '<div class="dash-actions"><a class="btn btn-navy" href="#talent">Browse openings</a><a class="btn btn-line" href="#va-profile">'+(has?"Edit profile":"Create profile")+'</a><a class="btn btn-line" href="#messages">Inquiries</a><a class="btn btn-line" href="#logout">Log out</a></div></div>'+
+      '<div class="dash-actions"><a class="btn btn-navy" href="#jobs">Browse openings</a><a class="btn btn-line" href="#va-profile">'+(has?"Edit profile":"Create profile")+'</a><a class="btn btn-line" href="#messages">Inquiries</a><a class="btn btn-line" href="#logout">Log out</a></div></div>'+
       '<div class="dash-toast" id="dtoast" role="status"></div>'+
       '<div class="dash-stats"><div class="dash-stat"><strong>'+(has?"Live":"Not yet")+'</strong><span>Your profile</span></div><div class="dash-stat"><strong id="dl-count">…</strong><span>Inquiries received</span></div></div>'+
       '<div class="dash-panels"><div class="dash-panel"><h2>Next steps</h2>'+dashRows([
         [has?"Update your profile":"Create your profile","Skills, availability and a short introduction",has?"Edit profile":"Start","#va-profile"],
-        ["Browse new openings","Open roles from clients","View jobs","#talent"],
+        ["Browse new openings","Open roles from clients","View jobs","#jobs"],
         ["Read your inquiries","Clients who contacted you","Open","#messages"]
       ])+'<div class="dash-row"><div><strong>Verify your identity</strong><span id="dl-id">Upload a photo of your government ID</span></div><a class="dash-act" href="#va-settings" id="dl-id-act">Upload</a></div>'+
       '<div class="dash-row"><div><strong>Take the three tests</strong><span id="dl-tests">Typing, DISC and aptitude</span></div><a class="dash-act" href="#va-settings" id="dl-tests-act">Start</a></div>'+
@@ -6020,7 +6021,7 @@ V.dashboard = function(){
   if(u.role==="va"){
     return '<section class="dash"><div class="wrap">'+
       '<div class="dash-head"><div><div class="dash-badge">Demo · <em>VA desk</em></div><h1>Welcome back, '+u.name.split(" ")[0]+'.</h1><p>Track applications, open roles, and profile strength. This is a preview desk — nothing is live yet.</p></div>'+
-      '<div class="dash-actions"><a class="btn btn-navy" href="#talent">Browse openings</a><a class="btn btn-line" href="#va-profile">Edit profile</a><a class="btn btn-line" href="#messages">Messages</a><a class="btn btn-line" href="#logout">Log out</a></div></div>'+
+      '<div class="dash-actions"><a class="btn btn-navy" href="#jobs">Browse openings</a><a class="btn btn-line" href="#va-profile">Edit profile</a><a class="btn btn-line" href="#messages">Messages</a><a class="btn btn-line" href="#logout">Log out</a></div></div>'+
       '<div class="dash-toast" id="dtoast" role="status"></div>'+
       '<div class="dash-stats">'+
         '<div class="dash-stat"><strong>3</strong><span>Active applications</span></div>'+
@@ -6034,7 +6035,7 @@ V.dashboard = function(){
           ["Ops VA · e-commerce","Submitted 2 days ago","View application",null,"status"]
         ])+'</div>'+
         '<div class="dash-panel"><h2>Suggested next steps</h2>'+dashRows([
-          ["Browse new openings","Roles matching admin and support skills","View jobs","#talent"],
+          ["Browse new openings","Roles matching admin and support skills","View jobs","#jobs"],
           ["Update your profile","Availability, skills, and about section","Edit profile","#va-profile"],
           ["Apply to Customer support · SaaS","Fits your Zendesk background","View role","#job-cs-saas"]
         ])+'<p class="dash-note">Signed in as '+u.email+'</p></div>'+
@@ -6360,7 +6361,7 @@ V.vaProfile = function(){
     '<div class="vap-view">'+
       '<div class="vap-hero'+(API_ON&&p.banner?' has-banner" style="'+bannerStyle(p.banner):'')+'">'+(API_ON?'':'<p class="vap-status">Current status: '+(p.status||"Open to work")+'</p>')+'<div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
       '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+(API_ON?(p.subs?String(p.subs).split(/\s*[,|]\s*/).filter(Boolean).join(" | "):(CATS[p.cat]||"Virtual assistant")):(p.headline||"Virtual assistant"))+'</p><div class="vap-badges">'+((API_ON&&!(p.avail||p.hours))?'':'<span class="vap-badge gold">'+(p.avail||(API_ON?p.hours:"Available"))+'</span>')+'</div></div>'+
-      '<div class="vap-actions"><button class="btn btn-gold" type="button" id="vap-edit-btn">Edit profile</button><a class="btn btn-navy" href="#talent">Browse jobs</a></div>'+
+      '<div class="vap-actions"><button class="btn btn-gold" type="button" id="vap-edit-btn">Edit profile</button><a class="btn btn-navy" href="#jobs">Browse jobs</a></div>'+
       '<div class="vap-layout"><div>'+
         (API_ON?'<div class="vap-card"><p class="vap-headline'+(p.headline?'':' is-empty')+'">'+(p.headline||"Add a headline with Edit profile, for example “Customer support specialist for online stores”.")+'</p></div>':'')+
         '<div class="vap-card"><h2>Overview</h2><div class="vap-overview">'+overview+'</div></div>'+
@@ -6581,7 +6582,7 @@ function vaAppShell(o){
 V.vaApplications = function(){
   var u=getDemoUser();
   if(!u)return V.login();
-  if(API_ON)return vaAppShell({h1:"Job applications",p:"Track roles you’ve applied to.",cta:"Browse openings",ctaHref:"#talent",body:'<div class="dash-panels" style="margin-top:8px"><div class="dash-panel"><div id="va-apps"><p class="dash-note">Loading…</p></div></div></div>'});
+  if(API_ON)return vaAppShell({h1:"Job applications",p:"Track roles you’ve applied to.",cta:"Browse openings",ctaHref:"#jobs",body:'<div class="dash-panels" style="margin-top:8px"><div class="dash-panel"><div id="va-apps"><p class="dash-note">Loading…</p></div></div></div>'});
   var rows=[
     ["Executive assistant · health clinic","Interview scheduled Thursday","In review"],
     ["Customer support · SaaS","Client reviewing your sample replies","Submitted"],
@@ -6591,8 +6592,8 @@ V.vaApplications = function(){
     h1:"Job applications",
     p:"Track roles you’ve applied to. Status is demo data until applications sync to your API.",
     cta:"Browse openings",
-    ctaHref:"#talent",
-    body:'<div class="dash-panels" style="margin-top:8px"><div class="dash-panel">'+dashRows(rows.map(function(r){return [r[0],r[1],r[2],"#talent"];}))+'</div></div>'
+    ctaHref:"#jobs",
+    body:'<div class="dash-panels" style="margin-top:8px"><div class="dash-panel">'+dashRows(rows.map(function(r){return [r[0],r[1],r[2],"#jobs"];}))+'</div></div>'
   });
 };
 V.vaApplications.init = function(){
@@ -6604,7 +6605,7 @@ V.vaApplications.init = function(){
   function paint(){
     return AAOApi.myApplications().then(function(list){
       if(!document.body.contains(box))return;
-      if(!list.length){box.innerHTML='<p class="dash-note">You have not applied to a job yet.</p><div class="dash-row"><div><strong>Browse openings</strong><span>Find a role that fits</span></div><a class="dash-act" href="#talent">View jobs</a></div>';return;}
+      if(!list.length){box.innerHTML='<p class="dash-note">You have not applied to a job yet.</p><div class="dash-row"><div><strong>Browse openings</strong><span>Find a role that fits</span></div><a class="dash-act" href="#jobs">View jobs</a></div>';return;}
       box.innerHTML=list.map(function(a){
         var st=(a.status==="withdrawn"?"Withdrawn":"Submitted")+" · "+when(a.created_at)+(a.job.is_open?"":" · Job closed");
         var title=E(a.job.title)+" · "+E(a.job.company_name);
@@ -6635,7 +6636,7 @@ V.vaSaved = function(){
   }else{
     body='<div class="dash-panels" style="margin-top:8px"><div class="dash-panel">'+dashRows(saved.map(function(j){return [j.title||"Saved role",j.company||"AAO client","View","#job-"+(j.id||"")];}))+'</div></div>';
   }
-  return vaAppShell({h1:"Saved jobs",p:(API_ON?"Jobs you save while browsing will appear here.":"Jobs you’ve bookmarked while browsing openings."),cta:"Browse openings",ctaHref:"#talent",body:body});
+  return vaAppShell({h1:"Saved jobs",p:(API_ON?"Jobs you save while browsing will appear here.":"Jobs you’ve bookmarked while browsing openings."),cta:"Browse openings",ctaHref:"#jobs",body:body});
 };
 V.vaSaved.init = function(){requireVaPage();};
 /* Live mode: government ID check (private: only the assistant and AAO staff can see the photo). */
@@ -7189,7 +7190,7 @@ var hdr=$(".site-header");
 function onScroll(){var y=window.scrollY,on=hdr.classList.contains("scrolled");if(!on&&y>60)hdr.classList.add("scrolled");else if(on&&y<10)hdr.classList.remove("scrolled");}
 window.addEventListener("scroll",onScroll,{passive:true});onScroll();
 
-var TITLES = {pricing:"Pricing | AAO",faq:"FAQs | AAO",terms:"Terms and Conditions | AAO",privacy:"Privacy Policy | AAO",home:"Amazing Assistants Online | You weren’t meant to build alone",how:"How AAO works | AAO",standards:"Trust and standards | AAO",about:"About AAO | AAO",talent:"Find virtual assistants | AAO",help:"Help and support | AAO",join:"Create your account | AAO",login:"Log in | AAO",dashboard:"Dashboard | AAO","post-job":"Post a job | AAO",messages:"Messages | AAO",membership:"Membership | AAO","va-profile":"Your profile | AAO","va-applications":"Job applications | AAO","va-saved":"Saved jobs | AAO","va-settings":"Account settings | AAO","forgot-password":"Reset your password | AAO","reset-password":"Choose a new password | AAO","email-confirmed":"Email confirmed | AAO",admin:"Admin review | AAO"};
+var TITLES = {pricing:"Pricing | AAO",faq:"FAQs | AAO",terms:"Terms and Conditions | AAO",privacy:"Privacy Policy | AAO",home:"Amazing Assistants Online | You weren’t meant to build alone",how:"How AAO works | AAO",standards:"Trust and standards | AAO",about:"About AAO | AAO",talent:"Find virtual assistants | AAO",jobs:"Job openings | AAO",help:"Help and support | AAO",join:"Create your account | AAO",login:"Log in | AAO",dashboard:"Dashboard | AAO","post-job":"Post a job | AAO",messages:"Messages | AAO",membership:"Membership | AAO","va-profile":"Your profile | AAO","va-applications":"Job applications | AAO","va-saved":"Saved jobs | AAO","va-settings":"Account settings | AAO","forgot-password":"Reset your password | AAO","reset-password":"Choose a new password | AAO","email-confirmed":"Email confirmed | AAO",admin:"Admin review | AAO"};
 var WF_HTML="<div class=\"wf\">\n<section class=\"wf-slab wf-dark wf-hero\" id=\"wf-hero\"><div class=\"wf-mq\" aria-hidden=\"true\"><div class=\"wf-row\" data-d=\"1\"><span>LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · <\/span><span>LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · <\/span><\/div><div class=\"wf-row\" data-d=\"-1\"><span>THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · <\/span><span>THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · <\/span><\/div><\/div><div class=\"wrap wf-hin\">\n<div class=\"wf-eyebrow wf-fd\" style=\"--i:0\"><span class=\"wf-ey\" aria-label=\"The Filipino Advantage\"><span class=\"wf-eyt\" aria-hidden=\"true\" data-wf-ey>The Filipino Advantage<\/span><\/span><\/div>\n<h1 aria-label=\"Why Filipino Virtual Assistants?\"><span class=\"wf-hl\" aria-hidden=\"true\" data-wf-split>Why Filipino<\/span><span class=\"wf-hl wf-g\" aria-hidden=\"true\" data-wf-split>Virtual Assistants?<\/span><\/h1>\n<p class=\"wf-sub wf-fd\" style=\"--i:3\">Lasting Partnerships. Clear Communication. Smarter Business Growth.<\/p>\n<p class=\"wf-lede wf-fd\" style=\"--i:4\">Filipino work culture often puts relationships first. Respect, cooperation and a deep sense of gratitude shape how people work, so the right assistant doesn’t just clear your task list. They stay, learn your business and grow alongside it. Add strong English communication and diverse expertise, and you get a partner you can hand things off to with confidence.<\/p>\n<div class=\"wf-btns wf-fd\" style=\"--i:5\"><a class=\"wf-cta wf-gold wf-mag\" href=\"#why-filipino\" data-wf-jump=\"wf-reasons\">See the five reasons<\/a><a class=\"wf-cta wf-ghost wf-mag\" href=\"#why-filipino\" data-wf-jump=\"wf-advantage\">The AAO advantage<\/a><\/div><\/div>\n<\/section>\n<section class=\"wf-slab wf-light\" id=\"wf-reasons\"><div class=\"wrap\">\n<div class=\"wf-shead\"><div class=\"wf-rv\"><span class=\"wf-badge\">Five reasons<\/span><h2>Here’s Why Filipino Talent Is a Smart Investment for Your Business.<\/h2><\/div><div class=\"wf-copy wf-rv\" style=\"--d:120\"><p class=\"wf-lead\">It starts with partnership. Everything else, from clear communication to versatile skills, is what makes that partnership work day to day.<\/p><p>Pick a reason to explore it, or let it play through all five.<\/p><\/div><\/div>\n<div class=\"wf-pick wf-rv\"><div class=\"wf-sels\" role=\"tablist\" aria-label=\"Five reasons\"><button class=\"wf-sel wf-on\" role=\"tab\" id=\"wf-t0\" aria-controls=\"wf-p0\" aria-selected=\"true\" tabindex=\"0\"><span class=\"wf-sn\">01<\/span><span class=\"wf-st\">They Value Strong, Lasting Partnerships<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t1\" aria-controls=\"wf-p1\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">02<\/span><span class=\"wf-st\">They Understand Your Business Needs<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t2\" aria-controls=\"wf-p2\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">03<\/span><span class=\"wf-st\">They Have the Skills to Get Things Done<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t3\" aria-controls=\"wf-p3\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">04<\/span><span class=\"wf-st\">They Are Resourceful, Adaptable &amp; Results-Driven<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t4\" aria-controls=\"wf-p4\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">05<\/span><span class=\"wf-st\">They Make Business Growth More Affordable<\/span><\/button><\/div>\n<div class=\"wf-stage\"><div class=\"wf-pn wf-on\" role=\"tabpanel\" id=\"wf-p0\" aria-labelledby=\"wf-t0\"><span class=\"wf-big\" aria-hidden=\"true\">01<\/span><p class=\"wf-pt\">Professional commitment. Meaningful relationships. Long-term support.<\/p><h3>They Value Strong, Lasting Partnerships<\/h3><p>Filipino workplace culture often emphasizes respect, cooperation and maintaining positive professional relationships.<\/p><p>The cultural value of <em>utang na loob<\/em>, commonly associated with gratitude and reciprocity, reflects the importance placed on recognizing support and building meaningful connections.<\/p><p>When businesses provide fair compensation, clear expectations and opportunities for growth, they can create an environment where Filipino professionals thrive and develop long-term working relationships.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Build a dependable working relationship with a virtual assistant who understands your business and grows alongside it.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p1\" aria-labelledby=\"wf-t1\"><span class=\"wf-big\" aria-hidden=\"true\">02<\/span><p class=\"wf-pt\">Clear communication. Less micromanagement. Better results.<\/p><h3>They Understand Your Business Needs<\/h3><p>A partnership only works when you understand each other. The Philippines is recognized as one of the world’s largest English speaking nations. According to the Philippine Department of Tourism, approximately <strong>93.5% of Filipinos speak and understand English<\/strong>, reflecting the country’s strong foundation in English communication. As an official language widely used in education, business and professional settings, English gives Filipino virtual assistants a valuable advantage when collaborating with international clients.<\/p><p>Beyond language proficiency, Filipino VAs bring a service-oriented mindset, professionalism and dedication to delivering quality work.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Spend less time explaining tasks and more time growing your business.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p2\" aria-labelledby=\"wf-t2\"><span class=\"wf-big\" aria-hidden=\"true\">03<\/span><p class=\"wf-pt\">Educated professionals. Versatile skills. Reliable support.<\/p><h3>They Have the Skills to Get Things Done<\/h3><p>With a reported literacy rate of approximately <strong>97%<\/strong> and hundreds of thousands of college graduates entering the workforce annually, the Philippines offers a broad pool of educated professionals across fields such as business, technology, marketing and communications.<\/p><p>Filipino VAs can support a wide range of business functions, from administrative assistance and customer service to digital marketing, bookkeeping and technical operations.<\/p><p>Whether you’re streamlining daily workflows or expanding your digital presence, the right Filipino virtual assistant can bring valuable expertise to your business.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Get the specialized support your business needs without the commitment of hiring a full-time employee.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p3\" aria-labelledby=\"wf-t3\"><span class=\"wf-big\" aria-hidden=\"true\">04<\/span><p class=\"wf-pt\">Strong work ethic. Practical solutions. Continuous improvement.<\/p><h3>They Are Resourceful, Adaptable &amp; Results-Driven<\/h3><p>The Philippines has developed an established international outsourcing industry, with Filipino professionals supporting businesses across customer service, technology, finance, marketing and other sectors.<\/p><p>Working with international clients often requires flexibility, problem-solving and the ability to learn new tools and processes.<\/p><p>Filipino VAs can bring these capabilities to businesses navigating changing priorities, expanding operations and evolving customer expectations.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Gain a professional who can adapt to your business needs and help keep operations moving forward.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p4\" aria-labelledby=\"wf-t4\"><span class=\"wf-big\" aria-hidden=\"true\">05<\/span><p class=\"wf-pt\">Quality talent. Competitive costs. Greater flexibility.<\/p><h3>They Make Business Growth More Affordable<\/h3><p>Hiring a traditional employee can be expensive, especially when factoring in salaries, office expenses, equipment and other employment-related costs.<\/p><p>Because living costs differ between the Philippines and many Western markets, Filipino virtual assistant services are often competitively priced.<\/p><p>This allows businesses to access professional support while managing staffing expenses more efficiently.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Allocate more resources toward growth without compromising your need for skilled support.<\/div><\/div><div class=\"wf-segs\" aria-hidden=\"true\"><i><\/i><i><\/i><i><\/i><i><\/i><i><\/i><\/div><\/div><\/div><\/div><\/section>\n<section class=\"wf-slab wf-soft\" id=\"wf-numbers\"><div class=\"wrap\"><div class=\"wf-shead\"><div class=\"wf-rv\"><span class=\"wf-badge\">By the numbers<\/span><h2>A Strong Foundation for Working Together.<\/h2><\/div><div class=\"wf-copy wf-rv\" style=\"--d:120\"><p>The figures behind the communication and skills reasons above.<\/p><\/div><\/div>\n<div class=\"wf-stats\"><div class=\"wf-stat wf-rv\"><b data-to=\"93.5\" data-dec=\"1\" data-suf=\"%\">93.5%<\/b><span>of Filipinos speak and understand English<\/span><\/div><div class=\"wf-stat wf-rv\" style=\"--d:120\"><b data-to=\"97\" data-dec=\"0\" data-suf=\"%\">97%<\/b><span>reported literacy rate across the country<\/span><\/div><div class=\"wf-stat wf-rv\" style=\"--d:240\"><b class=\"wf-odo\" aria-label=\"805,000\">805,000<\/b><span>college graduates in 2023–24 (CHED)<\/span><\/div><\/div><p class=\"wf-src\">Sources: <a href=\"https://www.pna.gov.ph/articles/1076349\" target=\"_blank\" rel=\"noopener noreferrer\">Department of Tourism via Philippine News Agency (2019)<\/a> · <a href=\"https://psa.gov.ph/statistics/population-and-housing/node/1684059980\" target=\"_blank\" rel=\"noopener noreferrer\">Philippine Statistics Authority, 2020 Census<\/a> · <a href=\"https://www.gmanetwork.com/news/topstories/nation/957206/2-3-million-filipino-students-benefit-from-free-college-ched/story\" target=\"_blank\" rel=\"noopener noreferrer\">CHED via GMA News<\/a><\/p><\/div><\/section>\n<div class=\"wf-band\" aria-hidden=\"true\"><div class=\"wf-row\" data-d=\"-1\"><span>You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> <\/span><span>You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> <\/span><\/div><\/div>\n<section class=\"wf-slab wf-dark\" id=\"wf-advantage\"><div class=\"wrap\"><div class=\"wf-shead\"><div class=\"wf-rv\"><span class=\"wf-badge\">The AAO Advantage<\/span><h2>More Than Virtual Assistance. Find Someone Who Understands Your Goals.<\/h2><\/div><div class=\"wf-copy wf-rv\" style=\"--d:120\"><p>Amazing Assistants Online connects business owners with skilled Filipino virtual assistants who bring more than technical expertise to the table.<\/p><p>Lasting partnerships don’t happen by accident. They need clear expectations, fair terms, ongoing growth and support on both sides, so that’s what we build into every match.<\/p><p class=\"wf-strong\">Explore our assistants, discover their skills and experience, and get to know the people behind their profiles before deciding who you’d like to connect with.<\/p><\/div><\/div>\n<div class=\"wf-bento\"><article class=\"wf-bn wf-b1 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">01<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-type\"><span class=\"wf-tw\"><\/span><i class=\"wf-caret\"><\/i><\/div><\/div><h3>Clear expectations<\/h3><p>Interview first, and agree on the work before day one.<\/p><\/article><article class=\"wf-bn wf-b2 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">02<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-sk\"><span style=\"--s:0;--w:100%\"><\/span><span style=\"--s:1;--w:78%\"><\/span><span style=\"--s:2;--w:60%\"><\/span><\/div><\/div><h3>Fair, transparent terms<\/h3><p>You know the rate up front. They know it’s fair.<\/p><\/article><article class=\"wf-bn wf-b3 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">03<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-tr\"><i class=\"wf-m\" style=\"--p:0%;--q:0\"><\/i><i class=\"wf-m\" style=\"--p:33%;--q:1\"><\/i><i class=\"wf-m\" style=\"--p:66%;--q:2\"><\/i><i class=\"wf-m\" style=\"--p:100%;--q:3\"><\/i><\/div><\/div><h3>Ongoing training<\/h3><p>AAO keeps developing them after the hire.<\/p><\/article><article class=\"wf-bn wf-b4 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">04<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-zoom\"><i style=\"--z:0\"><\/i><i style=\"--z:1\"><\/i><i style=\"--z:2\"><\/i><i style=\"--z:3\"><\/i><\/div><\/div><h3>Growing together<\/h3><p>The longer they stay, the more of your business they carry.<\/p><\/article><\/div>\n<div class=\"wf-cbar wf-rv\"><p>Ready for an assistant who’s in it for the long run? <span>Start the partnership.<\/span><\/p><a class=\"wf-cta wf-gold\" href=\"#talent\">Meet our assistants<\/a><\/div><\/div><\/section>\n<\/div>";
 
 /* ==== Why Filipino VAs page (route #why-filipino) ==== */
@@ -7378,9 +7379,10 @@ function render(){
   if(h.indexOf("talent-")===0){view=V.profile;arg=h.slice(7);var t=TALENT.filter(function(x){return x.id===arg;})[0];title=(t?t.name:"Profile")+" | AAO";key="talent";
     /* Live mode: the list only carries a summary; fetch the full profile once, then redraw if the visitor is still on this page. */
     if(API_ON&&t&&!t._full){t._full=true;AAOApi.loadTalent(arg).then(function(full){var i=TALENT.indexOf(t);if(i>=0)TALENT[i]=full;if(currentRoute()==="talent-"+arg)render();}).catch(function(e){console.warn("AAO: could not load profile",e);});}}
-  else if(h.indexOf("job-")===0){view=V.job;arg=h.slice(4);var jj=findJob(arg);title=(jj?jj.title:"Job")+" | AAO";key="talent";
+  else if(h.indexOf("job-")===0){view=V.job;arg=h.slice(4);var jj=findJob(arg);title=(jj?jj.title:"Job")+" | AAO";key="jobs";
     if(API_ON&&!jj&&!jobLookups[arg]){jobLookups[arg]="pending";AAOApi.loadJob(arg).then(function(full){if(full&&!findJob(arg)){full._full=true;JOBS.push(full);}jobLookups[arg]="done";if(currentRoute()==="job-"+arg)render();}).catch(function(){jobLookups[arg]="missing";if(currentRoute()==="job-"+arg)render();});}
     if(API_ON&&jj&&!jj._full){jj._full=true;AAOApi.loadJob(arg).then(function(full){var i=JOBS.indexOf(jj);if(i>=0)JOBS[i]=full;if(currentRoute()==="job-"+arg)render();}).catch(function(e){console.warn("AAO: could not load job",e);});}}
+  else if(h==="jobs"){view=V.talent;title=TITLES.jobs;key="jobs";}
   else if(h==="post-job"){view=V.postJob;title=TITLES["post-job"];key="dashboard";}
   else if(h==="va-profile"){view=V.vaProfile;title=TITLES["va-profile"];key="va-profile";}
   else if(h==="va-applications"){view=V.vaApplications;title=TITLES["va-applications"];key="va-applications";}
