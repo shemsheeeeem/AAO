@@ -451,7 +451,8 @@
       var hrs = parseInt(String(row.hours || "").replace(/[^0-9]/g, ""), 10);
       body.hours_per_week = hrs >= 1 && hrs <= 80 ? hrs : null;
     }
-    if (row.subs !== undefined) body.sub_specialties = splitList(row.subs, 5);
+    /* Specialties: commas or "|" between them (Toni typed "Digital Marketing | Branding"). */
+    if (row.subs !== undefined) body.sub_specialties = String(row.subs || "").split(/[,|]/).map(function (x) { return x.trim(); }).filter(Boolean).slice(0, 5);
     if (row.start !== undefined) body.start_when = START_LABEL[row.start] ? row.start : null;
     if (Array.isArray(row.work)) body.work_experience = row.work;
     if (Array.isArray(row.skillDetails)) body.skill_details = row.skillDetails;
