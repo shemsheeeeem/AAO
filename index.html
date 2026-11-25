@@ -968,6 +968,9 @@ body.booting .foot{visibility:hidden}
 .media-row .media-btns{grid-column:2;display:flex;flex-wrap:wrap;gap:6px}
 .media-row .media-btns .btn{padding:.4em .8em;font-size:.82rem}
 .vap-hero.has-banner{background-size:cover;background-repeat:no-repeat}
+/* Own profile (Toni, 25 Nov): the headline sits just above the Overview; specialties take its place under the name. */
+.vap-headline{margin:0;font-size:clamp(1.1rem,2.1vw,1.3rem);font-weight:700;color:var(--vap-ink);line-height:1.35}
+.vap-headline.is-empty{font-size:1rem;font-weight:500;color:var(--vap-muted)}
 /* Before the first save, one clear notice instead of upload buttons that cannot work yet (Toni, 25 Nov). */
 .vp-locked{margin:6px 0 0;padding:12px 14px;border-radius:10px;background:#FFF6E0;border:1px solid #E9C96B;color:#5A4410;font-size:.95rem;line-height:1.45}
 /* Photo viewer: click a photo to open it large, then move with the arrows, the keyboard or a swipe (Toni, 25 Nov). */
@@ -6321,14 +6324,15 @@ V.vaProfile = function(){
   var overview=
     '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><p>'+(availLine?'<strong>'+availLine+'</strong>':'Add your availability and hours per week.')+(API_ON&&p.start?'<br>Can start: <strong>'+AAOApi.startLabel(p.start)+'</strong>':'')+'</p></div>'+
     '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 4 7v5c0 4.4 3.2 7.6 8 9 4.8-1.4 8-4.6 8-9V7l-8-4z"/></svg><p>'+(p.education||"Education not listed yet")+'</p></div>'+
-    '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5c1.8-3.2 4.1-4.8 6.5-4.8s4.7 1.6 6.5 4.8"/></svg><p>'+(p.memberSince?'Member since '+p.memberSince:(API_ON?'New member':'Member since 2024'))+'</p></div>';
+    (API_ON?'':'<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5c1.8-3.2 4.1-4.8 6.5-4.8s4.7 1.6 6.5 4.8"/></svg><p>'+(p.memberSince?'Member since '+p.memberSince:'Member since 2024')+'</p></div>');
   return '<section class="vap" id="vap"><div class="wrap">'+
     '<a class="vap-crumb" href="#dashboard">← Back to VA desk</a>'+
     '<div class="vap-view">'+
       '<div class="vap-hero'+(API_ON&&p.banner?' has-banner" style="'+bannerStyle(p.banner):'')+'">'+(API_ON?'':'<p class="vap-status">Current status: '+(p.status||"Open to work")+'</p>')+'<div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
-      '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+(p.headline||"Virtual assistant")+'</p><div class="vap-badges">'+((API_ON&&!(p.avail||p.hours))?'':'<span class="vap-badge gold">'+(p.avail||(API_ON?p.hours:"Available"))+'</span>')+'</div></div>'+
+      '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+(API_ON?(p.subs?String(p.subs).split(/\s*[,|]\s*/).filter(Boolean).join(" | "):(CATS[p.cat]||"Virtual assistant")):(p.headline||"Virtual assistant"))+'</p><div class="vap-badges">'+((API_ON&&!(p.avail||p.hours))?'':'<span class="vap-badge gold">'+(p.avail||(API_ON?p.hours:"Available"))+'</span>')+'</div></div>'+
       '<div class="vap-actions"><button class="btn btn-gold" type="button" id="vap-edit-btn">Edit profile</button><a class="btn btn-navy" href="#talent">Browse jobs</a></div>'+
       '<div class="vap-layout"><div>'+
+        (API_ON?'<div class="vap-card"><p class="vap-headline'+(p.headline?'':' is-empty')+'">'+(p.headline||"Add a headline with Edit profile, for example “Customer support specialist for online stores”.")+'</p></div>':'')+
         '<div class="vap-card"><h2>Overview</h2><div class="vap-overview">'+overview+'</div></div>'+
         '<div class="vap-card"><h2>Profile description</h2><p class="vap-desc">'+(p.about||"Add a short description of how you work.")+'</p></div>'+
         (API_ON?'<div class="vap-card"><h2>Personal photos</h2><div id="vap-photos"><p class="vap-desc">Loading…</p></div></div>':"")+
@@ -6338,7 +6342,6 @@ V.vaProfile = function(){
       '</div><aside>'+
         '<div class="vap-card"><h2>Basic information</h2><dl class="vap-dl">'+
           '<div><dt>Field</dt><dd>'+(CATS[p.cat]||p.cat||"—")+'</dd></div>'+
-          (API_ON?'<div><dt>Specialties</dt><dd>'+(p.subs||"—")+'</dd></div>':"")+
           '<div><dt>Experience</dt><dd>'+(p.exp||"—")+'</dd></div>'+
           '<div><dt>Languages</dt><dd>'+(p.langs||"—")+'</dd></div>'+
           '<div><dt>Location</dt><dd>'+(p.loc||"—")+'</dd></div>'+
@@ -6346,6 +6349,7 @@ V.vaProfile = function(){
           (p.gender?'<div><dt>Gender</dt><dd>'+p.gender+'</dd></div>':"")+
           (API_ON?'':'<div><dt>Portfolio / website</dt><dd>'+(p.portfolio?('<a href="'+p.portfolio.replace(/"/g,"&quot;")+'" target="_blank" rel="noopener noreferrer">'+p.portfolio+'</a>'):"Not added yet")+'</dd></div>')+
           '<div><dt>Email</dt><dd>'+(p.email||u.email)+'</dd></div>'+
+          (API_ON?'<div><dt>Member since</dt><dd>'+(p.memberSince||"New member")+'</dd></div>':"")+
         '</dl><div class="vap-tests" style="margin-top:16px"><div class="vap-test"><strong>English</strong><span>'+(p.langs||(API_ON?"Not added yet":"English"))+'</span></div></div></div>'+
       '</aside></div>'+
     '</div>'+
@@ -6373,7 +6377,7 @@ V.vaProfile = function(){
         '</div>'+
         '<label class="field">Languages<input type="text" id="vp-langs" maxlength="120"></label>'+
         (API_ON?skillEditorHtml("vp",{title:"Skills",copy:"Search for a skill or add your own, then rate yourself from 1 (beginner) to 5 (expert). Up to "+SKILL_MAX+" skills. Your notes are seen only by you and AAO staff."}):'<label class="field">Skills (comma separated)<input type="text" id="vp-skills" maxlength="240"></label>')+
-        (API_ON?'<label class="field">Specialties (up to 5, comma separated)<input type="text" id="vp-subs" maxlength="230" placeholder="e.g. Bookkeeping, Inbox management"></label>'+
+        (API_ON?'<label class="field">Specialties (up to 5, separated by commas or |)<input type="text" id="vp-subs" maxlength="230" placeholder="e.g. Bookkeeping, Inbox management"></label>'+
           '<div class="field"><span>Work experience</span><div id="vp-work"></div><button type="button" class="btn btn-line" id="vp-work-add">Add a job</button></div>'+
           (AAOApi.hasTalentProfile()?mediaSectionHtml()+pagesSectionHtml():
             '<div class="field media-edit"><span>Photos, banner and portfolio pages</span><p class="vp-locked" id="vp-first-save"><strong>Save your profile first.</strong> Fill in the details above and press <strong>Save profile</strong> at the bottom. This page then opens again here so you can add your profile photo, a banner, personal photos and portfolio pages.</p></div>'):"")+
