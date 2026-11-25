@@ -1016,6 +1016,12 @@ body.booting .foot{visibility:hidden}
 .ppage .media-grid{margin:10px 0}
 .ppage-body p{margin:.4em 0}
 .ppage-body ul{margin:.4em 0;padding-left:1.2em;list-style:disc}
+.ppage[hidden]{display:none}
+.pp-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:4px}
+.pp-nav .btn{padding:.45em .9em;font-size:.88rem}
+.pp-count{font-size:.9rem;opacity:.8}
+#vap .pp-nav .btn-line{color:#1B4B91;background:#fff;border-color:#9FB3D1}
+#vap .pp-count{color:var(--vap-ink)}
 .pp-edit{border:1px solid rgba(11,26,51,.14);border-radius:12px;padding:12px;margin:10px 0;display:grid;gap:8px}
 .pp-edit textarea{min-height:90px}
 .pp-imgs{display:flex;flex-wrap:wrap;gap:8px}
@@ -3315,10 +3321,27 @@ function mediaSectionHtml(){
     '</div>'+
     '<div class="field media-edit"><span>Personal photos <small class="muted" id="vp-ph-count"></small></span>'+
       '<ol class="media-list" id="vp-ph-list"></ol>'+
-      '<div class="media-actions"><label class="btn btn-line" style="cursor:pointer" id="vp-ph-addbtn">Add a photo<input type="file" id="vp-ph-file" accept="image/jpeg,image/png,image/webp" hidden></label></div>'+
+      '<div class="media-actions"><label class="btn btn-line" style="cursor:pointer" id="vp-ph-addbtn">Add a photo<input type="file" id="vp-ph-file" accept="image/jpeg,image/png,image/webp" multiple hidden></label></div>'+
       '<small class="muted">Up to '+PHOTO_MAX+' photos: your work setup, you at work, a headshot. Shown on your public profile. No contact details.</small>'+
       '<small class="muted" id="vp-ph-note" role="status"></small>'+
     '</div>';
+}
+/* Several pictures at once (Toni, 25 Nov): uploads one after another, up to the free places; says what happened. */
+function uploadMany(files,room,upload,noteEl,word){
+  if(!files.length)return Promise.resolve();
+  if(room<=0){noteEl.textContent="No more places for a "+word+". Delete one first.";return Promise.resolve();}
+  var take=files.slice(0,room),skipped=files.length-take.length,done=0,failed=[];
+  function next(i){
+    if(i>=take.length){
+      var msg=done+" "+word+(done===1?"":"s")+" added.";
+      if(skipped)msg+=" "+skipped+" not added: only "+room+" place"+(room===1?" was":"s were")+" free.";
+      if(failed.length)msg+=" "+failed.length+" failed: "+failed[0];
+      noteEl.textContent=msg;return Promise.resolve();
+    }
+    noteEl.textContent="Uploading "+(i+1)+" of "+take.length+"…";
+    return upload(take[i]).then(function(){done++;},function(err){failed.push((err&&err.message)||"Upload failed.");}).then(function(){return next(i+1);});
+  }
+  return next(0);
 }
 function bindMediaSection(){
   var prev=$("#vp-bn-prev"),pos=$("#vp-bn-pos"),rx=$("#vp-bn-x"),ry=$("#vp-bn-y"),file=$("#vp-bn-file"),rm=$("#vp-bn-remove"),note=$("#vp-bn-note");
@@ -3369,10 +3392,8 @@ function bindMediaSection(){
   function load(){return AAOApi.myPhotos().then(function(l){photos=l;draw();}).catch(function(err){pnote.textContent=err.message;});}
   load();
   pfile.addEventListener("change",function(){
-    var f=pfile.files&&pfile.files[0];if(!f)return;
-    pnote.textContent="Uploading…";
-    AAOApi.addPhoto(f,"").then(function(){pnote.textContent="Photo added.";return load();}).catch(function(err){pnote.textContent=err.message;});
-    pfile.value="";
+    var files=[].slice.call(pfile.files||[]);pfile.value="";
+    uploadMany(files,PHOTO_MAX-photos.length,function(f){return AAOApi.addPhoto(f,"");},pnote,"photo").then(load);
   });
   list.addEventListener("click",function(e){
     var row=e.target.closest("[data-ph]");if(!row)return;
@@ -3408,14 +3429,26 @@ function pageBodyHtml(text){
   return out.join("");
 }
 function pagesHtml(pages){
-  return '<div class="ppages">'+(pages||[]).map(function(pg){
-    return '<article class="ppage">'+
+  var n=(pages||[]).length;
+  return '<div class="ppages" data-pp-at="0">'+(pages||[]).map(function(pg,i){
+    return '<article class="ppage"'+(i?' hidden':'')+' aria-label="'+escAttr("Portfolio page "+(i+1)+" of "+n)+'">'+
       ((pg.title||pg.featured)?'<h3>'+escHtml(pg.title||"")+(pg.featured?'<span class="ppage-feat">Featured</span>':'')+'</h3>':'')+
       ((pg.images&&pg.images.length)?photoGridHtml(pg.images.map(function(u){return {url:u,caption:""};})):'')+
       (pg.body?'<div class="ppage-body">'+pageBodyHtml(pg.body)+'</div>':'')+
     '</article>';
-  }).join("")+'</div>';
+  }).join("")+
+  (n>1?'<div class="pp-nav"><button type="button" class="btn btn-line" data-pp-step="-1" aria-label="Previous portfolio page">‹ Previous</button><span class="pp-count" aria-live="polite">1 / '+n+'</span><button type="button" class="btn btn-line" data-pp-step="1" aria-label="Next portfolio page">Next ›</button></div>':'')+
+  '</div>';
 }
+document.addEventListener("click",function(e){
+  var b=e.target.closest&&e.target.closest("[data-pp-step]");if(!b)return;
+  var box=b.closest(".ppages");if(!box)return;
+  var items=box.querySelectorAll(".ppage"),n=items.length;if(n<2)return;
+  var at=((Number(box.getAttribute("data-pp-at"))||0)+Number(b.getAttribute("data-pp-step"))+n)%n;
+  box.setAttribute("data-pp-at",String(at));
+  Array.prototype.forEach.call(items,function(it,i){it.hidden=i!==at;});
+  var c=box.querySelector(".pp-count");if(c)c.textContent=(at+1)+" / "+n;
+});
 function pagesSectionHtml(){
   return '<div class="field media-edit"><span>Portfolio pages <small class="muted" id="vp-pg-count"></small></span>'+
       '<div id="vp-pg-list"></div>'+
@@ -3444,7 +3477,7 @@ function bindPagesSection(){
         '<label class="pp-check"><input type="checkbox" data-pg-feat'+(pg.featured?" checked":"")+'> Featured (shows first)</label>'+
         '<div class="pp-imgs">'+pg.images.map(function(im){return '<figure><img src="'+escAttr(im.url)+'" alt=""><button type="button" class="btn btn-line" data-pg-imgdel="'+escAttr(im.id)+'">Remove image</button></figure>';}).join("")+'</div>'+
         '<div class="media-btns">'+
-          (pg.images.length<PAGE_IMG_MAX?'<label class="btn btn-line" style="cursor:pointer">Add image<input type="file" accept="image/jpeg,image/png,image/webp" hidden data-pg-file></label>':'')+
+          (pg.images.length<PAGE_IMG_MAX?'<label class="btn btn-line" style="cursor:pointer">Add images<input type="file" accept="image/jpeg,image/png,image/webp" multiple hidden data-pg-file></label>':'')+
           '<button type="button" class="btn btn-line" data-pg-up'+(i===0?" disabled":"")+' aria-label="Move up">↑</button>'+
           '<button type="button" class="btn btn-line" data-pg-down'+(i===pages.length-1?" disabled":"")+' aria-label="Move down">↓</button>'+
           '<button type="button" class="btn btn-line" data-pg-save>Save page</button>'+
@@ -3466,10 +3499,9 @@ function bindPagesSection(){
   });
   list.addEventListener("change",function(e){
     var inp=e.target.closest("[data-pg-file]");if(!inp)return;
-    var row=e.target.closest("[data-pg]"),f=inp.files&&inp.files[0];if(!row||!f)return;
-    note.textContent="Uploading…";
-    AAOApi.addPageImage(row.getAttribute("data-pg"),f).then(function(){note.textContent="Image added.";return load();}).catch(fail);
-    inp.value="";
+    var row=e.target.closest("[data-pg]"),files=[].slice.call(inp.files||[]);inp.value="";if(!row||!files.length)return;
+    var pid=row.getAttribute("data-pg"),pg=pages.filter(function(x){return x.id===pid;})[0];
+    uploadMany(files,PAGE_IMG_MAX-(pg?pg.images.length:0),function(f){return AAOApi.addPageImage(pid,f);},note,"image").then(load);
   });
   list.addEventListener("click",function(e){
     var row=e.target.closest("[data-pg]");if(!row)return;
@@ -4744,17 +4776,15 @@ V.talent = function(){
   if(u&&u.role==="va"){
     var catOpts=[["","Any category"]].concat(Object.keys(CATS).map(function(k){return [k,CATS[k]];}));
     var typeOpts=[["","Any job type"],["Part-time","Part-time"],["Full-time","Full-time"],["Project-based","Project-based"]];
-    var payOpts=[["","Any hourly rate"],["15","$15+ / hr"],["20","$20+ / hr"],["25","$25+ / hr"]];
     return '<section class="jobs-board"><div class="wrap">'+
       '<header class="jobs-head"><h1>Job openings</h1><p>Browse roles from AAO clients. Use the filters, then open a posting to apply.</p></header>'+
       '<div class="jobs-layout">'+
         '<aside class="jobs-side" id="jf">'+
           '<div class="jobs-side-block"><h3>Category</h3>'+jobsFilterOpts("jcat",catOpts,state.jcat)+'</div>'+
           '<div class="jobs-side-block"><h3>Job type</h3>'+jobsFilterOpts("jtype",typeOpts,state.jtype)+'</div>'+
-          '<div class="jobs-side-block"><h3>Hourly rate</h3>'+jobsFilterOpts("jpay",payOpts,state.jpay)+'</div>'+
         '</aside>'+
         '<div class="jobs-main">'+
-          '<button type="button" class="jobs-filter-toggle" id="jfilt-toggle" aria-expanded="false" aria-controls="jf"><span>Filters</span><span class="jobs-filter-meta">Category, type, rate</span></button>'+
+          '<button type="button" class="jobs-filter-toggle" id="jfilt-toggle" aria-expanded="false" aria-controls="jf"><span>Filters</span><span class="jobs-filter-meta">Category, type</span></button>'+
           '<form class="jobs-search" id="jsearch" action="#" method="get"><input type="search" id="jq" placeholder="Search by title, skill, or company" autocomplete="off" value=""><button type="submit">Search</button></form>'+
           '<div class="jobs-toolbar"><span id="jcount" aria-live="polite"></span><a class="textlink" href="#dashboard">Open VA desk</a></div>'+
           '<div class="jobs-list" id="jres"></div><nav class="pager" id="jpager" aria-label="Job pages"></nav>'+
