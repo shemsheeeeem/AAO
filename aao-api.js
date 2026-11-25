@@ -210,6 +210,7 @@
       skills: (t.skills || []).map(esc),
       about: "", port: [], certs: [], rate: t.hourly_rate == null ? null : t.hourly_rate,
       hours: t.hours_per_week ? t.hours_per_week + " hours/week" : "",
+      start: START_LABEL[t.start_when] || "",
       subs: (t.sub_specialties || []).map(esc),
       _full: false
     };
@@ -399,6 +400,8 @@
   }
 
   /* The own talent profile in the shape the VA profile screen uses (text is HTML-escaped; the screen decodes it for form fields). */
+  /* "When can you start?" (decision 82): API value -> label. */
+  var START_LABEL = { immediately: "Immediately", within_week: "Within a week", in_two_weeks: "In 2 weeks", in_a_month: "In a month" };
   function myTalentForUi() {
     if (!mine || mine.kind !== "talent" || !mine.data) return null;
     var d = mine.data;
@@ -411,6 +414,7 @@
       rate: d.hourly_rate == null ? "" : String(d.hourly_rate),
       education: esc(d.education || ""),
       hours: d.hours_per_week ? d.hours_per_week + " hours/week" : "",
+      start: START_LABEL[d.start_when] ? d.start_when : "",
       subs: esc((d.sub_specialties || []).join(", ")),
       work: workFromApi(d.work_experience),
       /* Raw text for the skill editor, which escapes what it draws. */
@@ -448,6 +452,7 @@
       body.hours_per_week = hrs >= 1 && hrs <= 80 ? hrs : null;
     }
     if (row.subs !== undefined) body.sub_specialties = splitList(row.subs, 5);
+    if (row.start !== undefined) body.start_when = START_LABEL[row.start] ? row.start : null;
     if (Array.isArray(row.work)) body.work_experience = row.work;
     if (Array.isArray(row.skillDetails)) body.skill_details = row.skillDetails;
     var r = await call("PUT", "/me/talent-profile", body, { auth: true });
@@ -791,6 +796,7 @@
     enabled: enabled,
     ready: function () { return loaded; },
     esc: esc,
+    startLabel: function (v) { return START_LABEL[v] || ""; },
     escAttr: escAttr,
     loadCatalog: loadCatalog,
     loadTalent: loadTalent,
