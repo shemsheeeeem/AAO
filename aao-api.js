@@ -233,6 +233,10 @@
     base.photos = (d.photos || []).map(function (p) { return { url: safeUrl(p.url), caption: esc(p.caption || "") }; }).filter(function (p) { return p.url; });
     base.skillDetails = (d.skill_details || []).map(function (s) { return { name: String(s.name || ""), category: String(s.category || "Other"), rating: Number(s.rating) || 0, isTop: !!s.is_top }; });
     base.work = workFromApi(d.work_experience);
+    /* Portfolio pages (decision 79): raw text here; the page escapes and formats it when it draws it. Featured first (the API orders them). */
+    base.pages = (d.pages || []).map(function (p) {
+      return { title: String(p.title || ""), body: String(p.body || ""), featured: !!p.featured, images: (p.images || []).map(safeUrl).filter(Boolean) };
+    });
     base.port = (d.portfolio || []).map(function (p) {
       var file = safeUrl(p.file_url);
       var isImg = /\.(png|jpe?g|webp)(\?|$)/i.test(file);
@@ -670,6 +674,36 @@
   async function deletePhoto(id) {
     await call("DELETE", "/me/talent-profile/photos/" + encodeURIComponent(id), undefined, { auth: true });
   }
+  /* ---------- portfolio pages (public; decision 79) ---------- */
+  function pageFromApi(p) {
+    return {
+      id: p.id, title: p.title || "", body: p.body || "", featured: !!p.featured, sort: p.sort_order,
+      images: (p.images || []).map(function (im) { return { id: im.id, url: safeUrl(im.url) }; }).filter(function (im) { return im.url; })
+    };
+  }
+  async function myPages() {
+    var r = await call("GET", "/me/talent-profile/pages", undefined, { auth: true, fresh: true });
+    return (r.data || []).map(pageFromApi);
+  }
+  async function addPage(o) {
+    var r = await call("POST", "/me/talent-profile/pages", { title: o.title || null, body: o.body || null, featured: !!o.featured }, { auth: true });
+    return pageFromApi(r.data);
+  }
+  async function updatePage(id, o) {
+    var r = await call("PATCH", "/me/talent-profile/pages/" + encodeURIComponent(id), o, { auth: true });
+    return pageFromApi(r.data);
+  }
+  async function deletePage(id) {
+    await call("DELETE", "/me/talent-profile/pages/" + encodeURIComponent(id), undefined, { auth: true });
+  }
+  async function addPageImage(pageId, file) {
+    var name = await uploadMedia("pages", file, 1600);
+    var r = await call("POST", "/me/talent-profile/pages/" + encodeURIComponent(pageId) + "/images", { file: name }, { auth: true });
+    return { id: r.data.id, url: safeUrl(r.data.url) };
+  }
+  async function deletePageImage(pageId, imageId) {
+    await call("DELETE", "/me/talent-profile/pages/" + encodeURIComponent(pageId) + "/images/" + encodeURIComponent(imageId), undefined, { auth: true });
+  }
   async function removeProfilePhoto() {
     var r = await call("DELETE", "/me/talent-profile/photo", undefined, { auth: true });
     mine = { kind: "talent", data: r.data };
@@ -710,6 +744,7 @@
     uploadPhoto: uploadPhoto, removeProfilePhoto: removeProfilePhoto,
     uploadBanner: uploadBanner, setBannerPosition: setBannerPosition, removeBanner: removeBanner,
     myPhotos: myPhotos, addPhoto: addPhoto, updatePhoto: updatePhoto, deletePhoto: deletePhoto,
+    myPages: myPages, addPage: addPage, updatePage: updatePage, deletePage: deletePage, addPageImage: addPageImage, deletePageImage: deletePageImage,
     identityStatus: identityStatus,
     uploadIdentity: uploadIdentity, myPhotoUrl: myPhotoUrl,
     assessmentStatus: assessmentStatus, saveAssessment: saveAssessment, uploadAssessmentPdf: uploadAssessmentPdf,
