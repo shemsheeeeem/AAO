@@ -320,7 +320,10 @@
     var s = await sb().auth.getSession();
     if (!s.data || !s.data.session) return null;
     var me = await call("GET", "/me", undefined, { auth: true });
-    return sessionUser(s.data.session.user, me.data && me.data.role);
+    var u = sessionUser(s.data.session.user, me.data && me.data.role);
+    /* Decision 80: only decides whether the Admin review link shows. Every admin endpoint checks again on the server. */
+    u.isAdmin = !!(me.data && me.data.is_admin === true);
+    return u;
   }
 
   async function signUp(o) {
@@ -712,6 +715,33 @@
     return mine && mine.kind === "talent" && mine.data ? safeUrl(mine.data.photo_url) : "";
   }
 
+  /* ---------- administrators: ID and test result review (decision 80) ---------- */
+  function adminQuery(status) { return "?limit=50" + (status ? "&status=" + encodeURIComponent(status) : ""); }
+  async function adminIdentityList(status) {
+    var r = await call("GET", "/admin/identity" + adminQuery(status), undefined, { auth: true, fresh: true });
+    return r.data || [];
+  }
+  async function adminIdentityLink(accountId) {
+    var r = await call("GET", "/admin/identity/" + encodeURIComponent(accountId) + "/document", undefined, { auth: true, fresh: true });
+    return safeUrl(r.data && r.data.url);
+  }
+  async function adminIdentityReview(accountId, status, note) {
+    var r = await call("POST", "/admin/identity/" + encodeURIComponent(accountId) + "/review", { status: status, note: note || null }, { auth: true });
+    return r.data;
+  }
+  async function adminAssessmentList(status) {
+    var r = await call("GET", "/admin/assessments" + adminQuery(status), undefined, { auth: true, fresh: true });
+    return r.data || [];
+  }
+  async function adminAssessmentLink(accountId, test) {
+    var r = await call("GET", "/admin/assessments/" + encodeURIComponent(accountId) + "/pdf/" + encodeURIComponent(test), undefined, { auth: true, fresh: true });
+    return safeUrl(r.data && r.data.url);
+  }
+  async function adminAssessmentReview(accountId, status, note) {
+    var r = await call("POST", "/admin/assessments/" + encodeURIComponent(accountId) + "/review", { status: status, note: note || null }, { auth: true });
+    return r.data;
+  }
+
   /* ---------- job applications ---------- */
   var START_FROM_LABEL = { "Immediately": "immediately", "Within a week": "within_week", "In 2 weeks": "in_two_weeks", "In a month": "in_a_month" };
 
@@ -746,6 +776,8 @@
     myPhotos: myPhotos, addPhoto: addPhoto, updatePhoto: updatePhoto, deletePhoto: deletePhoto,
     myPages: myPages, addPage: addPage, updatePage: updatePage, deletePage: deletePage, addPageImage: addPageImage, deletePageImage: deletePageImage,
     identityStatus: identityStatus,
+    adminIdentityList: adminIdentityList, adminIdentityLink: adminIdentityLink, adminIdentityReview: adminIdentityReview,
+    adminAssessmentList: adminAssessmentList, adminAssessmentLink: adminAssessmentLink, adminAssessmentReview: adminAssessmentReview,
     uploadIdentity: uploadIdentity, myPhotoUrl: myPhotoUrl,
     assessmentStatus: assessmentStatus, saveAssessment: saveAssessment, uploadAssessmentPdf: uploadAssessmentPdf,
     hasTalentProfile: function () { return !!(mine && mine.kind === "talent" && mine.data); },

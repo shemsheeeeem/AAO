@@ -968,6 +968,25 @@ body.booting .foot{visibility:hidden}
 .media-row .media-btns{grid-column:2;display:flex;flex-wrap:wrap;gap:6px}
 .media-row .media-btns .btn{padding:.4em .8em;font-size:.82rem}
 .vap-hero.has-banner{background-size:cover;background-repeat:no-repeat}
+/* Admin review page (decision 80) */
+.adm-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.adm-tabs button[aria-pressed="true"]{background:#C49B3F;border-color:#C49B3F;color:#06244A}
+.adm-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px;color:#A8B9D6}
+.adm-bar select{font:inherit;padding:.45em .7em;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:#06162D;color:#EAF0FA}
+.adm-list{display:grid;gap:12px}
+.adm-item{border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;display:grid;gap:8px}
+.adm-item h3{margin:0;font-size:1.05rem;color:#fff;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.adm-item h3 a{color:#fff}
+.adm-meta{color:#A8B9D6;font-size:.88rem}
+.adm-status{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:.2em .7em;background:#24406B;color:#EAF0FA}
+.adm-status.s-approved,.adm-status.s-verified{background:#1F6B4A}
+.adm-status.s-rejected{background:#8A2E2E}
+.adm-results{margin:0;padding:0;list-style:none;display:grid;gap:4px;color:#EAF0FA}
+.adm-results span{color:#A8B9D6}
+.adm-act{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.adm-act .btn{padding:.45em .9em;font-size:.85rem}
+.adm-act input{flex:1 1 220px;min-width:0;font:inherit;padding:.5em .7em;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:#06162D;color:#EAF0FA}
+.adm-note{min-height:1.2em;color:#F2D48A;font-size:.88rem}
 /* Portfolio pages (decision 79) */
 .ppages{display:grid;gap:18px}
 .ppage{border:1px solid rgba(127,140,160,.35);border-radius:14px;padding:16px 18px;background:transparent}
@@ -2543,6 +2562,7 @@ p{text-wrap:pretty}
       <a href="#talent" data-r="talent">Assistants</a>
       <a href="#why-filipino" data-r="why-filipino" data-nav="guest">Why Filipino VAs</a>
       <a href="#messages" data-r="messages" data-nav="auth" hidden>Messages</a>
+      <a href="#admin" data-r="admin" data-nav="admin" hidden>Admin review</a>
       <a href="#how" data-r="how">How it works</a>
       <a href="#pricing" data-r="pricing" data-nav="guest">Pricing</a>
       <a href="#standards" data-r="standards" data-nav="guest">Trust and standards</a>
@@ -5521,6 +5541,8 @@ function syncAuthNav(){
   var guestLinks=document.querySelectorAll('.nav [data-nav="guest"]');
   var authLinks=document.querySelectorAll('.nav [data-nav="auth"]');
   var vaLinks=document.querySelectorAll('.nav [data-nav="auth-va"]');
+  var adminLinks=document.querySelectorAll('.nav [data-nav="admin"]');
+  Array.prototype.forEach.call(adminLinks,function(el){el.hidden=!(API_ON&&u&&u.isAdmin===true);});
   var isVa=!!(u&&u.role==="va");
   if(talentLink)talentLink.textContent=isVa?"Jobs":"Assistants";
   Array.prototype.forEach.call(guestLinks,function(el){el.hidden=!!u;});
@@ -6597,6 +6619,115 @@ function bindTestsSection(){
     });
   });
 }
+/* Admin review (decision 80): ID photos and test results waiting for an AAO administrator. Live mode only. The page shows for administrators,
+   but the server decides: every call below is refused for anyone else. Names, results and notes are escaped here; files open through 60-second links. */
+var ADMIN_STATE={tab:"identity",status:"submitted"};
+V.admin = function(){
+  var u=getDemoUser();
+  if(!u)return V.login();
+  var deny='<section class="app-page"><div class="wrap"><div class="app-card"><h1>Admin review</h1><p class="lede">This page is for AAO administrators.</p><a class="btn btn-line" href="#dashboard">Back to your desk</a></div></div></section>';
+  if(!API_ON||u.isAdmin!==true)return deny;
+  return '<section class="app-page app-page-wide"><div class="wrap">'+
+    '<div class="app-card"><h1>Admin review</h1>'+
+    '<p class="lede">Check government IDs and test results, then approve or reject them. Files open in a new tab for 60 seconds. Assistants see your note only when you reject.</p>'+
+    '<div class="adm-tabs" role="group" aria-label="What to review">'+
+      '<button type="button" class="btn btn-line" data-adm-tab="identity">Government IDs</button>'+
+      '<button type="button" class="btn btn-line" data-adm-tab="assessment">Test results</button>'+
+    '</div>'+
+    '<div class="adm-bar"><label for="adm-status">Show</label><select id="adm-status">'+
+      '<option value="submitted">Waiting for review</option><option value="done">Approved</option><option value="rejected">Rejected</option><option value="">All</option>'+
+    '</select><button type="button" class="btn btn-line" id="adm-refresh">Refresh</button></div>'+
+    '<div class="adm-note" id="adm-note" role="status"></div>'+
+    '<div class="adm-list" id="adm-list"><p class="adm-meta">Loading…</p></div>'+
+  '</div></div></section>';
+};
+V.admin.init = function(){
+  var list=$("#adm-list"),note=$("#adm-note"),sel=$("#adm-status");
+  if(!list)return;
+  var items=[];
+  function isId(){return ADMIN_STATE.tab==="identity";}
+  function apiStatus(){return ADMIN_STATE.status==="done"?(isId()?"approved":"verified"):ADMIN_STATE.status;}
+  function when(v){if(!v)return "";var d=new Date(v);return isNaN(d)?"":d.toLocaleString("en-US",{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"});}
+  function statusLabel(s){return {submitted:"Waiting",approved:"Approved",verified:"Verified",rejected:"Rejected"}[s]||s;}
+  function nameHtml(it){
+    var nm=it.display_name?escHtml(it.display_name):"No profile yet";
+    return it.talent_profile_id?'<a href="#talent-'+escAttr(it.talent_profile_id)+'">'+nm+'</a>':nm;
+  }
+  function draw(){
+    Array.prototype.forEach.call(document.querySelectorAll("[data-adm-tab]"),function(b){b.setAttribute("aria-pressed",b.getAttribute("data-adm-tab")===ADMIN_STATE.tab?"true":"false");});
+    sel.value=ADMIN_STATE.status;
+    if(!items.length){list.innerHTML='<p class="adm-meta">Nothing here.</p>';return;}
+    list.innerHTML=items.map(function(it){
+      var files,results="";
+      if(isId()){files='<button type="button" class="btn btn-line" data-adm-open="id">Open ID photo</button>';}
+      else{
+        results='<ul class="adm-results">'+[["typing","Typing"],["disc","DISC"],["aptitude","Aptitude"]].map(function(t){
+          var v=it[t[0]+"_result"];return '<li><span>'+t[1]+':</span> '+(v?escHtml(v):"—")+'</li>';
+        }).join("")+'</ul>';
+        files=[["typing","Typing PDF"],["disc","DISC PDF"],["aptitude","Aptitude PDF"]].filter(function(t){return it["has_"+t[0]+"_pdf"];}).map(function(t){
+          return '<button type="button" class="btn btn-line" data-adm-open="'+t[0]+'">'+t[1]+'</button>';
+        }).join("")||'<span class="adm-meta">No PDFs</span>';
+      }
+      var okLabel=isId()?"Approve":"Verify",okStatus=isId()?"approved":"verified";
+      return '<article class="adm-item" data-adm-id="'+escAttr(it.account_id)+'">'+
+        '<h3>'+nameHtml(it)+'<span class="adm-status s-'+escAttr(it.status)+'">'+statusLabel(it.status)+'</span></h3>'+
+        '<div class="adm-meta">Submitted '+when(it.submitted_at)+(it.reviewed_at?' · Reviewed '+when(it.reviewed_at):'')+'</div>'+
+        results+
+        (it.review_note?'<div class="adm-meta">Note: '+escHtml(it.review_note)+'</div>':'')+
+        '<div class="adm-act">'+files+'</div>'+
+        '<div class="adm-act"><input type="text" maxlength="500" placeholder="Note to the assistant (shown if you reject)" data-adm-text>'+
+          '<button type="button" class="btn btn-gold" data-adm-review="'+okStatus+'">'+okLabel+'</button>'+
+          '<button type="button" class="btn btn-line" data-adm-review="rejected">Reject</button></div>'+
+      '</article>';
+    }).join("");
+  }
+  function load(){
+    list.innerHTML='<p class="adm-meta">Loading…</p>';
+    var p=isId()?AAOApi.adminIdentityList(apiStatus()):AAOApi.adminAssessmentList(apiStatus());
+    return p.then(function(l){items=l;draw();}).catch(function(err){
+      items=[];list.innerHTML="";
+      note.textContent=err&&err.status===403?"Your account is not an AAO administrator.":(err&&err.message)||"Could not load the list.";
+    });
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("[data-adm-tab]"),function(b){
+    b.addEventListener("click",function(){ADMIN_STATE.tab=b.getAttribute("data-adm-tab");note.textContent="";load();});
+  });
+  sel.addEventListener("change",function(){ADMIN_STATE.status=sel.value;note.textContent="";load();});
+  $("#adm-refresh").addEventListener("click",function(){note.textContent="";load();});
+  list.addEventListener("click",function(e){
+    var row=e.target.closest("[data-adm-id]");if(!row)return;
+    var id=row.getAttribute("data-adm-id");
+    var open=e.target.closest("[data-adm-open]");
+    if(open){
+      /* Open the tab now (inside the click) so pop-up blockers allow it, then point it at the 60-second link. */
+      var w=window.open("about:blank","_blank");
+      if(w)try{w.opener=null;}catch(x){}
+      var what=open.getAttribute("data-adm-open");
+      (what==="id"?AAOApi.adminIdentityLink(id):AAOApi.adminAssessmentLink(id,what)).then(function(url){
+        if(!url)throw new Error("No file link was returned.");
+        if(w)w.location.href=url;else window.location.href=url;
+        note.textContent="Opened in a new tab. The link works for 60 seconds.";
+      }).catch(function(err){if(w)w.close();note.textContent=(err&&err.message)||"Could not open the file.";});
+      return;
+    }
+    var rv=e.target.closest("[data-adm-review]");
+    if(rv){
+      var status=rv.getAttribute("data-adm-review"),text=row.querySelector("[data-adm-text]").value.trim();
+      var it=items.filter(function(x){return x.account_id===id;})[0],who=it&&it.display_name?it.display_name:"this account";
+      if(status==="rejected"&&!text){note.textContent="Add a short note so the assistant knows what to fix.";return;}
+      if(!window.confirm((status==="rejected"?"Reject ":(isId()?"Approve ":"Verify "))+(isId()?"the ID of ":"the test results of ")+who+"?"))return;
+      Array.prototype.forEach.call(row.querySelectorAll("button"),function(b){b.disabled=true;});
+      (isId()?AAOApi.adminIdentityReview(id,status,text):AAOApi.adminAssessmentReview(id,status,text)).then(function(){
+        note.textContent="Saved: "+statusLabel(status)+".";return load();
+      }).catch(function(err){
+        Array.prototype.forEach.call(row.querySelectorAll("button"),function(b){b.disabled=false;});
+        note.textContent=(err&&err.message)||"Could not save the review.";
+      });
+    }
+  });
+  load();
+};
+
 V.vaSettings = function(){
   var u=getDemoUser();
   if(!u)return V.login();
@@ -6925,7 +7056,7 @@ var hdr=$(".site-header");
 function onScroll(){var y=window.scrollY,on=hdr.classList.contains("scrolled");if(!on&&y>60)hdr.classList.add("scrolled");else if(on&&y<10)hdr.classList.remove("scrolled");}
 window.addEventListener("scroll",onScroll,{passive:true});onScroll();
 
-var TITLES = {pricing:"Pricing | AAO",faq:"FAQs | AAO",terms:"Terms and Conditions | AAO",privacy:"Privacy Policy | AAO",home:"Amazing Assistants Online | You weren’t meant to build alone",how:"How AAO works | AAO",standards:"Trust and standards | AAO",about:"About AAO | AAO",talent:"Find virtual assistants | AAO",help:"Help and support | AAO",join:"Create your account | AAO",login:"Log in | AAO",dashboard:"Dashboard | AAO","post-job":"Post a job | AAO",messages:"Messages | AAO",membership:"Membership | AAO","va-profile":"Your profile | AAO","va-applications":"Job applications | AAO","va-saved":"Saved jobs | AAO","va-settings":"Account settings | AAO","forgot-password":"Reset your password | AAO","reset-password":"Choose a new password | AAO","email-confirmed":"Email confirmed | AAO"};
+var TITLES = {pricing:"Pricing | AAO",faq:"FAQs | AAO",terms:"Terms and Conditions | AAO",privacy:"Privacy Policy | AAO",home:"Amazing Assistants Online | You weren’t meant to build alone",how:"How AAO works | AAO",standards:"Trust and standards | AAO",about:"About AAO | AAO",talent:"Find virtual assistants | AAO",help:"Help and support | AAO",join:"Create your account | AAO",login:"Log in | AAO",dashboard:"Dashboard | AAO","post-job":"Post a job | AAO",messages:"Messages | AAO",membership:"Membership | AAO","va-profile":"Your profile | AAO","va-applications":"Job applications | AAO","va-saved":"Saved jobs | AAO","va-settings":"Account settings | AAO","forgot-password":"Reset your password | AAO","reset-password":"Choose a new password | AAO","email-confirmed":"Email confirmed | AAO",admin:"Admin review | AAO"};
 var WF_HTML="<div class=\"wf\">\n<section class=\"wf-slab wf-dark wf-hero\" id=\"wf-hero\"><div class=\"wf-mq\" aria-hidden=\"true\"><div class=\"wf-row\" data-d=\"1\"><span>LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · <\/span><span>LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · LASTING PARTNERSHIPS · CLEAR COMMUNICATION · SMARTER BUSINESS GROWTH · <\/span><\/div><div class=\"wf-row\" data-d=\"-1\"><span>THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · <\/span><span>THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · THE FILIPINO ADVANTAGE · RALLY YOUR ARMY · <\/span><\/div><\/div><div class=\"wrap wf-hin\">\n<div class=\"wf-eyebrow wf-fd\" style=\"--i:0\"><span class=\"wf-ey\" aria-label=\"The Filipino Advantage\"><span class=\"wf-eyt\" aria-hidden=\"true\" data-wf-ey>The Filipino Advantage<\/span><\/span><\/div>\n<h1 aria-label=\"Why Filipino Virtual Assistants?\"><span class=\"wf-hl\" aria-hidden=\"true\" data-wf-split>Why Filipino<\/span><span class=\"wf-hl wf-g\" aria-hidden=\"true\" data-wf-split>Virtual Assistants?<\/span><\/h1>\n<p class=\"wf-sub wf-fd\" style=\"--i:3\">Lasting Partnerships. Clear Communication. Smarter Business Growth.<\/p>\n<p class=\"wf-lede wf-fd\" style=\"--i:4\">Filipino work culture often puts relationships first. Respect, cooperation and a deep sense of gratitude shape how people work, so the right assistant doesn’t just clear your task list. They stay, learn your business and grow alongside it. Add strong English communication and diverse expertise, and you get a partner you can hand things off to with confidence.<\/p>\n<div class=\"wf-btns wf-fd\" style=\"--i:5\"><a class=\"wf-cta wf-gold wf-mag\" href=\"#why-filipino\" data-wf-jump=\"wf-reasons\">See the five reasons<\/a><a class=\"wf-cta wf-ghost wf-mag\" href=\"#why-filipino\" data-wf-jump=\"wf-advantage\">The AAO advantage<\/a><\/div><\/div>\n<\/section>\n<section class=\"wf-slab wf-light\" id=\"wf-reasons\"><div class=\"wrap\">\n<div class=\"wf-shead\"><div class=\"wf-rv\"><span class=\"wf-badge\">Five reasons<\/span><h2>Here’s Why Filipino Talent Is a Smart Investment for Your Business.<\/h2><\/div><div class=\"wf-copy wf-rv\" style=\"--d:120\"><p class=\"wf-lead\">It starts with partnership. Everything else, from clear communication to versatile skills, is what makes that partnership work day to day.<\/p><p>Pick a reason to explore it, or let it play through all five.<\/p><\/div><\/div>\n<div class=\"wf-pick wf-rv\"><div class=\"wf-sels\" role=\"tablist\" aria-label=\"Five reasons\"><button class=\"wf-sel wf-on\" role=\"tab\" id=\"wf-t0\" aria-controls=\"wf-p0\" aria-selected=\"true\" tabindex=\"0\"><span class=\"wf-sn\">01<\/span><span class=\"wf-st\">They Value Strong, Lasting Partnerships<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t1\" aria-controls=\"wf-p1\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">02<\/span><span class=\"wf-st\">They Understand Your Business Needs<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t2\" aria-controls=\"wf-p2\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">03<\/span><span class=\"wf-st\">They Have the Skills to Get Things Done<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t3\" aria-controls=\"wf-p3\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">04<\/span><span class=\"wf-st\">They Are Resourceful, Adaptable &amp; Results-Driven<\/span><\/button><button class=\"wf-sel\" role=\"tab\" id=\"wf-t4\" aria-controls=\"wf-p4\" aria-selected=\"false\" tabindex=\"-1\"><span class=\"wf-sn\">05<\/span><span class=\"wf-st\">They Make Business Growth More Affordable<\/span><\/button><\/div>\n<div class=\"wf-stage\"><div class=\"wf-pn wf-on\" role=\"tabpanel\" id=\"wf-p0\" aria-labelledby=\"wf-t0\"><span class=\"wf-big\" aria-hidden=\"true\">01<\/span><p class=\"wf-pt\">Professional commitment. Meaningful relationships. Long-term support.<\/p><h3>They Value Strong, Lasting Partnerships<\/h3><p>Filipino workplace culture often emphasizes respect, cooperation and maintaining positive professional relationships.<\/p><p>The cultural value of <em>utang na loob<\/em>, commonly associated with gratitude and reciprocity, reflects the importance placed on recognizing support and building meaningful connections.<\/p><p>When businesses provide fair compensation, clear expectations and opportunities for growth, they can create an environment where Filipino professionals thrive and develop long-term working relationships.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Build a dependable working relationship with a virtual assistant who understands your business and grows alongside it.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p1\" aria-labelledby=\"wf-t1\"><span class=\"wf-big\" aria-hidden=\"true\">02<\/span><p class=\"wf-pt\">Clear communication. Less micromanagement. Better results.<\/p><h3>They Understand Your Business Needs<\/h3><p>A partnership only works when you understand each other. The Philippines is recognized as one of the world’s largest English speaking nations. According to the Philippine Department of Tourism, approximately <strong>93.5% of Filipinos speak and understand English<\/strong>, reflecting the country’s strong foundation in English communication. As an official language widely used in education, business and professional settings, English gives Filipino virtual assistants a valuable advantage when collaborating with international clients.<\/p><p>Beyond language proficiency, Filipino VAs bring a service-oriented mindset, professionalism and dedication to delivering quality work.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Spend less time explaining tasks and more time growing your business.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p2\" aria-labelledby=\"wf-t2\"><span class=\"wf-big\" aria-hidden=\"true\">03<\/span><p class=\"wf-pt\">Educated professionals. Versatile skills. Reliable support.<\/p><h3>They Have the Skills to Get Things Done<\/h3><p>With a reported literacy rate of approximately <strong>97%<\/strong> and hundreds of thousands of college graduates entering the workforce annually, the Philippines offers a broad pool of educated professionals across fields such as business, technology, marketing and communications.<\/p><p>Filipino VAs can support a wide range of business functions, from administrative assistance and customer service to digital marketing, bookkeeping and technical operations.<\/p><p>Whether you’re streamlining daily workflows or expanding your digital presence, the right Filipino virtual assistant can bring valuable expertise to your business.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Get the specialized support your business needs without the commitment of hiring a full-time employee.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p3\" aria-labelledby=\"wf-t3\"><span class=\"wf-big\" aria-hidden=\"true\">04<\/span><p class=\"wf-pt\">Strong work ethic. Practical solutions. Continuous improvement.<\/p><h3>They Are Resourceful, Adaptable &amp; Results-Driven<\/h3><p>The Philippines has developed an established international outsourcing industry, with Filipino professionals supporting businesses across customer service, technology, finance, marketing and other sectors.<\/p><p>Working with international clients often requires flexibility, problem-solving and the ability to learn new tools and processes.<\/p><p>Filipino VAs can bring these capabilities to businesses navigating changing priorities, expanding operations and evolving customer expectations.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Gain a professional who can adapt to your business needs and help keep operations moving forward.<\/div><\/div><div class=\"wf-pn\" role=\"tabpanel\" id=\"wf-p4\" aria-labelledby=\"wf-t4\"><span class=\"wf-big\" aria-hidden=\"true\">05<\/span><p class=\"wf-pt\">Quality talent. Competitive costs. Greater flexibility.<\/p><h3>They Make Business Growth More Affordable<\/h3><p>Hiring a traditional employee can be expensive, especially when factoring in salaries, office expenses, equipment and other employment-related costs.<\/p><p>Because living costs differ between the Philippines and many Western markets, Filipino virtual assistant services are often competitively priced.<\/p><p>This allows businesses to access professional support while managing staffing expenses more efficiently.<\/p><div class=\"wf-adv\"><em>The advantage<\/em>Allocate more resources toward growth without compromising your need for skilled support.<\/div><\/div><div class=\"wf-segs\" aria-hidden=\"true\"><i><\/i><i><\/i><i><\/i><i><\/i><i><\/i><\/div><\/div><\/div><\/div><\/section>\n<section class=\"wf-slab wf-soft\" id=\"wf-numbers\"><div class=\"wrap\"><div class=\"wf-shead\"><div class=\"wf-rv\"><span class=\"wf-badge\">By the numbers<\/span><h2>A Strong Foundation for Working Together.<\/h2><\/div><div class=\"wf-copy wf-rv\" style=\"--d:120\"><p>The figures behind the communication and skills reasons above.<\/p><\/div><\/div>\n<div class=\"wf-stats\"><div class=\"wf-stat wf-rv\"><b data-to=\"93.5\" data-dec=\"1\" data-suf=\"%\">93.5%<\/b><span>of Filipinos speak and understand English<\/span><\/div><div class=\"wf-stat wf-rv\" style=\"--d:120\"><b data-to=\"97\" data-dec=\"0\" data-suf=\"%\">97%<\/b><span>reported literacy rate across the country<\/span><\/div><div class=\"wf-stat wf-rv\" style=\"--d:240\"><b class=\"wf-odo\" aria-label=\"805,000\">805,000<\/b><span>college graduates in 2023–24 (CHED)<\/span><\/div><\/div><p class=\"wf-src\">Sources: <a href=\"https://www.pna.gov.ph/articles/1076349\" target=\"_blank\" rel=\"noopener noreferrer\">Department of Tourism via Philippine News Agency (2019)<\/a> · <a href=\"https://psa.gov.ph/statistics/population-and-housing/node/1684059980\" target=\"_blank\" rel=\"noopener noreferrer\">Philippine Statistics Authority, 2020 Census<\/a> · <a href=\"https://www.gmanetwork.com/news/topstories/nation/957206/2-3-million-filipino-students-benefit-from-free-college-ched/story\" target=\"_blank\" rel=\"noopener noreferrer\">CHED via GMA News<\/a><\/p><\/div><\/section>\n<div class=\"wf-band\" aria-hidden=\"true\"><div class=\"wf-row\" data-d=\"-1\"><span>You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> <\/span><span>You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> You Weren’t Meant to Build Alone. <i>/<\/i> <\/span><\/div><\/div>\n<section class=\"wf-slab wf-dark\" id=\"wf-advantage\"><div class=\"wrap\"><div class=\"wf-shead\"><div class=\"wf-rv\"><span class=\"wf-badge\">The AAO Advantage<\/span><h2>More Than Virtual Assistance. Find Someone Who Understands Your Goals.<\/h2><\/div><div class=\"wf-copy wf-rv\" style=\"--d:120\"><p>Amazing Assistants Online connects business owners with skilled Filipino virtual assistants who bring more than technical expertise to the table.<\/p><p>Lasting partnerships don’t happen by accident. They need clear expectations, fair terms, ongoing growth and support on both sides, so that’s what we build into every match.<\/p><p class=\"wf-strong\">Explore our assistants, discover their skills and experience, and get to know the people behind their profiles before deciding who you’d like to connect with.<\/p><\/div><\/div>\n<div class=\"wf-bento\"><article class=\"wf-bn wf-b1 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">01<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-type\"><span class=\"wf-tw\"><\/span><i class=\"wf-caret\"><\/i><\/div><\/div><h3>Clear expectations<\/h3><p>Interview first, and agree on the work before day one.<\/p><\/article><article class=\"wf-bn wf-b2 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">02<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-sk\"><span style=\"--s:0;--w:100%\"><\/span><span style=\"--s:1;--w:78%\"><\/span><span style=\"--s:2;--w:60%\"><\/span><\/div><\/div><h3>Fair, transparent terms<\/h3><p>You know the rate up front. They know it’s fair.<\/p><\/article><article class=\"wf-bn wf-b3 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">03<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-tr\"><i class=\"wf-m\" style=\"--p:0%;--q:0\"><\/i><i class=\"wf-m\" style=\"--p:33%;--q:1\"><\/i><i class=\"wf-m\" style=\"--p:66%;--q:2\"><\/i><i class=\"wf-m\" style=\"--p:100%;--q:3\"><\/i><\/div><\/div><h3>Ongoing training<\/h3><p>AAO keeps developing them after the hire.<\/p><\/article><article class=\"wf-bn wf-b4 wf-rv\" tabindex=\"0\"><span class=\"wf-bnum\">04<\/span><div class=\"wf-viz\" aria-hidden=\"true\"><div class=\"wf-zoom\"><i style=\"--z:0\"><\/i><i style=\"--z:1\"><\/i><i style=\"--z:2\"><\/i><i style=\"--z:3\"><\/i><\/div><\/div><h3>Growing together<\/h3><p>The longer they stay, the more of your business they carry.<\/p><\/article><\/div>\n<div class=\"wf-cbar wf-rv\"><p>Ready for an assistant who’s in it for the long run? <span>Start the partnership.<\/span><\/p><a class=\"wf-cta wf-gold\" href=\"#talent\">Meet our assistants<\/a><\/div><\/div><\/section>\n<\/div>";
 
 /* ==== Why Filipino VAs page (route #why-filipino) ==== */
@@ -7109,7 +7240,7 @@ function render(){
   /* Live mode: someone who arrived from a password-reset email must choose a new password before using the site (signing out or cancelling ends this). */
   if(API_ON&&AAOApi.recoveryPending()&&h!=="reset-password"){h="reset-password";current="reset-password";try{history.replaceState(null,"","#reset-password");}catch(e){}}
   var view,arg,key=h,title;
-  var needsAuth=h==="dashboard"||h==="post-job"||h==="va-profile"||h==="va-applications"||h==="va-saved"||h==="va-settings"||h==="messages"||h.indexOf("messages-")===0;
+  var needsAuth=h==="admin"||h==="dashboard"||h==="post-job"||h==="va-profile"||h==="va-applications"||h==="va-saved"||h==="va-settings"||h==="messages"||h.indexOf("messages-")===0;
   if(needsAuth&&!getDemoUser()){h="login";key="login";}
   if(h.indexOf("talent-")===0){view=V.profile;arg=h.slice(7);var t=TALENT.filter(function(x){return x.id===arg;})[0];title=(t?t.name:"Profile")+" | AAO";key="talent";
     /* Live mode: the list only carries a summary; fetch the full profile once, then redraw if the visitor is still on this page. */
