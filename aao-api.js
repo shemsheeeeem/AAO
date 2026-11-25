@@ -203,7 +203,7 @@
       name: esc(t.display_name),
       headline: esc(t.headline || ""),
       cat: TYPE_TO_CAT[(t.talent_type && t.talent_type.name) || ""] || "Admin",
-      loc: esc(t.location || "Remote"),
+      loc: esc(t.location || "Location not listed"),
       avail: AVAIL[t.availability] || AVAIL.part_time,
       exp: expLabel(t.experience_years),
       langs: esc((t.languages || []).join(", ") || "English"),
