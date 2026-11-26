@@ -1535,6 +1535,12 @@ details.fold>summary:focus{outline:none}
 .dash-row>div>span{display:block;color:#A8B9D6;font-size:.9rem;margin-top:2px}
 .dash-act{appearance:none;border:0;background:transparent;padding:0;font:600 .86rem var(--body);color:#DDBB68;cursor:pointer;white-space:nowrap;text-decoration:none;transition:color .2s}
 .dash-act+.dash-act{margin-left:16px}
+.dash-free{display:grid;gap:4px;margin:0 0 18px;padding:14px 18px;border-radius:14px;border:1px solid rgba(221,187,104,.55);background:rgba(196,155,63,.12);color:#EAF0FA;max-width:52rem}
+.dash-free strong{color:#F2D48A;font-size:1rem}
+.dash-free span{color:#C9D5EA;font-size:.92rem}
+.dash-free a{color:#F2D48A}
+.dash-free.over{border-color:rgba(255,155,155,.5);background:rgba(180,35,42,.12)}
+.dash-free.over strong{color:#FFB4B4}
 .dash-act:hover,.dash-act:focus-visible{color:#EBD08F;text-decoration:underline;outline:none}
 .dash-toast{display:none;margin:0 0 16px;padding:14px 16px;border-radius:12px;background:#0B3262;border:1px solid rgba(221,187,104,.4);color:#EAF0FA;font-size:.95rem;line-height:1.45}
 .dash-toast.show{display:block;animation:ansIn .35s var(--ease)}
@@ -5475,7 +5481,7 @@ function plansHtml(){
    '<article class="pcard glow">'+
      '<div class="pcard-top"><header class="pcard-head"><h3 class="pcard-name">'+memIco+'AAO membership</h3><p class="pcard-desc">For when you’re ready to message, interview and hire</p></header>'+
      '<div class="pcard-price"><div class="pcard-amt"><span class="cur">$</span><span class="num">69–99</span></div><div class="pcard-meta"><span>per month</span><span>no upfront fee</span></div></div>'+
-     membershipLink("btn btn-navy","Unlock membership")+'<p class="pcard-note">A monthly membership instead of an upfront fee, with the full member toolkit.</p><hr class="pcard-rule"></div>'+
+     membershipLink("btn btn-navy","Unlock membership")+'<p class="pcard-note">A monthly membership instead of an upfront fee, with the full member toolkit.'+(API_ON?' <strong>New clients: your first 3 months are free.</strong>':'')+'</p><hr class="pcard-rule"></div>'+
      feats(["Messaging and interviews","More job posts","Job tracker for up to 200 openings","Full member tools"])+
    '</article>'+
   '</div>'+
@@ -5653,7 +5659,7 @@ V.join = function(){
         '<div class="login-brand-copy"><h2 class="login-brand-name" id="auth-h">Let’s get you started.</h2><p class="login-brand-sub" id="auth-p">Choose whether you’re looking for work or hiring help, then tell us a little about you.</p></div>'+
       '</aside>'+
       '<div class="login-body">'+
-        '<div><h1>Create an account</h1><p class="login-sub">Free to join. Membership unlocks messaging and hiring.</p></div>'+
+        '<div><h1>Create an account</h1><p class="login-sub">'+(API_ON?"Free to join. New clients get 3 months of free membership: message, interview and hire at no cost.":"Free to join. Membership unlocks messaging and hiring.")+'</p></div>'+
         (API_ON?'':'<button class="login-google" type="button" id="jgoogle">'+GOOGLE_BTN_SVG+'Continue with Google</button><div class="login-or" aria-hidden="true">or</div>')+
         '<form class="form" id="jf2" novalidate>'+
           '<fieldset class="roles"><legend>What are you here to do?</legend>'+
@@ -6052,13 +6058,18 @@ V.dashboardLive = function(){
       '<div class="dash-row"><div><strong>Take the three tests</strong><span id="dl-tests">Typing, DISC and aptitude</span></div><a class="dash-act" href="#va-settings" id="dl-tests-act">Start</a></div>'+
       '<p class="dash-note">Signed in as '+E(u.email)+'</p></div></div></div></section>';
   }
-  var memOn=isAaOMember();
+  var memOn=isAaOMember(),freeOn=inFreePeriod(u),freeOver=!memOn&&freeEnded(u),freeEnd=freeUntilLabel(u);
   var memAct=memOn?'<a class="btn btn-line" href="#messages">Messages</a>':membershipLink("btn btn-gold","Unlock membership")+'<a class="btn btn-line" href="#membership">Membership</a>';
+  /* The message Toni asked for: tells a client about their free months (or that they ended). */
+  var freeNote=freeOn
+    ?'<div class="dash-free" role="status"><strong>Your 3 months of free membership are active until '+E(freeEnd)+'.</strong><span>Message assistants, interview and hire at no cost. After that, membership continues at the monthly price on our <a href="#pricing">pricing page</a>.</span></div>'
+    :(freeOver?'<div class="dash-free over" role="status"><strong>Your 3 free months ended on '+E(freeEnd)+'.</strong><span>Choose a membership to keep messaging, interviewing and hiring. Browsing and posting jobs stay free. <a href="#membership">See membership</a></span></div>':'');
   return '<section class="dash"><div class="wrap">'+
-    '<div class="dash-head"><div><div class="dash-badge"><em>Client desk</em></div><h1>Welcome back, '+first+'.</h1><p>'+(memOn?"Membership is active. Message assistants and hire when you’re ready.":"Browse is free. Unlock membership to message, interview, and hire.")+'</p></div>'+
+    '<div class="dash-head"><div><div class="dash-badge"><em>Client desk</em></div><h1>Welcome back, '+first+'.</h1><p>'+(freeOn?"Your free membership is on. Message assistants and hire when you’re ready.":(memOn?"Membership is active. Message assistants and hire when you’re ready.":"Browse is free. Unlock membership to message, interview, and hire."))+'</p></div>'+
     '<div class="dash-actions"><a class="btn '+(memOn?"btn-gold":"btn-navy")+'" href="#talent">Find assistants</a><a class="btn btn-line" href="#post-job">Post a job</a>'+memAct+'<a class="btn btn-line" href="#logout">Log out</a></div></div>'+
     '<div class="dash-toast" id="dtoast" role="status"></div>'+
-    '<div class="dash-stats"><div class="dash-stat"><strong id="dl-open">…</strong><span>Open jobs</span></div><div class="dash-stat"><strong>'+(memOn?"On":"Off")+'</strong><span>Membership</span></div></div>'+
+    freeNote+
+    '<div class="dash-stats"><div class="dash-stat"><strong id="dl-open">…</strong><span>Open jobs</span></div><div class="dash-stat"><strong>'+(freeOn?"Free":(memOn?"On":"Off"))+'</strong><span>'+(freeOn?"Membership until "+E(freeEnd):"Membership")+'</span></div></div>'+
     '<div class="dash-panels"><div class="dash-panel"><h2>Your jobs</h2><div id="dl-jobs"><p class="dash-note">Loading…</p></div><p class="dash-note">Signed in as '+E(u.email)+'</p></div></div></div></section>';
 };
 V.dashboardLive.init = function(){
@@ -6375,7 +6386,7 @@ function membershipPlanLabel(){
   return paymentsConfig().planLabel||"AAO Membership";
 }
 function membershipPlanPrice(){
-  return paymentsConfig().planPrice||"$79/mo";
+  return paymentsConfig().planPrice||"$69–99 a month";
 }
 function membershipStore(){
   return localStore("aao_membership",{});
@@ -6396,11 +6407,23 @@ function setMembershipStatus(email, status, extra){
   all[email]=row;
   localSave("aao_membership",all);
 }
+/* New clients get FREE_MONTHS of membership from the day they created their account, like a free trial: no card, it starts at
+   sign-up. After that, membership is paid (pricing page). Live mode only; the date comes from the account itself. */
+var FREE_MONTHS=3;
+function freeUntil(u){
+  if(!API_ON||!u||u.role!=="client"||!u.createdAt)return null;
+  var d=new Date(u.createdAt);if(isNaN(d.getTime()))return null;
+  d.setMonth(d.getMonth()+FREE_MONTHS);return d;
+}
+function inFreePeriod(u){var d=freeUntil(u);return !!(d&&Date.now()<d.getTime());}
+function freeEnded(u){var d=freeUntil(u);return !!(d&&Date.now()>=d.getTime());}
+function freeUntilLabel(u){var d=freeUntil(u);return d?d.toLocaleDateString("en-US",{day:"numeric",month:"long",year:"numeric"}):"";}
 function isAaOMember(){
   var u=getDemoUser();
   if(!u)return false;
   if(u.role==="va"||u.role==="admin")return true;
   if(u.role!=="client")return false;
+  if(inFreePeriod(u))return true;
   var row=getMembershipRow(u.email);
   return !!(row&&row.status==="active");
 }
@@ -7064,11 +7087,14 @@ V.membership = function(){
   var u=getDemoUser();
   var member=!!(u&&u.role==="client"&&isAaOMember());
   var checkout=membershipCheckoutUrl();
-  var statusHtml=member
+  var freeOn=inFreePeriod(u);
+  var statusHtml=freeOn
+    ? '<div class="notice show" role="status"><strong>Free membership active until '+escHtml(freeUntilLabel(u))+'.</strong>Your first 3 months are free: message, interview and hire at no cost.</div>'
+    : member
     ? '<div class="notice show" role="status"><strong>Membership active.</strong>Messaging and hire are unlocked on this device for '+escHtml(u.email)+'.</div>'
     : '<div class="notice show" role="status"><strong>Browse is free.</strong>Membership unlocks messaging, interviews, and hire.'+(API_ON?"":" Demo mode can unlock locally for testing.")+'</div>';
   var actions=member
-    ? '<div class="btn-row"><a class="btn btn-gold" href="#talent">Meet assistants</a><a class="btn btn-line-dark" href="#messages">Open messages</a><button class="btn btn-line" type="button" id="mem-clear">Turn off membership</button></div>'
+    ? '<div class="btn-row"><a class="btn btn-gold" href="#talent">Meet assistants</a><a class="btn btn-line-dark" href="#messages">Open messages</a>'+(freeOn?'':'<button class="btn btn-line" type="button" id="mem-clear">Turn off membership</button>')+'</div>'
     : '<div class="btn-row">'+membershipLink("btn btn-gold",checkout?"Continue to checkout":"Open membership checkout")+
       (u&&u.role==="client"&&!API_ON?'<button class="btn btn-navy" type="button" id="mem-demo">Unlock for demo</button>':"")+
       (u&&u.role==="client"?"":'<a class="btn btn-navy" href="#login">Log in as client first</a>')+
