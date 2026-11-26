@@ -520,7 +520,7 @@
     return r.data;
   }
   async function reopenJob(id) {
-    var r = await call("POST", "/me/jobs/" + encodeURIComponent(id) + "/reopen", { expires_in_days: 30 }, { auth: true });
+    var r = await call("POST", "/me/jobs/" + encodeURIComponent(id) + "/reopen", {}, { auth: true }); /* no end date: open until the client closes it (decision 70) */
     return r.data;
   }
 

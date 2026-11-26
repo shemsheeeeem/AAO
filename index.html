@@ -6120,7 +6120,7 @@ V.dashboardLive.init = function(){
       return;
     }
     (act==="close"?AAOApi.closeJob(id):AAOApi.reopenJob(id)).then(function(){
-      showDashToast(act==="close"?"<strong>Job closed.</strong>It is no longer listed.":"<strong>Job reopened.</strong>It is listed again for 30 days.");
+      showDashToast(act==="close"?"<strong>Job closed.</strong>It is no longer listed.":"<strong>Job reopened.</strong>It is listed again until you close it.");
       return reloadCatalog().then(paint);
     }).catch(function(err){btn.disabled=false;showDashToast("<strong>We could not do that.</strong>"+E(err.status===403?"This job was hidden by an administrator.":err.message));});
   });
@@ -7002,7 +7002,7 @@ V.postJob = function(){
   if(!u)return V.login();
   return '<section class="app-page"><div class="wrap">'+
     '<a class="app-crumb" href="#dashboard">← Back to client desk</a>'+
-    '<div class="app-card"><h1>Post a job</h1><p class="lede">'+(API_ON?"Describe the role. Your job goes live as soon as you post it and stays open for 30 days.":"Describe the role. Saved locally for now — hook this form to your API when the backend is ready.")+'</p>'+
+    '<div class="app-card"><h1>Post a job</h1><p class="lede">'+(API_ON?"Describe the role. Your job goes live as soon as you post it and stays open until you close it.":"Describe the role. Saved locally for now — hook this form to your API when the backend is ready.")+'</p>'+
     '<form class="app-form" id="pjf" novalidate>'+
       '<label class="field">Job title<input type="text" id="pj-title" required placeholder="Part-time executive assistant" maxlength="120"></label>'+
       '<label class="field">What do you need help with?<textarea id="pj-body" required placeholder="Hours, tools, and the outcomes you want in the first 30 days"></textarea></label>'+
@@ -7039,12 +7039,12 @@ V.postJob.init = function(){
     note.classList.add("show");
     if(title.length<6||body.length<20){note.innerHTML="<strong>Add more detail.</strong>Use a clear title and describe the work.";return;}
     if(API_ON){
-      /* Live mode: publish through the backend (the job goes live immediately for 30 days). */
+      /* Live mode: publish through the backend (the job goes live immediately and stays open until the client closes it). */
       if(body.length>8000){note.innerHTML="<strong>That description is too long.</strong>Please keep it under 8,000 characters.";return;}
       note.innerHTML="<strong>Posting your job…</strong>";
       var liveRow={title:title,body:body,category:$("#pj-cat").value,availability:$("#pj-avail").value,skills:$("#pj-skills").value};
       AAOApi.postJob(u,liveRow).then(function(job){
-        return reloadCatalog().then(function(){if(!JOBS.some(function(x){return x.id===job.id;}))JOBS.unshift(AAOApi.jobFromOwn(job));note.innerHTML="<strong>Your job is live.</strong>It stays open for 30 days. <a href='#job-"+AAOApi.esc(job.id)+"'>View the posting</a> or <a href='#dashboard'>go back to your desk</a>.";});
+        return reloadCatalog().then(function(){if(!JOBS.some(function(x){return x.id===job.id;}))JOBS.unshift(AAOApi.jobFromOwn(job));note.innerHTML="<strong>Your job is live.</strong>It stays open until you close it, for example once you hire someone. <a href='#job-"+AAOApi.esc(job.id)+"'>View the posting</a> or <a href='#dashboard'>go back to your desk</a>.";});
       }).catch(function(err){
         note.innerHTML="<strong>We could not post your job.</strong>"+AAOApi.esc(err.status===403?"Please confirm your email address first (check your inbox), then try again.":err.message);
       });
