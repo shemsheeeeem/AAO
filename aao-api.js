@@ -761,7 +761,7 @@
   function adminJobs(o) { o = o || {}; return adminGet("/admin/jobs" + qs({ status: o.status, limit: 20, offset: o.offset || 0 })); }
   function adminJobApplicants(jobId) { return adminGet("/admin/jobs/" + encodeURIComponent(jobId) + "/applications"); }
   function adminMessages(o) { o = o || {}; return adminGet("/admin/messages" + qs({ flagged: o.flagged ? "true" : "", limit: 20, offset: o.offset || 0 })); }
-  function adminTalentList(o) { o = o || {}; return adminGet("/admin/talent" + qs({ status: o.status, q: o.q, limit: 20, offset: o.offset || 0 })); }
+  function adminTalentList(o) { o = o || {}; return adminGet("/admin/talent" + qs({ status: o.status, q: o.q, limit: o.limit || 20, offset: o.offset || 0 })); }
   async function adminSetJobStatus(jobId, status, reason) {
     var r = await call("POST", "/admin/jobs/" + encodeURIComponent(jobId) + "/status", { status: status, reason: reason || undefined }, { auth: true });
     return r.data;
