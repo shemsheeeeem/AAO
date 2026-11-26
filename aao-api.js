@@ -312,7 +312,8 @@
       email: user.email, role: appRole, name: meta.full_name || (user.email || "").split("@")[0],
       label: appRole === "va" ? "Virtual assistant" : "Client", id: user.id, verified: !!user.email_confirmed_at,
       business: meta.business || "",
-      since: user.created_at ? new Date(user.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : ""
+      since: user.created_at ? new Date(user.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "",
+      createdAt: user.created_at || ""
     };
   }
 
