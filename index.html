@@ -958,6 +958,15 @@ body.booting .foot{visibility:hidden}
 /* Banner and personal photos (decision 78) */
 .media-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
 .media-banner{aspect-ratio:4/1;min-height:90px;border-radius:12px;background:#0B1A33 center/cover no-repeat;margin:6px 0 10px}
+/* Banner editor: how the banner looks on a computer and on a phone */
+.bn-previews{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:14px;align-items:end;margin:6px 0 10px}
+.bn-previews .media-banner{margin:0}
+.bn-previews small{display:block;margin-top:4px;color:#51617C;font-size:.78rem}
+.bn-phone .media-banner{aspect-ratio:7/3;min-height:0}
+@media (max-width:720px){
+  .bn-previews{grid-template-columns:minmax(0,1fr) 104px;gap:10px}
+  .page-head .media-banner{aspect-ratio:7/3;min-height:0} /* phones: a taller banner, the same shape as the phone preview */
+}
 .media-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
 .media-grid figure{margin:0}
 .media-grid img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:10px;background:#0B1A33}
@@ -1202,7 +1211,19 @@ body.booting .foot{visibility:hidden}
 .vp-video-check.ok{color:#1F7A4D}
 .vp-video-check.bad{color:#B4232A}
 /* Profile sections that fold on phones (open and fixed on larger screens) */
-details.fold>summary{display:block;list-style:none;cursor:default}
+details.fold>summary{display:flex;align-items:baseline;justify-content:space-between;gap:12px;list-style:none;cursor:default}
+/* Own profile shortcuts: open Edit profile at the banner, the profile photo or the personal photos */
+.vap-hero-btn{position:absolute;left:16px;top:14px;z-index:2;font:600 .8rem var(--body);color:#fff;background:rgba(2,15,32,.55);border:1px solid rgba(255,255,255,.55);border-radius:999px;padding:.4em 1em;cursor:pointer;backdrop-filter:blur(4px)}
+.vap-hero-btn:hover{background:rgba(2,15,32,.75)}
+.vap-cam{position:absolute;left:calc(50% + 26px);bottom:-52px;z-index:2;width:36px;height:36px;border-radius:50%;border:3px solid #fff;background:#06244A;color:#fff;display:grid;place-items:center;cursor:pointer;padding:0}
+.vap-cam svg{width:16px;height:16px}
+.vap-cam:hover{background:#0B3262}
+.vap-hero-btn:focus-visible,.vap-cam:focus-visible,.vap-jump:focus-visible{outline:3px solid #C49B3F;outline-offset:2px}
+.vap-jump{color:var(--vap-link);font:600 .9rem var(--body);background:none;border:0;padding:0;cursor:pointer;white-space:nowrap}
+.vap-jump:hover{text-decoration:underline}
+.vp-flash{animation:vpflash 1.6s ease-out}
+@keyframes vpflash{0%,35%{box-shadow:0 0 0 4px rgba(196,155,63,.55);border-radius:10px}100%{box-shadow:0 0 0 0 rgba(196,155,63,0)}}
+@media (max-width:720px){.vap-cam{left:calc(50% + 20px);bottom:-44px;width:32px;height:32px}}
 details.fold>summary::-webkit-details-marker{display:none}
 details.fold>summary:focus{outline:none}
 .fold-n{display:none;font-weight:400;opacity:.65;margin-left:4px}
@@ -3322,8 +3343,8 @@ function videoCheck(){
 document.addEventListener("input",function(e){if(e.target&&e.target.id==="vp-video")videoCheck();});
 /* A profile section that folds on phones: open (and not closable) on larger screens, folded on phones with a count. */
 var FOLD_PHONE=window.matchMedia?window.matchMedia("(max-width:720px)"):{matches:false};
-function foldSec(cls,title,n,inner){
-  return '<details class="'+cls+' fold" open><summary><h2>'+title+'<span class="fold-n">'+(n?'('+n+')':'')+'</span></h2></summary>'+inner+'</details>';
+function foldSec(cls,title,n,inner,action){
+  return '<details class="'+cls+' fold" open><summary><h2>'+title+'<span class="fold-n">'+(n?'('+n+')':'')+'</span></h2>'+(action||'')+'</summary>'+inner+'</details>';
 }
 function applyFolds(){
   var ph=!!FOLD_PHONE.matches;
@@ -3401,10 +3422,11 @@ document.addEventListener("click",function(e){
 });
 function mediaSectionHtml(){
   return '<div class="field media-edit"><span>Banner</span>'+
-      '<div class="media-banner" id="vp-bn-prev" aria-hidden="true"></div>'+
+      '<div class="bn-previews"><div><div class="media-banner" id="vp-bn-prev" aria-hidden="true"></div><small>Computer</small></div>'+
+      '<div class="bn-phone"><div class="media-banner" id="vp-bn-prev-m" aria-hidden="true"></div><small>Phone</small></div></div>'+
       '<div class="two" id="vp-bn-pos" hidden><label class="field">Left – right<input type="range" id="vp-bn-x" min="0" max="100" step="1"></label><label class="field">Top – bottom<input type="range" id="vp-bn-y" min="0" max="100" step="1"></label></div>'+
       '<div class="media-actions"><label class="btn btn-line" style="cursor:pointer">Choose banner image<input type="file" id="vp-bn-file" accept="image/jpeg,image/png,image/webp" hidden></label><button type="button" class="btn btn-line" id="vp-bn-remove" hidden>Remove banner</button></div>'+
-      '<small class="muted">A wide image (about 4 : 1) that shows you or your work. Shown at the top of your public profile. No contact details.</small>'+
+      '<small class="muted">A wide image that shows you or your work, at least 1600 × 400 pixels. Keep the important part in the middle: phones show a taller, narrower slice. Use the sliders to move it. No contact details.</small>'+
       '<small class="muted" id="vp-bn-note" role="status"></small>'+
     '</div>'+
     '<div class="field media-edit"><span>Personal photos <small class="muted" id="vp-ph-count"></small></span>'+
@@ -3442,8 +3464,9 @@ function bindMediaSection(){
   }
   var p=(AAOApi.myTalentForUi()||{}),banner=p.banner||null,timer=null,photos=[];
   function showBanner(){
-    if(banner){prev.setAttribute("style",bannerStyle(banner).replace(/&quot;/g,'"'));rx.value=banner.x;ry.value=banner.y;}
-    else prev.removeAttribute("style");
+    var pm=$("#vp-bn-prev-m");
+    if(banner){var st=bannerStyle(banner).replace(/&quot;/g,'"');prev.setAttribute("style",st);if(pm)pm.setAttribute("style",st);rx.value=banner.x;ry.value=banner.y;}
+    else{prev.removeAttribute("style");if(pm)pm.removeAttribute("style");}
     pos.hidden=!banner;rm.hidden=!banner;
   }
   showBanner();
@@ -3470,7 +3493,7 @@ function bindMediaSection(){
     if(!photos.length){list.innerHTML='<li class="muted">No photos yet.</li>';return;}
     list.innerHTML=photos.map(function(ph,i){
       return '<li class="media-row" data-ph="'+escAttr(ph.id)+'"><img src="'+escAttr(ph.url)+'" alt="">'+
-        '<input type="text" maxlength="80" placeholder="Caption (optional)" value="'+escAttr(ph.caption)+'" data-ph-cap>'+
+        '<input type="text" maxlength="80" placeholder="Caption (optional), e.g. My home office setup" value="'+escAttr(ph.caption)+'" data-ph-cap>'+
         '<span class="media-btns"><button type="button" class="btn btn-line" data-ph-up'+(i===0?" disabled":"")+' aria-label="Move up">↑</button>'+
         '<button type="button" class="btn btn-line" data-ph-down'+(i===photos.length-1?" disabled":"")+' aria-label="Move down">↓</button>'+
         '<button type="button" class="btn btn-line" data-ph-save>Save caption</button>'+
@@ -3541,8 +3564,8 @@ function pagesSectionHtml(){
   return '<div class="field media-edit"><span>Portfolio pages <small class="muted" id="vp-pg-count"></small></span>'+
       '<div id="vp-pg-list"></div>'+
       '<div class="pp-edit" id="vp-pg-new">'+
-        '<label class="field">Title<input type="text" id="vp-pg-title" maxlength="80" placeholder="For example: Inbox clean-up for a real estate team"></label>'+
-        '<label class="field">Text<textarea id="vp-pg-body" maxlength="800" placeholder="What you did and the result. **bold** and lines starting with - become bullets."></textarea></label>'+
+        '<label class="field">Title<input type="text" id="vp-pg-title" maxlength="80" placeholder="e.g. Inbox clean-up for a real estate team"></label>'+
+        '<label class="field">Text<textarea id="vp-pg-body" maxlength="800" placeholder="e.g. Sorted 4,000 unread emails into folders and set up reply templates. **Result:** inbox at zero in 2 weeks.&#10;- 12 reply templates for common questions&#10;- A weekly summary for the owner&#10;(**bold** and lines starting with - become bullets)"></textarea></label>'+
         '<label class="pp-check"><input type="checkbox" id="vp-pg-feat"> Featured (shows first)</label>'+
         '<div class="media-actions"><button type="button" class="btn btn-line" id="vp-pg-add">Add page</button></div>'+
       '</div>'+
@@ -6275,12 +6298,12 @@ function loadVaProfile(u){
 function workEntryHtml(w){
   w=w||{};
   return '<div class="vpj" style="border:1px solid var(--vap-line);border-radius:12px;padding:14px;margin:10px 0">'+
-    '<div class="two"><label class="field">Role<input type="text" class="vpj-role" maxlength="80" placeholder="e.g. Social media assistant" value="'+(w.role||"")+'"></label>'+
-    '<label class="field">Type of business<input type="text" class="vpj-business" maxlength="80" placeholder="e.g. Real estate agency" value="'+(w.business||"")+'"></label></div>'+
-    '<div class="two"><label class="field">Start year<input type="number" class="vpj-start" min="1950" max="2100" placeholder="2022" value="'+(w.start||"")+'"></label>'+
-    '<label class="field">End year (empty if you still work there)<input type="number" class="vpj-end" min="1950" max="2100" placeholder="2024" value="'+(w.end||"")+'"></label></div>'+
-    '<label class="field">What you did and achieved (one per line, 1 to 5 lines)<textarea class="vpj-bullets" maxlength="900">'+(w.bullets||[]).join("\n")+'</textarea></label>'+
-    '<label class="field">Tools you used<input type="text" class="vpj-tools" maxlength="120" placeholder="e.g. Canva, HubSpot" value="'+(w.tools||"")+'"></label>'+
+    '<div class="two"><label class="field">Role<input type="text" class="vpj-role" maxlength="80" placeholder="e.g. Customer Support Specialist" value="'+(w.role||"")+'"></label>'+
+    '<label class="field">Type of business<input type="text" class="vpj-business" maxlength="80" placeholder="e.g. Online home-goods store (US)" value="'+(w.business||"")+'"></label></div>'+
+    '<div class="two"><label class="field">Start year<input type="number" class="vpj-start" min="1950" max="2100" placeholder="e.g. 2021" value="'+(w.start||"")+'"></label>'+
+    '<label class="field">End year (empty if you still work there)<input type="number" class="vpj-end" min="1950" max="2100" placeholder="e.g. 2024" value="'+(w.end||"")+'"></label></div>'+
+    '<label class="field">What you did and achieved (one per line, 1 to 5 lines)<textarea class="vpj-bullets" maxlength="900" placeholder="e.g. Answered 60+ customer emails and chats a day&#10;Cut the average reply time from 6 hours to 1 hour&#10;Handled returns and refunds in Shopify">'+(w.bullets||[]).join("\n")+'</textarea></label>'+
+    '<label class="field">Tools you used<input type="text" class="vpj-tools" maxlength="120" placeholder="e.g. Zendesk, Shopify, Google Sheets" value="'+(w.tools||"")+'"></label>'+
     '<button type="button" class="btn btn-line vpj-remove">Remove this job</button>'+
   '</div>';
 }
@@ -6448,7 +6471,11 @@ V.vaProfile = function(){
   return '<section class="vap" id="vap"><div class="wrap">'+
     '<a class="vap-crumb" id="vap-crumb" href="#dashboard">← Back to VA desk</a>'+
     '<div class="vap-view">'+
-      '<div class="vap-hero'+(API_ON&&p.banner?' has-banner" style="'+bannerStyle(p.banner):'')+'">'+(API_ON?'':'<p class="vap-status">Current status: '+(p.status||"Open to work")+'</p>')+'<div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
+      '<div class="vap-hero'+(API_ON&&p.banner?' has-banner" style="'+bannerStyle(p.banner):'')+'">'+(API_ON?'':'<p class="vap-status">Current status: '+(p.status||"Open to work")+'</p>')+
+        (API_ON&&AAOApi.hasTalentProfile()?'<button type="button" class="vap-hero-btn" data-vap-jump="vp-bn-prev">'+(p.banner?'Change banner':'Add banner')+'</button>':'')+
+        '<div class="vap-avatar" aria-hidden="true">'+initial+'</div>'+
+        (API_ON&&AAOApi.hasTalentProfile()?'<button type="button" class="vap-cam" data-vap-jump="vp-photo" aria-label="Change profile photo" title="Change profile photo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></button>':'')+
+      '</div>'+
       '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+(API_ON?(p.subs?String(p.subs).split(/\s*[,|]\s*/).filter(Boolean).join(" | "):(CATS[p.cat]||"Virtual assistant")):(p.headline||"Virtual assistant"))+'</p><div class="vap-badges">'+((API_ON&&!(p.avail||p.hours))?'':'<span class="vap-badge gold">'+(p.avail||(API_ON?p.hours:"Available"))+'</span>')+'</div></div>'+
       '<div class="vap-actions"><button class="btn btn-gold" type="button" id="vap-edit-btn">Edit profile</button><a class="btn btn-navy" href="#jobs">Browse jobs</a></div>'+
       '<div class="vap-layout"><div>'+
@@ -6456,7 +6483,7 @@ V.vaProfile = function(){
         '<div class="vap-card"><h2>Overview</h2><div class="vap-overview">'+overview+'</div></div>'+
         '<div class="vap-card"><h2>Profile description</h2><p class="vap-desc">'+(p.about||"Add a short description of how you work.")+'</p></div>'+
         (API_ON?'<div class="vap-card"><div class="vap-card-head"><h2>Intro video</h2><button class="vap-edit-toggle" type="button" data-vap-edit>'+(introVideoHtml(p.video,p.name)?'Change video':'Add video')+'</button></div>'+(introVideoHtml(p.video,p.name)||'<p class="vap-desc">Add a 60 to 90 second YouTube or Vimeo video introducing yourself. Clients see it on your profile.</p>')+'</div>':"")+
-        (API_ON?foldSec("vap-card","Personal photos",0,'<div id="vap-photos"><p class="vap-desc">Loading…</p></div>'):"")+
+        (API_ON?foldSec("vap-card","Personal photos",0,'<div id="vap-photos"><p class="vap-desc">Loading…</p></div>',AAOApi.hasTalentProfile()?'<button type="button" class="vap-jump" data-vap-jump="vp-ph-list">Edit photos</button>':''):"")+
         (API_ON?foldSec("vap-card","Portfolio pages",0,'<div id="vap-pages"><p class="vap-desc">Loading…</p></div>'):"")+
         (API_ON?foldSec("vap-card","Work experience",(p.work||[]).length,(p.work&&p.work.length)?workListHtml(p.work):'<p class="vap-desc">Add the jobs you have done: role, type of business, years, and what you achieved.</p>'):"")+
         '<div class="vap-card"><div class="vap-card-head"><h2>Top skills</h2><button class="vap-edit-toggle" type="button" data-vap-edit>Update skills</button></div>'+(API_ON?liveSkillRows(p.skillRatings):vapSkillRows(p))+'</div>'+
@@ -6471,7 +6498,7 @@ V.vaProfile = function(){
           (API_ON?'':'<div><dt>Portfolio / website</dt><dd>'+(p.portfolio?('<a href="'+p.portfolio.replace(/"/g,"&quot;")+'" target="_blank" rel="noopener noreferrer">'+p.portfolio+'</a>'):"Not added yet")+'</dd></div>')+
           '<div><dt>Email</dt><dd>'+(p.email||u.email)+'</dd></div>'+
           (API_ON?'<div><dt>Member since</dt><dd>'+(p.memberSince||"New member")+'</dd></div>':"")+
-        '</dl><div class="vap-tests" style="margin-top:16px"><div class="vap-test"><strong>English</strong><span>'+(p.langs||(API_ON?"Not added yet":"English"))+'</span></div></div></div>'+
+        '</dl>'+(API_ON?'':'<div class="vap-tests" style="margin-top:16px"><div class="vap-test"><strong>English</strong><span>'+(p.langs||"English")+'</span></div></div>')+'</div>'+
       '</aside></div>'+
     '</div>'+
     '<div class="vap-edit"><div class="vap-card"><h2>Edit profile</h2><p class="lede" style="margin:0 0 16px;color:#51617C">'+(API_ON?"Your details are saved to your AAO profile.":"Changes save on this device until your backend is connected.")+'</p>'+
@@ -6500,7 +6527,7 @@ V.vaProfile = function(){
         '</div>'+
         '<label class="field">Languages<input type="text" id="vp-langs" maxlength="120"></label>'+
         (API_ON?skillEditorHtml("vp",{title:"Skills",copy:"Search for a skill or add your own, then rate yourself from 1 (beginner) to 5 (expert). Up to "+SKILL_MAX+" skills. Your notes are seen only by you and AAO staff."}):'<label class="field">Skills (comma separated)<input type="text" id="vp-skills" maxlength="240"></label>')+
-        (API_ON?'<label class="field">Specialties (up to 5, separated by commas or |)<input type="text" id="vp-subs" maxlength="230" placeholder="e.g. Bookkeeping, Inbox management"></label>'+
+        (API_ON?'<label class="field">Specialties (up to 5, separated by commas or |)<input type="text" id="vp-subs" maxlength="230" placeholder="e.g. Customer support, Email management, Order processing"></label>'+
           '<div class="field"><span>Work experience</span><div id="vp-work"></div><button type="button" class="btn btn-line" id="vp-work-add">Add a job</button></div>'+
           (AAOApi.hasTalentProfile()?mediaSectionHtml()+pagesSectionHtml():
             '<div class="field media-edit"><span>Photos, banner and portfolio pages</span><p class="vp-locked" id="vp-first-save"><strong>Save your profile first.</strong> Fill in the details above and press <strong>Save profile</strong> at the bottom. This page then opens again here so you can add your profile photo, a banner, personal photos and portfolio pages.</p></div>'):"")+
@@ -6517,7 +6544,7 @@ function vpLiveFields(){
   var startOpts='<option value="">Not said yet</option><option value="immediately">Immediately</option><option value="within_week">Within a week</option><option value="in_two_weeks">In 2 weeks</option><option value="in_a_month">In a month</option>';
   return '<p class="vpf-intro">Fields marked <span class="vpf-req">*</span> are required. Everything except section 5 is shown on your public profile. For your safety, do not add phone numbers, emails or links.</p>'+
     '<fieldset class="vpf-sec"><legend>1. About you</legend>'+
-      '<label class="field">'+vpReq("Full name")+'<input type="text" id="vp-name" required maxlength="80" autocomplete="name">'+vpTip("Your real name, as clients will see it.")+'</label>'+
+      '<label class="field">'+vpReq("Full name")+'<input type="text" id="vp-name" required maxlength="80" autocomplete="name" placeholder="e.g. Maria Santos">'+vpTip("Your real name, as clients will see it.")+'</label>'+
       '<label class="field">'+vpReq("Headline")+'<input type="text" id="vp-headline" required maxlength="120" placeholder="e.g. Customer support specialist for online stores">'+vpTip("One line that sums up what you do. Shown above your Overview.")+'</label>'+
       '<label class="field">'+vpReq("About you")+'<textarea id="vp-about" required placeholder="e.g. I help small online stores answer every customer within the hour. I manage inboxes, live chat and returns, and I keep short daily reports."></textarea>'+vpTip("2 to 4 sentences: what you do, who you help and how you work.")+'</label>'+
     '</fieldset>'+
@@ -6526,7 +6553,7 @@ function vpLiveFields(){
         '<label class="field">Main field<select id="vp-cat">'+Object.keys(CATS).map(function(k){return '<option value="'+k.replace(/"/g,"&quot;")+'">'+CATS[k]+'</option>';}).join("")+'</select>'+vpTip("The kind of work you do most.")+'</label>'+
         '<label class="field">Years of experience<input type="number" id="vp-exp" min="0" max="60" step="1" inputmode="numeric" placeholder="e.g. 3">'+vpTip("As a virtual assistant or in similar work.")+'</label>'+
       '</div>'+
-      '<label class="field">Specialties<input type="text" id="vp-subs" maxlength="230" placeholder="e.g. Bookkeeping, Inbox management">'+vpTip("Up to 5, separated by commas. Shown under your name.")+'</label>'+
+      '<label class="field">Specialties<input type="text" id="vp-subs" maxlength="230" placeholder="e.g. Customer support, Email management, Order processing">'+vpTip("Up to 5, separated by commas. Shown under your name.")+'</label>'+
       skillEditorHtml("vp",{title:"Skills",copy:"Search for a skill or add your own, then rate yourself from 1 (beginner) to 5 (expert). Up to "+SKILL_MAX+" skills. Your notes are seen only by you and AAO staff."})+
       '<div class="field"><span>Work experience</span>'+vpTip("Jobs you have done: your role, the type of business, the years, and what you achieved.")+'<div id="vp-work"></div><button type="button" class="btn btn-line" id="vp-work-add">Add a job</button></div>'+
     '</fieldset>'+
@@ -6539,7 +6566,7 @@ function vpLiveFields(){
     '</fieldset>'+
     '<fieldset class="vpf-sec"><legend>4. Location and background</legend>'+
       '<div class="two">'+
-        '<label class="field">Where you live<input type="text" id="vp-loc" maxlength="80" placeholder="e.g. Tanjay, Negros Oriental">'+vpTip("City or town, and province.")+'</label>'+
+        '<label class="field">Where you live<input type="text" id="vp-loc" maxlength="80" placeholder="e.g. Cebu City, Cebu">'+vpTip("City or town, and province.")+'</label>'+
         '<label class="field">Languages<input type="text" id="vp-langs" maxlength="120" placeholder="e.g. English, Filipino">'+vpTip("Separated by commas.")+'</label>'+
       '</div>'+
       '<label class="field">Education<input type="text" id="vp-education" maxlength="120" placeholder="e.g. BS Accountancy, University of San Carlos">'+vpTip("Your highest degree or course.")+'</label>'+
@@ -6665,6 +6692,19 @@ V.vaProfile.init = function(){
   }
   var editBtn=$("#vap-edit-btn"),cancel=$("#vap-cancel");
   if(editBtn)editBtn.addEventListener("click",function(){setEditing(true);});
+  Array.prototype.forEach.call(document.querySelectorAll("[data-vap-jump]"),function(btn){
+    btn.addEventListener("click",function(e){
+      e.preventDefault();e.stopPropagation(); /* inside a folded section heading: do not open or close it */
+      setEditing(true);
+      var t=document.getElementById(btn.getAttribute("data-vap-jump"));
+      var box=t?(t.closest(".field")||t):null;
+      if(!box)return;
+      setTimeout(function(){
+        box.scrollIntoView({block:"center",behavior:"smooth"});
+        box.classList.remove("vp-flash");void box.offsetWidth;box.classList.add("vp-flash");
+      },60);
+    });
+  });
   Array.prototype.forEach.call(document.querySelectorAll("[data-vap-edit]"),function(btn){
     btn.addEventListener("click",function(){setEditing(true);});
   });
