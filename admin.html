@@ -70,6 +70,7 @@ h1{font:400 clamp(1.7rem,3vw,2.2rem) var(--display);margin:0 0 6px}
 .badge.flag{background:var(--warn);color:#fff}
 .msg{white-space:pre-wrap;word-break:break-word;background:rgba(255,255,255,.05);border-radius:10px;padding:10px 12px;margin:0}
 .kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px 16px;margin:0;font-size:.92rem}
+.kv div{min-width:0;overflow-wrap:anywhere}
 .kv div span{display:block;color:var(--muted);font-size:.78rem}
 .results{margin:0;padding:0;list-style:none;display:grid;gap:4px}
 .results span{color:var(--muted)}
@@ -87,7 +88,7 @@ details summary{cursor:pointer;color:var(--muted);font-size:.9rem}
   <div class="wrap">
     <a class="brand" href="admin.html">AAO Admin<small>Staff only</small></a>
     <span class="who" id="who"></span>
-    <a class="btn btn-sm" href="./#home">Back to site</a>
+    <a class="btn btn-sm" id="back" href="./#home">Back to site</a>
     <button type="button" class="btn btn-sm" id="logout" hidden>Log out</button>
   </div>
 </header>
@@ -131,9 +132,10 @@ function start(){
   AAOApi.currentUser().then(function(u){
     if(!u){showState("Sign in first","Log in on the main site with your administrator account, then open this page again.",["Log in","./#login"]);return;}
     $("#who").textContent=u.email||"";
+    var bk=$("#back");bk.textContent="Back to dashboard";bk.href="./#dashboard";
     var lo=$("#logout");lo.hidden=false;
     lo.onclick=function(){AAOApi.signOut().then(function(){try{sessionStorage.removeItem("aao_demo_user");}catch(e){}location.href="./#home";});};
-    if(u.isAdmin!==true){showState("Admin","This page is for AAO administrators.",["Back to site","./#dashboard"]);return;}
+    if(u.isAdmin!==true){showState("Admin","This page is for AAO administrators.",["Back to dashboard","./#dashboard"]);return;}
     shell();
   }).catch(function(err){showState("Admin",errText(err),["Back to site","./#home"]);});
 }
