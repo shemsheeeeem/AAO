@@ -6446,7 +6446,7 @@ V.vaProfile = function(){
     '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 4 7v5c0 4.4 3.2 7.6 8 9 4.8-1.4 8-4.6 8-9V7l-8-4z"/></svg><p>'+(p.education||"Education not listed yet")+'</p></div>'+
     (API_ON?'':'<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5c1.8-3.2 4.1-4.8 6.5-4.8s4.7 1.6 6.5 4.8"/></svg><p>'+(p.memberSince?'Member since '+p.memberSince:'Member since 2024')+'</p></div>');
   return '<section class="vap" id="vap"><div class="wrap">'+
-    '<a class="vap-crumb" href="#dashboard">← Back to VA desk</a>'+
+    '<a class="vap-crumb" id="vap-crumb" href="#dashboard">← Back to VA desk</a>'+
     '<div class="vap-view">'+
       '<div class="vap-hero'+(API_ON&&p.banner?' has-banner" style="'+bannerStyle(p.banner):'')+'">'+(API_ON?'':'<p class="vap-status">Current status: '+(p.status||"Open to work")+'</p>')+'<div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
       '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+(API_ON?(p.subs?String(p.subs).split(/\s*[,|]\s*/).filter(Boolean).join(" | "):(CATS[p.cat]||"Virtual assistant")):(p.headline||"Virtual assistant"))+'</p><div class="vap-badges">'+((API_ON&&!(p.avail||p.hours))?'':'<span class="vap-badge gold">'+(p.avail||(API_ON?p.hours:"Available"))+'</span>')+'</div></div>'+
@@ -6602,8 +6602,15 @@ V.vaProfile.init = function(){
   function setEditing(on){
     if(!root)return;
     root.classList.toggle("is-editing",!!on);
+    /* While editing, the top link goes back to the profile (like Cancel); otherwise to the VA desk. */
+    var cr=$("#vap-crumb");if(cr){cr.textContent=on?"← Back to profile":"← Back to VA desk";cr.setAttribute("href",on?"#va-profile":"#dashboard");}
     if(on)window.scrollTo(0,0);
   }
+  var crumb=$("#vap-crumb");
+  if(crumb)crumb.addEventListener("click",function(e){
+    if(!root||!root.classList.contains("is-editing"))return;
+    e.preventDefault();setEditing(false);if(note){note.classList.remove("show");note.innerHTML="";}window.scrollTo(0,0);
+  });
   fill();
   if(API_ON){
     /* Live mode: profile photo. Needs an existing profile; uploads straight to storage through a signed URL, then registers the file. */
