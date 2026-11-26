@@ -7472,6 +7472,8 @@ function render(){
   var view,arg,key=h,title;
   var needsAuth=h==="admin"||h==="dashboard"||h==="post-job"||h==="va-profile"||h==="va-applications"||h==="va-saved"||h==="va-settings"||h==="messages"||h.indexOf("messages-")===0;
   if(needsAuth&&!getDemoUser()){h="login";key="login";}
+  /* Already signed in: the sign-up page is not for you. A client who pressed Post a job goes straight to the form; everyone else to their desk. */
+  if(h==="join"&&getDemoUser()){var ju=getDemoUser(),ji="";try{ji=sessionStorage.getItem("aao_jintent")||"";sessionStorage.removeItem("aao_jintent");}catch(e){}h=(ju.role!=="va"&&ji==="post")?"post-job":"dashboard";key=h;current=h;try{history.replaceState(null,"","#"+h);}catch(e){}}
   if(h.indexOf("talent-")===0){view=V.profile;arg=h.slice(7);var t=TALENT.filter(function(x){return x.id===arg;})[0];title=(t?t.name:"Profile")+" | AAO";key="talent";
     /* Live mode: the list only carries a summary; fetch the full profile once, then redraw if the visitor is still on this page. */
     if(API_ON&&t&&!t._full){t._full=true;AAOApi.loadTalent(arg).then(function(full){var i=TALENT.indexOf(t);if(i>=0)TALENT[i]=full;if(currentRoute()==="talent-"+arg)render();}).catch(function(e){console.warn("AAO: could not load profile",e);});}}
