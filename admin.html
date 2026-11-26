@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Admin | AAO</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#020F20">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self' https:; img-src 'self' data: https: blob:; media-src 'self' https: blob:; font-src 'self' https://fonts.gstatic.com data:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://challenges.cloudflare.com; connect-src 'self' https: wss:; frame-src https://challenges.cloudflare.com; worker-src 'self' blob:;">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Marcellus&display=swap" rel="stylesheet">
+<!--
+  AAO admin page (decisions 80 and 83). Staff-only workspace, separate from the public site so visitors never load admin code.
+  It uses the same sign-in (the session the main site stores) and the same API helpers (aao-api.js). The page only shows itself to
+  administrators, but the SERVER decides: every admin call is refused for anyone else, and every view of jobs, applicants, messages
+  and assistant details is written to the admin log. All text from the API is escaped before it is shown.
+-->
+<style>
+:root{
+  --bg:#020F20;--card:#0C1D3B;--card-2:#12294F;--line:rgba(255,255,255,.12);--ink:#EAF0FA;--muted:#A8B9D6;--gold:#C49B3F;--gold-2:#DDBB68;--navy:#06244A;
+  --ok:#1F6B4A;--bad:#8A2E2E;--grey:#4A5568;--warn:#B4232A;
+  --display:"Marcellus",Georgia,serif;--body:"Hanken Grotesk","Segoe UI",system-ui,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--body)}
+a{color:var(--gold-2)}
+a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.wrap{width:min(1100px,calc(100% - 32px));margin:0 auto}
+.top{position:sticky;top:0;z-index:5;background:rgba(2,15,32,.95);border-bottom:1px solid var(--line);backdrop-filter:blur(6px)}
+.top .wrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap;min-height:64px}
+.brand{font:400 1.25rem var(--display);color:#fff;text-decoration:none;margin-right:auto}
+.brand small{display:block;font:600 .68rem var(--body);letter-spacing:.3em;text-transform:uppercase;color:var(--gold-2)}
+.who{color:var(--muted);font-size:.9rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;font:600 .92rem var(--body);border-radius:10px;padding:.6em 1em;border:1px solid rgba(255,255,255,.3);background:transparent;color:var(--ink);cursor:pointer;text-decoration:none}
+.btn:hover{background:rgba(255,255,255,.06)}
+.btn-gold{background:var(--gold);border-color:var(--gold);color:#06244A}
+.btn-gold:hover{background:var(--gold-2)}
+.btn[disabled]{opacity:.5;cursor:default}
+.btn-sm{padding:.4em .8em;font-size:.84rem}
+main{padding:28px 0 64px}
+h1{font:400 clamp(1.7rem,3vw,2.2rem) var(--display);margin:0 0 6px}
+.lede{color:var(--muted);margin:0 0 20px;max-width:46em}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:clamp(18px,3vw,28px)}
+.state{max-width:560px;margin:40px auto;text-align:center}
+.state p{color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:0 0 22px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;text-align:left;color:var(--ink);font:inherit;cursor:pointer}
+.stat:hover{border-color:var(--gold)}
+.stat b{display:block;font:400 2rem var(--display);line-height:1.1}
+.stat span{color:var(--muted);font-size:.9rem}
+.stat.alert b{color:#FF9B9B}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.tabs button[aria-selected="true"]{background:var(--gold);border-color:var(--gold);color:#06244A}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px;color:var(--muted)}
+.bar select,.bar input{font:inherit;padding:.45em .7em;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:#06162D;color:var(--ink)}
+.bar input{flex:1 1 200px;min-width:0}
+.private{color:var(--muted);font-size:.88rem;margin:0 0 12px}
+.note{min-height:1.3em;color:#F2D48A;font-size:.9rem;margin:0 0 8px}
+.list{display:grid;gap:12px}
+.item{border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:8px;background:rgba(255,255,255,.015)}
+.item h3{margin:0;font-size:1.05rem;color:#fff;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.item h3 a{color:#fff}
+.meta{color:var(--muted);font-size:.88rem}
+.badge{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:.2em .7em;background:#24406B;color:var(--ink)}
+.badge.s-approved,.badge.s-verified,.badge.s-open,.badge.s-visible{background:var(--ok)}
+.badge.s-rejected,.badge.s-hidden{background:var(--bad)}
+.badge.s-closed,.badge.s-expired,.badge.s-withdrawn{background:var(--grey)}
+.badge.flag{background:var(--warn);color:#fff}
+.msg{white-space:pre-wrap;word-break:break-word;background:rgba(255,255,255,.05);border-radius:10px;padding:10px 12px;margin:0}
+.kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px 16px;margin:0;font-size:.92rem}
+.kv div span{display:block;color:var(--muted);font-size:.78rem}
+.results{margin:0;padding:0;list-style:none;display:grid;gap:4px}
+.results span{color:var(--muted)}
+.act{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.act input{flex:1 1 220px;min-width:0;font:inherit;padding:.5em .7em;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:#06162D;color:var(--ink)}
+details summary{cursor:pointer;color:var(--muted);font-size:.9rem}
+.apps{display:grid;gap:10px}
+.app{border-left:3px solid rgba(255,255,255,.2);padding:4px 0 4px 12px;display:grid;gap:6px}
+.more{justify-self:start}
+@media (max-width:600px){.top .who{display:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="admin.html">AAO Admin<small>Staff only</small></a>
+    <span class="who" id="who"></span>
+    <a class="btn btn-sm" href="./#home">Back to site</a>
+    <button type="button" class="btn btn-sm" id="logout" hidden>Log out</button>
+  </div>
+</header>
+<main id="main">
+  <div class="wrap" id="app"><div class="state"><p>Loading…</p></div></div>
+</main>
+
+<script src="aao-config.js"></script>
+<script src="aao-api.js"></script>
+<script>
+(function(){
+"use strict";
+var $=function(s,r){return (r||document).querySelector(s);};
+var E=function(v){return AAOApi.esc(v==null?"":String(v));};
+var A=function(v){return AAOApi.escAttr(v==null?"":String(v));};
+var app=$("#app");
+var TABS=[["ids","Government IDs"],["tests","Test results"],["jobs","Jobs"],["messages","Messages"],["assistants","Assistants"]];
+var START={immediately:"Immediately",within_week:"Within a week",in_two_weeks:"In 2 weeks",in_a_month:"In a month"};
+var JOBTYPE={full_time:"Full-time",part_time:"Part-time",contract:"Project-based",one_off:"One-off"};
+var STATUS_LABEL={submitted:"Waiting",approved:"Approved",verified:"Verified",rejected:"Rejected",open:"Open",closed:"Closed",expired:"Expired",hidden:"Hidden",visible:"Visible",withdrawn:"Withdrawn",shortlisted:"Shortlisted",none:"Not sent"};
+var state={tab:"ids",review:"submitted",jobStatus:"",flagged:false,talentStatus:"",q:""};
+
+function when(v){if(!v)return "";var d=new Date(v);return isNaN(d)?"":d.toLocaleString("en-US",{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"});}
+function badge(s,label){return '<span class="badge s-'+A(s)+'">'+E(label||STATUS_LABEL[s]||s)+'</span>';}
+function flag(f){return f?'<span class="badge flag">Contact details: '+E(f)+'</span>':'';}
+function person(p){
+  if(!p)return "Unknown";
+  var name=p.company_name||p.display_name||"Unknown";
+  var link=p.talent_profile_id&&p.display_name?'<a href="./#talent-'+A(p.talent_profile_id)+'">'+E(name)+'</a>':E(name);
+  return link+(p.contact_name?' ('+E(p.contact_name)+')':'')+(p.email?' · '+E(p.email):'');
+}
+function money(n,unit){if(n===null||n===undefined)return "Not set";return "$"+E(n)+(unit==="hour"?"/hr":unit==="month"?"/mo":unit==="fixed"?" fixed":"");}
+function errText(err){return err&&err.status===403?"Your account is not an AAO administrator.":(err&&err.message)||"Something went wrong. Please try again.";}
+
+/* ---------- start: who is signed in ---------- */
+function showState(title,text,link){
+  app.innerHTML='<div class="state card"><h1>'+E(title)+'</h1><p>'+E(text)+'</p>'+(link?'<a class="btn btn-gold" href="'+A(link[1])+'">'+E(link[0])+'</a>':'')+'</div>';
+}
+function start(){
+  if(!window.AAOApi||!AAOApi.enabled()){showState("Admin","The admin page works on the live site only (it needs the AAO backend).",["Back to site","./#home"]);return;}
+  AAOApi.currentUser().then(function(u){
+    if(!u){showState("Sign in first","Log in on the main site with your administrator account, then open this page again.",["Log in","./#login"]);return;}
+    $("#who").textContent=u.email||"";
+    var lo=$("#logout");lo.hidden=false;
+    lo.onclick=function(){AAOApi.signOut().then(function(){try{sessionStorage.removeItem("aao_demo_user");}catch(e){}location.href="./#home";});};
+    if(u.isAdmin!==true){showState("Admin","This page is for AAO administrators.",["Back to site","./#dashboard"]);return;}
+    shell();
+  }).catch(function(err){showState("Admin",errText(err),["Back to site","./#home"]);});
+}
+
+/* ---------- the workspace ---------- */
+function shell(){
+  app.innerHTML=
+    '<h1>Admin</h1>'+
+    '<p class="lede">Review government IDs and test results, and check jobs, applicants, client messages and assistant details that clients never see. Files open in a new tab for 60 seconds.</p>'+
+    '<div class="stats" id="stats" aria-label="Overview">'+
+      stat("ids","IDs waiting")+stat("tests","Test results waiting")+stat("messages","Messages with contact details")+stat("jobs","Open jobs")+
+    '</div>'+
+    '<div class="card">'+
+      '<div class="tabs" role="tablist" aria-label="Sections">'+TABS.map(function(t){return '<button type="button" class="btn btn-sm" role="tab" data-tab="'+t[0]+'">'+t[1]+'</button>';}).join("")+'</div>'+
+      '<p class="private" id="private" hidden>Private to AAO staff. Each time you open this tab, it is recorded in the admin log.</p>'+
+      '<div class="bar" id="bar"></div>'+
+      '<div class="note" id="note" role="status"></div>'+
+      '<div class="list" id="list"></div>'+
+    '</div>';
+  app.addEventListener("click",onClick);
+  window.addEventListener("hashchange",function(){var t=(location.hash||"").slice(1);if(t&&t!==state.tab&&TABS.some(function(x){return x[0]===t;})){state.tab=t;loadTab();}});
+  var t=(location.hash||"").slice(1);
+  if(TABS.some(function(x){return x[0]===t;}))state.tab=t;
+  loadStats();
+  loadTab();
+}
+function stat(tab,label,alert){return '<button type="button" class="stat'+(alert?" alert":"")+'" data-go="'+tab+'"><b data-stat="'+tab+'">…</b><span>'+E(label)+'</span></button>';}
+function count(r){var n=r.items?r.items.length:r.length;return n+((r.meta&&r.meta.has_more)?"+":"");}
+function loadStats(){
+  var set=function(k,v){var el=$('[data-stat="'+k+'"]');if(el)el.textContent=v;};
+  AAOApi.adminIdentityList("submitted").then(function(l){set("ids",l.length);}).catch(function(){set("ids","–");});
+  AAOApi.adminAssessmentList("submitted").then(function(l){set("tests",l.length);}).catch(function(){set("tests","–");});
+  AAOApi.adminMessages({flagged:true}).then(function(r){
+    set("messages",count(r));
+    var card=$('[data-go="messages"]');if(card)card.classList.toggle("alert",r.items.length>0); /* red only when there is something to check */
+  }).catch(function(){set("messages","–");});
+  AAOApi.adminJobs({status:"open"}).then(function(r){set("jobs",count(r));}).catch(function(){set("jobs","–");});
+}
+
+/* ---------- tabs ---------- */
+var offset=0,items=[];
+function loadTab(){
+  Array.prototype.forEach.call(document.querySelectorAll("[data-tab]"),function(b){b.setAttribute("aria-selected",b.getAttribute("data-tab")===state.tab?"true":"false");});
+  if(location.hash.slice(1)!==state.tab)history.replaceState(null,"","#"+state.tab);
+  $("#note").textContent="";
+  $("#private").hidden=state.tab==="ids"||state.tab==="tests";
+  drawBar();
+  return render(false);
+}
+function drawBar(){
+  var bar=$("#bar");
+  if(state.tab==="ids"||state.tab==="tests"){
+    bar.innerHTML='<label for="f-review">Show</label><select id="f-review"><option value="submitted">Waiting for review</option><option value="done">'+(state.tab==="ids"?"Approved":"Verified")+'</option><option value="rejected">Rejected</option><option value="">All</option></select><button type="button" class="btn btn-sm" data-refresh>Refresh</button>';
+    $("#f-review").value=state.review;$("#f-review").onchange=function(){state.review=this.value;render(false);};
+  }else if(state.tab==="jobs"){
+    bar.innerHTML='<label for="f-job">Show</label><select id="f-job"><option value="">All jobs</option><option value="open">Open</option><option value="closed">Closed</option><option value="hidden">Hidden</option><option value="expired">Expired</option></select><button type="button" class="btn btn-sm" data-refresh>Refresh</button>';
+    $("#f-job").value=state.jobStatus;$("#f-job").onchange=function(){state.jobStatus=this.value;render(false);};
+  }else if(state.tab==="messages"){
+    bar.innerHTML='<label for="f-flag">Show</label><select id="f-flag"><option value="">All messages</option><option value="1">Only with contact details</option></select><button type="button" class="btn btn-sm" data-refresh>Refresh</button>';
+    $("#f-flag").value=state.flagged?"1":"";$("#f-flag").onchange=function(){state.flagged=!!this.value;render(false);};
+  }else{
+    bar.innerHTML='<input type="search" id="f-q" maxlength="80" placeholder="Search by name" aria-label="Search assistants by name"><select id="f-ts" aria-label="Profile status"><option value="">All profiles</option><option value="visible">Visible</option><option value="hidden">Hidden</option></select><button type="button" class="btn btn-sm" data-refresh>Search</button>';
+    $("#f-q").value=state.q;$("#f-ts").value=state.talentStatus;
+    $("#f-ts").onchange=function(){state.talentStatus=this.value;render(false);};
+    $("#f-q").onkeydown=function(e){if(e.key==="Enter"){e.preventDefault();state.q=this.value.trim();render(false);}};
+  }
+}
+function reviewStatus(){return state.review==="done"?(state.tab==="ids"?"approved":"verified"):state.review;}
+function fetchPage(){
+  if(state.tab==="ids")return AAOApi.adminIdentityList(reviewStatus()).then(function(l){return {items:l,meta:{}};});
+  if(state.tab==="tests")return AAOApi.adminAssessmentList(reviewStatus()).then(function(l){return {items:l,meta:{}};});
+  if(state.tab==="jobs")return AAOApi.adminJobs({status:state.jobStatus,offset:offset});
+  if(state.tab==="messages")return AAOApi.adminMessages({flagged:state.flagged,offset:offset});
+  return AAOApi.adminTalentList({status:state.talentStatus,q:state.q,offset:offset});
+}
+function render(append){
+  var list=$("#list"),tab=state.tab;
+  if(!append){offset=0;items=[];list.innerHTML='<p class="meta">Loading…</p>';}
+  var more=list.querySelector("[data-more]");if(more)more.remove();
+  return fetchPage().then(function(r){
+    if(tab!==state.tab)return;
+    items=items.concat(r.items);
+    var fn={ids:reviewHtml,tests:reviewHtml,jobs:jobHtml,messages:msgHtml,assistants:talentHtml}[tab];
+    var html=r.items.map(fn).join("");
+    if(!append)list.innerHTML=html||'<p class="meta">Nothing here.</p>';else list.insertAdjacentHTML("beforeend",html);
+    offset+=r.items.length;
+    if(r.meta&&r.meta.has_more)list.insertAdjacentHTML("beforeend",'<button type="button" class="btn btn-sm more" data-more>Load more</button>');
+  }).catch(function(err){if(tab!==state.tab)return;list.innerHTML="";$("#note").textContent=errText(err);});
+}
+
+/* ---------- rows ---------- */
+function reviewHtml(it){
+  var isId=state.tab==="ids",files,results="";
+  if(isId)files='<button type="button" class="btn btn-sm" data-open="id">Open ID photo</button>';
+  else{
+    results='<ul class="results">'+[["typing","Typing"],["disc","DISC"],["aptitude","Aptitude"]].map(function(t){var v=it[t[0]+"_result"];return '<li><span>'+t[1]+':</span> '+(v?E(v):"—")+'</li>';}).join("")+'</ul>';
+    files=[["typing","Typing PDF"],["disc","DISC PDF"],["aptitude","Aptitude PDF"]].filter(function(t){return it["has_"+t[0]+"_pdf"];}).map(function(t){return '<button type="button" class="btn btn-sm" data-open="'+t[0]+'">'+t[1]+'</button>';}).join("")||'<span class="meta">No PDFs</span>';
+  }
+  var name=it.display_name?E(it.display_name):"No profile yet";
+  return '<article class="item" data-id="'+A(it.account_id)+'">'+
+    '<h3>'+(it.talent_profile_id?'<a href="./#talent-'+A(it.talent_profile_id)+'">'+name+'</a>':name)+badge(it.status)+'</h3>'+
+    '<div class="meta">Submitted '+when(it.submitted_at)+(it.reviewed_at?' · Reviewed '+when(it.reviewed_at):'')+'</div>'+
+    results+(it.review_note?'<div class="meta">Note: '+E(it.review_note)+'</div>':'')+
+    '<div class="act">'+files+'</div>'+
+    '<div class="act"><input type="text" maxlength="500" placeholder="Note to the assistant (needed to reject)" aria-label="Note to the assistant" data-text>'+
+      '<button type="button" class="btn btn-sm btn-gold" data-review="'+(isId?"approved":"verified")+'">'+(isId?"Approve":"Verify")+'</button>'+
+      '<button type="button" class="btn btn-sm" data-review="rejected">Reject</button></div>'+
+  '</article>';
+}
+function jobHtml(j){
+  var actions=(j.status==="open"?'<button type="button" class="btn btn-sm" data-job="closed">Close job</button>':'<button type="button" class="btn btn-sm" data-job="open">Reopen</button>')+
+    (j.status!=="hidden"?'<button type="button" class="btn btn-sm" data-job="hidden">Hide</button>':'');
+  return '<article class="item" data-id="'+A(j.id)+'">'+
+    '<h3><a href="./#job-'+A(j.id)+'">'+E(j.title)+'</a>'+badge(j.status)+flag(j.flagged)+'</h3>'+
+    '<div class="meta">Posted by '+person(j.posted_by)+' · '+when(j.created_at)+'</div>'+
+    '<div class="kv"><div><span>Pay</span>'+money(j.pay_amount,j.pay_unit)+'</div><div><span>Type</span>'+E(JOBTYPE[j.job_type]||j.job_type)+'</div><div><span>Applicants</span>'+E(j.applicants)+'</div><div><span>Location</span>'+E(j.location||"Remote")+'</div></div>'+
+    '<details><summary>Description</summary><p class="msg">'+E(j.description)+'</p></details>'+
+    '<div class="act"><button type="button" class="btn btn-sm btn-gold" data-apps>Show applicants ('+E(j.applicants)+')</button>'+actions+'</div>'+
+    '<div class="apps" data-apps-box hidden></div>'+
+  '</article>';
+}
+function appHtml(a){
+  var APP={submitted:"Applied",shortlisted:"Shortlisted",withdrawn:"Withdrawn",rejected:"Not selected",hired:"Hired"};
+  return '<div class="app"><div>'+person(a.applicant)+' '+badge(a.status==="submitted"?"open":a.status,APP[a.status]||a.status)+(a.applicant&&a.applicant.profile_status==="hidden"?' '+badge("hidden","Profile hidden"):'')+flag(a.flagged)+'</div>'+
+    '<div class="meta">'+when(a.created_at)+' · Price: '+(a.proposed_amount===null?"not given":"$"+E(a.proposed_amount))+' · Can start: '+E(START[a.start_when]||a.start_when)+'</div>'+
+    '<p class="msg">'+E(a.letter)+'</p></div>';
+}
+function msgHtml(m){
+  return '<article class="item"><h3>'+person(m.from)+' → '+person(m.to)+flag(m.flagged)+'</h3><div class="meta">'+when(m.created_at)+'</div><p class="msg">'+E(m.message)+'</p></article>';
+}
+function talentHtml(t){
+  return '<article class="item" data-id="'+A(t.id)+'">'+
+    '<h3><a href="./#talent-'+A(t.id)+'">'+E(t.display_name)+'</a>'+badge(t.status)+(t.is_active?'':badge("closed","Inactive"))+'</h3>'+
+    (t.headline?'<div class="meta">'+E(t.headline)+'</div>':'')+
+    '<div class="kv">'+
+      '<div><span>Email</span>'+E(t.email||"—")+'</div><div><span>Phone</span>'+E(t.phone||"—")+'</div><div><span>Location</span>'+E(t.location||"—")+'</div>'+
+      '<div><span>Hourly rate (USD)</span>'+(t.hourly_rate===null?"—":"$"+E(t.hourly_rate))+'</div><div><span>Desired salary (PHP)</span>'+(t.desired_salary_php===null?"—":"₱"+E(Number(t.desired_salary_php).toLocaleString("en-US")))+'</div>'+
+      '<div><span>Hours / week</span>'+E(t.hours_per_week||"—")+'</div><div><span>Can start</span>'+E(START[t.start_when]||"—")+'</div>'+
+      '<div><span>ID</span>'+E(STATUS_LABEL[t.id_status]||t.id_status)+'</div><div><span>Tests</span>'+E(STATUS_LABEL[t.tests_status]||t.tests_status)+'</div>'+
+    '</div>'+
+    (t.skill_notes&&t.skill_notes.length?'<details><summary>Private skill notes ('+t.skill_notes.length+')</summary>'+t.skill_notes.map(function(n){return '<p class="msg"><strong>'+E(n.name)+':</strong> '+E(n.note)+'</p>';}).join("")+'</details>':'')+
+    '<div class="act">'+(t.status==="visible"?'<button type="button" class="btn btn-sm" data-talent="hidden">Hide profile</button>':'<button type="button" class="btn btn-sm btn-gold" data-talent="visible">Show profile</button>')+'</div>'+
+  '</article>';
+}
+
+/* ---------- actions ---------- */
+function onClick(e){
+  var go=e.target.closest("[data-go]");
+  if(go){state.tab=go.getAttribute("data-go");if(state.tab==="messages")state.flagged=true;if(state.tab==="jobs")state.jobStatus="open";if(state.tab==="ids"||state.tab==="tests")state.review="submitted";loadTab();$("#list").scrollIntoView({block:"start",behavior:"smooth"});return;}
+  var tb=e.target.closest("[data-tab]");
+  if(tb){state.tab=tb.getAttribute("data-tab");loadTab();return;}
+  if(e.target.closest("[data-refresh]")){if($("#f-q"))state.q=$("#f-q").value.trim();render(false);loadStats();return;}
+  if(e.target.closest("[data-more]")){render(true);return;}
+  var row=e.target.closest("[data-id]");if(!row)return;
+  var id=row.getAttribute("data-id"),note=$("#note");
+
+  var open=e.target.closest("[data-open]");
+  if(open){
+    /* Open the tab inside the click (pop-up blockers allow it), then point it at the 60-second link. */
+    var w=window.open("about:blank","_blank");if(w)try{w.opener=null;}catch(x){}
+    var what=open.getAttribute("data-open");
+    (what==="id"?AAOApi.adminIdentityLink(id):AAOApi.adminAssessmentLink(id,what)).then(function(url){
+      if(!url)throw new Error("No file link was returned.");
+      if(w)w.location.href=url;else window.location.href=url;
+      note.textContent="Opened in a new tab. The link works for 60 seconds.";
+    }).catch(function(err){if(w)w.close();note.textContent=errText(err);});
+    return;
+  }
+  var rv=e.target.closest("[data-review]");
+  if(rv){
+    var isId=state.tab==="ids",status=rv.getAttribute("data-review"),text=row.querySelector("[data-text]").value.trim();
+    var it=items.filter(function(x){return x.account_id===id;})[0],who=it&&it.display_name?it.display_name:"this account";
+    if(status==="rejected"&&!text){note.textContent="Add a short note so the assistant knows what to fix.";return;}
+    if(!window.confirm((status==="rejected"?"Reject ":(isId?"Approve ":"Verify "))+(isId?"the ID of ":"the test results of ")+who+"?"))return;
+    setBusy(row,true);
+    (isId?AAOApi.adminIdentityReview(id,status,text):AAOApi.adminAssessmentReview(id,status,text)).then(function(){
+      note.textContent="Saved: "+(STATUS_LABEL[status]||status)+".";loadStats();return render(false);
+    }).catch(function(err){setBusy(row,false);note.textContent=errText(err);});
+    return;
+  }
+  var ab=e.target.closest("[data-apps]");
+  if(ab){
+    var box=row.querySelector("[data-apps-box]");
+    if(!box.hidden){box.hidden=true;return;}
+    box.hidden=false;box.innerHTML='<p class="meta">Loading…</p>';
+    AAOApi.adminJobApplicants(id).then(function(r){box.innerHTML=r.items.length?r.items.map(appHtml).join(""):'<p class="meta">No applicants yet.</p>';}).catch(function(err){box.innerHTML="";note.textContent=errText(err);});
+    return;
+  }
+  var jb=e.target.closest("[data-job]"),tl=e.target.closest("[data-talent]");
+  if(jb||tl){
+    var st=(jb||tl).getAttribute(jb?"data-job":"data-talent");
+    var label={closed:"Close this job",open:"Reopen this job",hidden:jb?"Hide this job from everyone":"Hide this profile from clients",visible:"Show this profile to clients again"}[st];
+    var reason=window.prompt(label+"? Reason (optional, kept in the admin log):","");
+    if(reason===null)return;
+    setBusy(row,true);
+    (jb?AAOApi.adminSetJobStatus(id,st,reason.trim()):AAOApi.adminSetTalentStatus(id,st,reason.trim())).then(function(){
+      note.textContent="Saved.";loadStats();return render(false);
+    }).catch(function(err){setBusy(row,false);note.textContent=errText(err);});
+  }
+}
+function setBusy(row,on){Array.prototype.forEach.call(row.querySelectorAll("button"),function(b){b.disabled=on;});}
+
+window.addEventListener("load",start);
+})();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0" integrity="sha384-gnyZit14c5lnGcarmA166QQjjJXpucw25ogZXuwH3HxxY904zHkBqmxVpelsPorb" crossorigin="anonymous"></script>
+</body>
+</html>
