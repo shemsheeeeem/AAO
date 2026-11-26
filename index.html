@@ -1534,6 +1534,7 @@ details.fold>summary:focus{outline:none}
 .dash-person:hover strong,.dash-person:focus-visible strong{color:#EBD08F;text-decoration:underline;outline:none}
 .dash-row>div>span{display:block;color:#A8B9D6;font-size:.9rem;margin-top:2px}
 .dash-act{appearance:none;border:0;background:transparent;padding:0;font:600 .86rem var(--body);color:#DDBB68;cursor:pointer;white-space:nowrap;text-decoration:none;transition:color .2s}
+.dash-act+.dash-act{margin-left:16px}
 .dash-act:hover,.dash-act:focus-visible{color:#EBD08F;text-decoration:underline;outline:none}
 .dash-toast{display:none;margin:0 0 16px;padding:14px 16px;border-radius:12px;background:#0B3262;border:1px solid rgba(221,187,104,.4);color:#EAF0FA;font-size:.95rem;line-height:1.45}
 .dash-toast.show{display:block;animation:ansIn .35s var(--ease)}
@@ -3812,13 +3813,17 @@ function talentListRow(t){
   return '<a class="trow" href="#talent-'+t.id+'"><span class="trow-photo" aria-hidden="true">'+picOf("t",t)+'</span><span><span class="trow-title">'+t.name+'</span><div class="trow-role">'+t.headline+'</div><p class="trow-body">'+about+'</p><div class="tags">'+(hired?tag("Hired","gold"):"")+tag(availShort(t.avail))+t.skills.slice(0,4).map(function(s){return tag(s);}).join("")+'</div><div class="trow-foot"><span>'+(/^Experience not listed/.test(t.exp)?t.exp:t.exp+' experience')+'</span><span>'+t.loc+'</span><span>'+(CATS[t.cat]||t.cat)+'</span></div></span></a>';
 }
 function payLabel(j){
-  if(!j.pay)return "Pay TBD";
+  if(!j.pay)return "Pay to be discussed";
   if(j.payUnit==="fixed")return "$"+j.pay;
   if(j.payUnit==="mo")return "$"+j.pay;
   return "$"+j.pay;
 }
+/* "$8 /hr", "$500 fixed", or "Pay to be discussed" (no unit) when the client set no pay. */
+function payFull(j){return j.pay?payLabel(j)+" "+paySuffix(j):payLabel(j);}
+function payHead(j){return j.pay?payLabel(j)+(j.payUnit==="fixed"?" fixed.":(j.payUnit==="mo"?" /mo.":" /hr.")):payLabel(j)+".";}
+function paySubText(j){return !j.pay?"Agree it with the client":(j.payUnit==="fixed"?"Fixed project":(j.payUnit==="mo"?"Monthly":"Hourly"));}
 function paySuffix(j){
-  if(!j.pay)return "budget";
+  if(!j.pay)return "";
   if(j.payUnit==="fixed")return "fixed";
   if(j.payUnit==="mo")return "/mo";
   return "/hr";
@@ -3857,7 +3862,7 @@ function jobCard(j,i){
   return '<a class="jcard v-'+JV[k%5]+'" href="#job-'+j.id+'"><span class="mark" aria-hidden="true">'+init(j.company||j.title)+'</span><div><h3>'+j.title+'</h3><p class="meta">'+j.company+' · '+j.loc+' · '+j.type+'</p><div class="tags">'+tag(j.cat)+(j.skills||[]).slice(0,3).map(function(s){return tag(s);}).join("")+'</div></div><div class="pay">'+payLabel(j)+'<small>'+paySuffix(j)+'</small></div></a>';
 }
 function jobPayLine(j){
-  if(!j.pay)return j.type+" · Pay TBD";
+  if(!j.pay)return j.type+" · Pay to be discussed";
   if(j.payUnit==="fixed")return "Fixed-price: "+payLabel(j)+" — "+j.type;
   if(j.payUnit==="mo")return "Monthly: "+payLabel(j)+"/mo — "+j.type;
   return "Hourly: "+payLabel(j)+"/hr — "+j.type;
@@ -5067,7 +5072,7 @@ function jobDetailMeta(j){
 }
 function jobApplyPanel(j,m){
   var u=getDemoUser();
-  var budget=payLabel(j)+" "+paySuffix(j);
+  var budget=payFull(j);
   var ask='<div class="jd-ask"><strong>How to stand out</strong>'+m.tip+"</div>";
   var sums='<dl class="jd-sum"><div><dt>Client budget</dt><dd>'+budget+'</dd></div><div><dt>Applicants</dt><dd>'+m.applicants+'</dd></div></dl>';
   if(u&&u.role==="va"){
@@ -5100,11 +5105,11 @@ function agoLabel(iso){
 }
 V.jobLive = function(j){
   var u=getDemoUser();
-  var payMain=payLabel(j)+(j.payUnit==="fixed"?" fixed.":(j.payUnit==="mo"?" /mo.":" /hr."));
-  var paySub=j.payUnit==="fixed"?"Fixed project":(j.payUnit==="mo"?"Monthly":"Hourly");
+  var payMain=payHead(j);
+  var paySub=paySubText(j);
   var skills=(j.skills&&j.skills.length)?j.skills.map(function(s){return '<span class="jd-tag">'+s+"</span>";}).join(""):"";
   var posted=agoLabel(j.created);
-  var budget='<dl class="jd-sum"><div><dt>Budget</dt><dd>'+payLabel(j)+" "+paySuffix(j)+'</dd></div><div><dt>Type</dt><dd>'+j.type+'</dd></div></dl>';
+  var budget='<dl class="jd-sum"><div><dt>Budget</dt><dd>'+payFull(j)+'</dd></div><div><dt>Type</dt><dd>'+j.type+'</dd></div></dl>';
   var panel;
   if(u&&u.role==="va"){
     /* The designed "Send a letter" form, unchanged; only the made-up applicant count in the summary is left out. */
@@ -5128,7 +5133,7 @@ V.jobLive = function(j){
     '<p class="jd-payline">'+payMain+"</p>"+
     '<p class="jd-meta"><span>'+j.company+"</span><span>"+j.loc+"</span>"+(posted?"<span>"+posted+"</span>":"")+"</p>"+
     '<dl class="jd-facts">'+
-      "<div><dt>Pay</dt><dd>"+payLabel(j)+" "+paySuffix(j)+"<small>"+paySub+"</small></dd></div>"+
+      "<div><dt>Pay</dt><dd>"+payFull(j)+"<small>"+paySub+"</small></dd></div>"+
       "<div><dt>Job type</dt><dd>"+j.type+"</dd></div>"+
       "<div><dt>Location</dt><dd>"+j.loc+"</dd></div>"+
     "</dl>"+
@@ -5146,8 +5151,8 @@ V.job = function(id){
   }
   if(API_ON)return V.jobLive(j);
   var m=jobDetailMeta(j);
-  var payMain=payLabel(j)+(j.payUnit==="fixed"?" fixed.":(j.payUnit==="mo"?" /mo.":" /hr."));
-  var paySub=j.payUnit==="fixed"?"Fixed project":(j.payUnit==="mo"?"Monthly":"Hourly");
+  var payMain=payHead(j);
+  var paySub=paySubText(j);
   var duties=m.duties.map(function(t){return "<li>"+jobCheck(false)+"<span>"+t+"</span></li>";}).join("");
   var looking=m.looking.map(function(t){return "<li>"+jobCheck(false)+"<span>"+t+"</span></li>";}).join("");
   var nice=m.nice.map(function(t){return "<li>"+jobCheck(true)+"<span>"+t+"</span></li>";}).join("");
@@ -5159,7 +5164,7 @@ V.job = function(id){
     '<p class="jd-payline">'+payMain+"</p>"+
     '<p class="jd-meta"><a href="#jobs">'+j.company+"</a><span>"+j.loc+'</span><span>'+m.applicants+" applied · "+m.posted+"</span></p>"+
     '<dl class="jd-facts">'+
-      "<div><dt>Pay</dt><dd>"+payLabel(j)+" "+paySuffix(j)+"<small>"+paySub+"</small></dd></div>"+
+      "<div><dt>Pay</dt><dd>"+payFull(j)+"<small>"+paySub+"</small></dd></div>"+
       "<div><dt>Experience</dt><dd>"+m.experience+"</dd></div>"+
       "<div><dt>Project length</dt><dd>"+m.length+"</dd></div>"+
       "<div><dt>Hours</dt><dd>"+m.hours+"</dd></div>"+
