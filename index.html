@@ -1000,25 +1000,6 @@ body.booting .foot{visibility:hidden}
 .lbx-next{right:12px;top:50%;transform:translateY(-50%)}
 .lbx button[hidden]{display:none}
 @media (max-width:600px){.lbx-prev,.lbx-next{top:auto;bottom:14px;transform:none}.lbx-prev{left:calc(50% - 56px)}.lbx-next{right:calc(50% - 56px)}}
-/* Admin review page (decision 80) */
-.adm-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
-.adm-tabs button[aria-pressed="true"]{background:#C49B3F;border-color:#C49B3F;color:#06244A}
-.adm-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 0 14px;color:#A8B9D6}
-.adm-bar select{font:inherit;padding:.45em .7em;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:#06162D;color:#EAF0FA}
-.adm-list{display:grid;gap:12px}
-.adm-item{border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:14px 16px;display:grid;gap:8px}
-.adm-item h3{margin:0;font-size:1.05rem;color:#fff;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.adm-item h3 a{color:#fff}
-.adm-meta{color:#A8B9D6;font-size:.88rem}
-.adm-status{font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border-radius:999px;padding:.2em .7em;background:#24406B;color:#EAF0FA}
-.adm-status.s-approved,.adm-status.s-verified{background:#1F6B4A}
-.adm-status.s-rejected{background:#8A2E2E}
-.adm-results{margin:0;padding:0;list-style:none;display:grid;gap:4px;color:#EAF0FA}
-.adm-results span{color:#A8B9D6}
-.adm-act{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.adm-act .btn{padding:.45em .9em;font-size:.85rem}
-.adm-act input{flex:1 1 220px;min-width:0;font:inherit;padding:.5em .7em;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:#06162D;color:#EAF0FA}
-.adm-note{min-height:1.2em;color:#F2D48A;font-size:.88rem}
 /* Portfolio pages (decision 79) */
 .ppages{display:grid;gap:18px}
 .ppage{border:1px solid rgba(127,140,160,.35);border-radius:14px;padding:16px 18px;background:transparent}
@@ -2606,7 +2587,7 @@ p{text-wrap:pretty}
       <a href="#talent" data-r="talent" id="navFind">Assistants</a>
       <a href="#why-filipino" data-r="why-filipino" data-nav="guest">Why Filipino VAs</a>
       <a href="#messages" data-r="messages" data-nav="auth" hidden>Messages</a>
-      <a href="#admin" data-r="admin" data-nav="admin" hidden>Admin review</a>
+      <a href="admin.html" data-r="admin" data-nav="admin" hidden>Admin</a>
       <a href="#how" data-r="how">How it works</a>
       <a href="#pricing" data-r="pricing" data-nav="guest">Pricing</a>
       <a href="#standards" data-r="standards" data-nav="guest">Trust and standards</a>
@@ -3019,7 +3000,7 @@ function contactInfoIssue(text){
   if(m&&m.some(function(x){return x.replace(/\D/g,"").length>=7&&!/^(19|20)\d\d\s*[-\u2013]\s*(19|20)\d\d$/.test(x.trim());}))return "phone";
   return "";
 }
-var CONTACT_INFO_MSG="For your safety, contact details and links aren’t allowed on your profile.";
+var CONTACT_INFO_MSG="For your safety, contact details and links aren’t allowed on AAO.";
 function skillPathLabel(s){
   if(s&&Array.isArray(s.path)&&s.path.length)return s.path.join(" » ");
   if(s&&s.path)return String(s.path);
@@ -6818,114 +6799,11 @@ function bindTestsSection(){
     });
   });
 }
-/* Admin review (decision 80): ID photos and test results waiting for an AAO administrator. Live mode only. The page shows for administrators,
-   but the server decides: every call below is refused for anyone else. Names, results and notes are escaped here; files open through 60-second links. */
-var ADMIN_STATE={tab:"identity",status:"submitted"};
+/* The admin pages moved to their own page, admin.html (staff only; decision 83). Old #admin links are sent there. */
 V.admin = function(){
-  var u=getDemoUser();
-  if(!u)return V.login();
-  var deny='<section class="app-page"><div class="wrap"><div class="app-card"><h1>Admin review</h1><p class="lede">This page is for AAO administrators.</p><a class="btn btn-line" href="#dashboard">Back to your desk</a></div></div></section>';
-  if(!API_ON||u.isAdmin!==true)return deny;
-  return '<section class="app-page app-page-wide"><div class="wrap">'+
-    '<div class="app-card"><h1>Admin review</h1>'+
-    '<p class="lede">Check government IDs and test results, then approve or reject them. Files open in a new tab for 60 seconds. Assistants see your note only when you reject.</p>'+
-    '<div class="adm-tabs" role="group" aria-label="What to review">'+
-      '<button type="button" class="btn btn-line" data-adm-tab="identity">Government IDs</button>'+
-      '<button type="button" class="btn btn-line" data-adm-tab="assessment">Test results</button>'+
-    '</div>'+
-    '<div class="adm-bar"><label for="adm-status">Show</label><select id="adm-status">'+
-      '<option value="submitted">Waiting for review</option><option value="done">Approved</option><option value="rejected">Rejected</option><option value="">All</option>'+
-    '</select><button type="button" class="btn btn-line" id="adm-refresh">Refresh</button></div>'+
-    '<div class="adm-note" id="adm-note" role="status"></div>'+
-    '<div class="adm-list" id="adm-list"><p class="adm-meta">Loading…</p></div>'+
-  '</div></div></section>';
+  return '<section class="app-page"><div class="wrap"><div class="app-card"><h1>Admin</h1><p class="lede">The admin pages have moved to their own page.</p><a class="btn btn-gold" href="admin.html">Open the admin page</a></div></div></section>';
 };
-V.admin.init = function(){
-  var list=$("#adm-list"),note=$("#adm-note"),sel=$("#adm-status");
-  if(!list)return;
-  var items=[];
-  function isId(){return ADMIN_STATE.tab==="identity";}
-  function apiStatus(){return ADMIN_STATE.status==="done"?(isId()?"approved":"verified"):ADMIN_STATE.status;}
-  function when(v){if(!v)return "";var d=new Date(v);return isNaN(d)?"":d.toLocaleString("en-US",{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"});}
-  function statusLabel(s){return {submitted:"Waiting",approved:"Approved",verified:"Verified",rejected:"Rejected"}[s]||s;}
-  function nameHtml(it){
-    var nm=it.display_name?escHtml(it.display_name):"No profile yet";
-    return it.talent_profile_id?'<a href="#talent-'+escAttr(it.talent_profile_id)+'">'+nm+'</a>':nm;
-  }
-  function draw(){
-    Array.prototype.forEach.call(document.querySelectorAll("[data-adm-tab]"),function(b){b.setAttribute("aria-pressed",b.getAttribute("data-adm-tab")===ADMIN_STATE.tab?"true":"false");});
-    sel.value=ADMIN_STATE.status;
-    if(!items.length){list.innerHTML='<p class="adm-meta">Nothing here.</p>';return;}
-    list.innerHTML=items.map(function(it){
-      var files,results="";
-      if(isId()){files='<button type="button" class="btn btn-line" data-adm-open="id">Open ID photo</button>';}
-      else{
-        results='<ul class="adm-results">'+[["typing","Typing"],["disc","DISC"],["aptitude","Aptitude"]].map(function(t){
-          var v=it[t[0]+"_result"];return '<li><span>'+t[1]+':</span> '+(v?escHtml(v):"—")+'</li>';
-        }).join("")+'</ul>';
-        files=[["typing","Typing PDF"],["disc","DISC PDF"],["aptitude","Aptitude PDF"]].filter(function(t){return it["has_"+t[0]+"_pdf"];}).map(function(t){
-          return '<button type="button" class="btn btn-line" data-adm-open="'+t[0]+'">'+t[1]+'</button>';
-        }).join("")||'<span class="adm-meta">No PDFs</span>';
-      }
-      var okLabel=isId()?"Approve":"Verify",okStatus=isId()?"approved":"verified";
-      return '<article class="adm-item" data-adm-id="'+escAttr(it.account_id)+'">'+
-        '<h3>'+nameHtml(it)+'<span class="adm-status s-'+escAttr(it.status)+'">'+statusLabel(it.status)+'</span></h3>'+
-        '<div class="adm-meta">Submitted '+when(it.submitted_at)+(it.reviewed_at?' · Reviewed '+when(it.reviewed_at):'')+'</div>'+
-        results+
-        (it.review_note?'<div class="adm-meta">Note: '+escHtml(it.review_note)+'</div>':'')+
-        '<div class="adm-act">'+files+'</div>'+
-        '<div class="adm-act"><input type="text" maxlength="500" placeholder="Note to the assistant (shown if you reject)" data-adm-text>'+
-          '<button type="button" class="btn btn-gold" data-adm-review="'+okStatus+'">'+okLabel+'</button>'+
-          '<button type="button" class="btn btn-line" data-adm-review="rejected">Reject</button></div>'+
-      '</article>';
-    }).join("");
-  }
-  function load(){
-    list.innerHTML='<p class="adm-meta">Loading…</p>';
-    var p=isId()?AAOApi.adminIdentityList(apiStatus()):AAOApi.adminAssessmentList(apiStatus());
-    return p.then(function(l){items=l;draw();}).catch(function(err){
-      items=[];list.innerHTML="";
-      note.textContent=err&&err.status===403?"Your account is not an AAO administrator.":(err&&err.message)||"Could not load the list.";
-    });
-  }
-  Array.prototype.forEach.call(document.querySelectorAll("[data-adm-tab]"),function(b){
-    b.addEventListener("click",function(){ADMIN_STATE.tab=b.getAttribute("data-adm-tab");note.textContent="";load();});
-  });
-  sel.addEventListener("change",function(){ADMIN_STATE.status=sel.value;note.textContent="";load();});
-  $("#adm-refresh").addEventListener("click",function(){note.textContent="";load();});
-  list.addEventListener("click",function(e){
-    var row=e.target.closest("[data-adm-id]");if(!row)return;
-    var id=row.getAttribute("data-adm-id");
-    var open=e.target.closest("[data-adm-open]");
-    if(open){
-      /* Open the tab now (inside the click) so pop-up blockers allow it, then point it at the 60-second link. */
-      var w=window.open("about:blank","_blank");
-      if(w)try{w.opener=null;}catch(x){}
-      var what=open.getAttribute("data-adm-open");
-      (what==="id"?AAOApi.adminIdentityLink(id):AAOApi.adminAssessmentLink(id,what)).then(function(url){
-        if(!url)throw new Error("No file link was returned.");
-        if(w)w.location.href=url;else window.location.href=url;
-        note.textContent="Opened in a new tab. The link works for 60 seconds.";
-      }).catch(function(err){if(w)w.close();note.textContent=(err&&err.message)||"Could not open the file.";});
-      return;
-    }
-    var rv=e.target.closest("[data-adm-review]");
-    if(rv){
-      var status=rv.getAttribute("data-adm-review"),text=row.querySelector("[data-adm-text]").value.trim();
-      var it=items.filter(function(x){return x.account_id===id;})[0],who=it&&it.display_name?it.display_name:"this account";
-      if(status==="rejected"&&!text){note.textContent="Add a short note so the assistant knows what to fix.";return;}
-      if(!window.confirm((status==="rejected"?"Reject ":(isId()?"Approve ":"Verify "))+(isId()?"the ID of ":"the test results of ")+who+"?"))return;
-      Array.prototype.forEach.call(row.querySelectorAll("button"),function(b){b.disabled=true;});
-      (isId()?AAOApi.adminIdentityReview(id,status,text):AAOApi.adminAssessmentReview(id,status,text)).then(function(){
-        note.textContent="Saved: "+statusLabel(status)+".";return load();
-      }).catch(function(err){
-        Array.prototype.forEach.call(row.querySelectorAll("button"),function(b){b.disabled=false;});
-        note.textContent=(err&&err.message)||"Could not save the review.";
-      });
-    }
-  });
-  load();
-};
+V.admin.init = function(){ location.replace("admin.html"); };
 
 V.vaSettings = function(){
   var u=getDemoUser();

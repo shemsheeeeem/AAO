@@ -748,6 +748,29 @@
     return r.data;
   }
 
+  /* ---------- administrators: oversight of jobs, messages and assistants (decision 83). Every call is logged by the server. ---------- */
+  function qs(o) {
+    var parts = [];
+    Object.keys(o).forEach(function (k) { if (o[k] !== undefined && o[k] !== null && o[k] !== "") parts.push(encodeURIComponent(k) + "=" + encodeURIComponent(o[k])); });
+    return parts.length ? "?" + parts.join("&") : "";
+  }
+  async function adminGet(path) {
+    var r = await call("GET", path, undefined, { auth: true, fresh: true });
+    return { items: r.data || [], meta: r.meta || {} };
+  }
+  function adminJobs(o) { o = o || {}; return adminGet("/admin/jobs" + qs({ status: o.status, limit: 20, offset: o.offset || 0 })); }
+  function adminJobApplicants(jobId) { return adminGet("/admin/jobs/" + encodeURIComponent(jobId) + "/applications"); }
+  function adminMessages(o) { o = o || {}; return adminGet("/admin/messages" + qs({ flagged: o.flagged ? "true" : "", limit: 20, offset: o.offset || 0 })); }
+  function adminTalentList(o) { o = o || {}; return adminGet("/admin/talent" + qs({ status: o.status, q: o.q, limit: 20, offset: o.offset || 0 })); }
+  async function adminSetJobStatus(jobId, status, reason) {
+    var r = await call("POST", "/admin/jobs/" + encodeURIComponent(jobId) + "/status", { status: status, reason: reason || undefined }, { auth: true });
+    return r.data;
+  }
+  async function adminSetTalentStatus(profileId, status, reason) {
+    var r = await call("POST", "/admin/talent/" + encodeURIComponent(profileId) + "/status", { status: status, reason: reason || undefined }, { auth: true });
+    return r.data;
+  }
+
   /* ---------- job applications ---------- */
   var START_FROM_LABEL = { "Immediately": "immediately", "Within a week": "within_week", "In 2 weeks": "in_two_weeks", "In a month": "in_a_month" };
 
@@ -783,6 +806,8 @@
     identityStatus: identityStatus,
     adminIdentityList: adminIdentityList, adminIdentityLink: adminIdentityLink, adminIdentityReview: adminIdentityReview,
     adminAssessmentList: adminAssessmentList, adminAssessmentLink: adminAssessmentLink, adminAssessmentReview: adminAssessmentReview,
+    adminJobs: adminJobs, adminJobApplicants: adminJobApplicants, adminMessages: adminMessages, adminTalentList: adminTalentList,
+    adminSetJobStatus: adminSetJobStatus, adminSetTalentStatus: adminSetTalentStatus,
     uploadIdentity: uploadIdentity, myPhotoUrl: myPhotoUrl,
     assessmentStatus: assessmentStatus, saveAssessment: saveAssessment, uploadAssessmentPdf: uploadAssessmentPdf,
     hasTalentProfile: function () { return !!(mine && mine.kind === "talent" && mine.data); },
