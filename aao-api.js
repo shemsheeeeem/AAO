@@ -417,6 +417,7 @@
       start: START_LABEL[d.start_when] ? d.start_when : "",
       subs: esc((d.sub_specialties || []).join(", ")),
       work: workFromApi(d.work_experience),
+      video: safeUrl(d.video_url),
       /* Raw text for the skill editor, which escapes what it draws. */
       banner: d.banner && safeUrl(d.banner.url) ? { url: safeUrl(d.banner.url), x: Number(d.banner.x) || 0, y: Number(d.banner.y) || 0 } : null,
       skillRatings: (d.skill_details || []).map(function (s) {
@@ -442,7 +443,8 @@
       location: row.loc || null, experience_years: isFinite(years) && years >= 0 && years <= 60 ? years : null,
       languages: splitList(row.langs, 10),
       certifications: (prev.certifications || []).map(function (c) { return { title: c.title, issuer: c.issuer || null }; }),
-      video_url: prev.video_url || null,
+      /* Intro video (decision 71): the screen sends row.video when it has the box; the API checks and cleans the link. */
+      video_url: row.video !== undefined ? (String(row.video || "").trim() || null) : (prev.video_url || null),
       hourly_rate: rate > 0 ? Math.round(rate * 100) / 100 : null, show_rate: rate > 0
     };
     /* Profile sections (decision 75). Sent only when the screen has them, so an older screen never clears them. */
