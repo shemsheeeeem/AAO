@@ -545,7 +545,11 @@
   async function uploadPhoto(file) {
     if (["image/jpeg", "image/png", "image/webp"].indexOf(file.type) < 0) throw ApiError(400, "VALIDATION_ERROR", "Please choose a JPEG, PNG or WebP image.");
     if (!file.size) throw ApiError(400, "VALIDATION_ERROR", "That file is empty.");
-    if (file.size > 2 * 1024 * 1024) throw ApiError(400, "VALIDATION_ERROR", "That image is larger than 2 MB. Please choose a smaller one.");
+    /* Redraw at most 1024 px so hidden camera details (such as the GPS location of a phone photo) are not uploaded.
+       JPEG stays JPEG; PNG and WebP become WebP (or PNG where the browser cannot make WebP), so a transparent background stays transparent. */
+    file = await redrawImage(file, 1024, file.type === "image/jpeg" ? "image/jpeg" : "image/webp", 0.9);
+    if (["image/jpeg", "image/png", "image/webp"].indexOf(file.type) < 0) throw ApiError(400, "VALIDATION_ERROR", "We could not read that image. Please try another one.");
+    if (file.size > 2 * 1024 * 1024) throw ApiError(400, "VALIDATION_ERROR", "That image is still larger than 2 MB. Please choose a smaller one.");
     var a = await call("POST", "/me/talent-profile/photo/upload-url", { content_type: file.type, size: file.size }, { auth: true });
     var up = a.data.upload, put;
     try {
@@ -625,7 +629,9 @@
   }
   /* ---------- banner and personal photos (public; decision 78) ---------- */
   /* Redraws an image as a JPEG of at most maxSide px (keeps uploads small and drops hidden camera details such as location). */
-  function imageAsJpeg(file, maxSide) {
+  function imageAsJpeg(file, maxSide) { return redrawImage(file, maxSide, "image/jpeg", 0.85); }
+  /* Redrawing on a canvas keeps only the pixels: camera make, date and GPS location in the original file are left behind. */
+  function redrawImage(file, maxSide, outType, quality) {
     return new Promise(function (resolve, reject) {
       if (!file || ["image/jpeg", "image/png", "image/webp"].indexOf(file.type) < 0) { reject(ApiError(400, "VALIDATION_ERROR", "Please choose a JPG, PNG or WebP image.")); return; }
       if (file.size > 20 * 1024 * 1024) { reject(ApiError(400, "VALIDATION_ERROR", "That image is too large. Please choose one under 20 MB.")); return; }
@@ -638,7 +644,7 @@
           c.height = Math.max(1, Math.round(img.naturalHeight * scale));
           c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
           URL.revokeObjectURL(url);
-          c.toBlob(function (b) { b ? resolve(b) : reject(ApiError(400, "VALIDATION_ERROR", "We could not read that image.")); }, "image/jpeg", 0.85);
+          c.toBlob(function (b) { b ? resolve(b) : reject(ApiError(400, "VALIDATION_ERROR", "We could not read that image.")); }, outType, quality);
         } catch (e) { URL.revokeObjectURL(url); reject(ApiError(400, "VALIDATION_ERROR", "We could not read that image.")); }
       };
       img.onerror = function () { URL.revokeObjectURL(url); reject(ApiError(400, "VALIDATION_ERROR", "We could not read that image. Please try another one.")); };
