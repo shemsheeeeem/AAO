@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAO English Assessment</title>
+<style>
+  :root{
+    --brand:#1f4e79; --brand-dark:#163a5a; --accent:#f2a900;
+    --bg:#f5f7fa; --card:#ffffff; --text:#1d2433; --muted:#5b6475;
+    --border:#dde2ea; --danger:#c0392b; --ok:#1e8449; --radius:12px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;font-size:16px}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 16px 80px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+  h1{font-size:1.6rem;margin:0 0 6px;color:var(--brand-dark)}
+  h2{font-size:1.3rem;margin:0 0 8px;color:var(--brand-dark)}
+  h3{font-size:1.05rem;margin:0 0 8px}
+  p{margin:0 0 12px}
+  .muted{color:var(--muted)}
+  .small{font-size:.9rem}
+  .brandline{font-weight:600;color:var(--brand);letter-spacing:.02em;text-transform:uppercase;font-size:.8rem;margin-bottom:8px}
+  .sections-list{list-style:none;padding:0;margin:16px 0}
+  .sections-list li{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)}
+  .sections-list li:last-child{border-bottom:0}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-weight:600;margin-bottom:4px}
+  .field input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:1rem}
+  .btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:8px;padding:12px 20px;font-size:1rem;font-weight:600;cursor:pointer;background:var(--brand);color:#fff}
+  .btn:hover{background:var(--brand-dark)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn.secondary{background:#e8edf4;color:var(--brand-dark)}
+  .btn.secondary:hover{background:#dbe3ee}
+  .btn.rec{background:var(--danger)}
+  .btn.rec.recording{background:#7f1d1d}
+  .topbar{position:sticky;top:0;z-index:10;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-radius:0 0 var(--radius) var(--radius);margin:-24px -16px 16px}
+  .topbar .timer{font-variant-numeric:tabular-nums;font-weight:700;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:6px}
+  .topbar .timer.low{background:var(--danger)}
+  .progress{height:6px;background:#e3e8ef;border-radius:3px;overflow:hidden;margin-bottom:16px}
+  .progress>div{height:100%;background:var(--accent);transition:width .3s}
+  fieldset.q{border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin:0 0 12px;background:#fff}
+  fieldset.q legend{font-weight:600;padding:0 4px}
+  .qnum{color:var(--brand)}
+  .blank{display:inline-block;min-width:60px;border-bottom:2px solid var(--muted);color:transparent;line-height:1}
+  .opts{display:grid;gap:8px;margin-top:8px}
+  .opt{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer}
+  .opt:hover{background:#f3f6fa}
+  .opt input{margin-top:4px}
+  .opt:has(input:checked){border-color:var(--brand);background:#eef4fb}
+  .passage{background:#fbfcfe;border-left:4px solid var(--brand);padding:16px 18px;border-radius:8px;margin-bottom:14px}
+  .passage p{margin-bottom:8px}
+  .clip{display:flex;flex-wrap:wrap;align-items:center;gap:12px;background:#fbfcfe;border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px}
+  .clip h3{flex-basis:100%;margin:0}
+  .task{border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px;background:#fff}
+  .prompt{background:#fbfcfe;border-left:4px solid var(--accent);padding:12px 14px;border-radius:6px}
+  textarea{width:100%;min-height:200px;padding:12px;border:1px solid var(--border);border-radius:8px;font:inherit;resize:vertical}
+  .wc{font-size:.9rem;color:var(--muted);margin-top:6px}
+  .wc.bad{color:var(--danger)}
+  .wc.good{color:var(--ok)}
+  .rec-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:12px 0}
+  .rec-status{color:var(--muted);font-size:.95rem}
+  .notice{background:#fff7e0;border:1px solid #f2d27a;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:.95rem}
+  .error{background:#fdecea;border:1px solid #f5b7b1;color:#7b241c;border-radius:8px;padding:10px 14px;margin-bottom:14px}
+  .footer-nav{display:flex;justify-content:flex-end;margin-top:20px}
+  .center{text-align:center}
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+  .modal{background:#fff;border-radius:var(--radius);padding:24px;max-width:440px;width:100%}
+  .modal .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+  .spinner{width:36px;height:36px;border:4px solid #dde2ea;border-top-color:var(--brand);border-radius:50%;animation:spin 1s linear infinite;margin:12px auto}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (max-width:560px){.card{padding:18px}.topbar{font-size:.9rem}}
+</style>
+<script>
+/* Show a message instead of a blank page if something fails to load. */
+window.addEventListener("error", function (e) {
+  var a = document.getElementById("app");
+  if (a && !a.textContent.trim()) a.innerHTML = '<div style="max-width:640px;margin:40px auto;padding:20px;border:1px solid #f5b7b1;background:#fdecea;color:#7b241c;border-radius:10px;font-family:Arial,sans-serif"><strong>This page couldn\'t load.</strong><br>' + String(e.message || "Unknown error").replace(/[<>&]/g, "") + '<br><br>Open it in Chrome, Edge, Safari or Firefox (not a file preview). Developers: check the browser console.</div>';
+});
+</script>
+<script src="../aao-config.js"></script>
+<script src="aao-tests-config.js" data-page="english-test"></script>
+</head>
+<body>
+<noscript><div style="max-width:640px;margin:40px auto;padding:20px;border:1px solid #f2d27a;background:#fff7e0;border-radius:10px;font-family:Arial,sans-serif">
+<strong>This page needs JavaScript.</strong> Previews in email, Google Drive, GitHub or a code editor don't run it, so the page looks blank.
+Download the file and open it in Chrome, Edge, Safari or Firefox, or serve it from your website.</div></noscript>
+<div class="wrap" id="app"></div>
+
+<script>
+/* =====================================================================
+   AAO English Assessment v1 (Amazing Assistants Online)
+   4 skills: Grammar & Vocabulary, Reading, Listening, Writing, Speaking
+   ---------------------------------------------------------------------
+   DEVELOPER SETUP: in a separate script tag placed BEFORE this one, define:
+     window.AAO_CONFIG = {
+       submitUrl: "/api/assessments/english",
+       eligibilityUrl: "/api/assessments/english/eligibility",
+       candidateName: "Maria Santos",        // from the logged-in user
+       candidateEmail: "maria@example.com",
+       authToken: "",                        // optional Bearer token
+       audio: { l_clip1: "/audio/clip1.mp3", l_clip2: "/audio/clip2.mp3", l_clip3: "/audio/clip3.mp3" }
+     };
+   With no submitUrl, the page runs in DEMO MODE (nothing is sent).
+   Answer keys are NOT in this file. Scoring happens on the server.
+   ===================================================================== */
+(function () {
+  "use strict";
+
+  const CONFIG = Object.assign({
+    submitUrl: "",
+    eligibilityUrl: "",
+    candidateName: "",
+    candidateEmail: "",
+    authToken: "",
+    audio: {},
+    maxListeningPlays: 2,
+    maxRecordingAttempts: 2
+  }, window.AAO_CONFIG || {});
+
+  const TEST_VERSION = "aao-english-v1";
+
+  /* ------------------------------ CONTENT ------------------------------ */
+  const SECTIONS = [
+    {
+      id: "grammar", title: "Grammar & Vocabulary", minutes: 15, type: "mcq", shuffle: true,
+      intro: "Choose the best answer for each question.",
+      questions: [
+        { id: "g1", text: "I ___ the report to the client yesterday.", options: { a: "send", b: "sent", c: "have sent", d: "am sending" } },
+        { id: "g2", text: "Could you please ___ me know when the meeting starts?", options: { a: "let", b: "make", c: "tell", d: "allow" } },
+        { id: "g3", text: "She works ___ Monday to Friday.", options: { a: "at", b: "from", c: "in", d: "since" } },
+        { id: "g4", text: "If the client ___ back to me today, I will update the spreadsheet.", options: { a: "will write", b: "writes", c: "wrote", d: "would write" } },
+        { id: "g5", text: "I have been working on this project ___ three weeks.", options: { a: "since", b: "for", c: "during", d: "ago" } },
+        { id: "g6", text: "The invoices ___ every Friday by the finance team.", options: { a: "send", b: "are sending", c: "are sent", d: "sends" } },
+        { id: "g7", text: "Please make sure all the files are saved ___ the shared folder.", options: { a: "on", b: "at", c: "in", d: "by" } },
+        { id: "g8", text: "The client asked me to ___ the meeting until next Tuesday because she is traveling.", options: { a: "postpone", b: "attend", c: "prevent", d: "remind" } },
+        { id: "g9", text: "I'd appreciate it if you ___ review the draft before Friday.", options: { a: "can", b: "could", c: "will", d: "should to" } },
+        { id: "g10", text: "By the time the client logged in, I ___ all the tasks.", options: { a: "finished", b: "have finished", c: "had finished", d: "was finishing" } },
+        { id: "g11", text: "Neither the manager nor the assistants ___ aware of the change.", options: { a: "was", b: "were", c: "is", d: "be" } },
+        { id: "g12", text: "Please send me the signed contract at your earliest ___.", options: { a: "convenience", b: "comfort", c: "possibility", d: "opportunity" } },
+        { id: "g13", text: "The deadline is tight, so we need to ___ the most urgent tasks.", options: { a: "prioritize", b: "priority", c: "prior", d: "prioritizing" } },
+        { id: "g14", text: "I'm not used to ___ with clients in different time zones.", options: { a: "work", b: "working", c: "worked", d: "works" } },
+        { id: "g15", text: "The client was very ___ with the results and asked us to continue next month.", options: { a: "satisfying", b: "satisfied", c: "satisfaction", d: "satisfy" } },
+        { id: "g16", text: "Had I known about the change earlier, I ___ the schedule.", options: { a: "would update", b: "would have updated", c: "will have updated", d: "had updated" } },
+        { id: "g17", text: "Not only ___ the task early, but she also found an error in the data.", options: { a: "she finished", b: "did she finish", c: "she did finish", d: "finished she" } },
+        { id: "g18", text: "The new automation will ___ the need for manual data entry.", options: { a: "eliminate", b: "illuminate", c: "elevate", d: "emit" } },
+        { id: "g19", text: "It is essential that every invoice ___ checked before it goes out.", options: { a: "is being", b: "be", c: "will be", d: "was" } },
+        { id: "g20", text: "Which sentence is the most appropriate in an email to a new client?", options: {
+          a: "Hey, got your stuff, will do it later.",
+          b: "Thank you for sending the files. I'll have the first draft ready by Thursday.",
+          c: "Files received. Wait for my update.",
+          d: "Thanks!! I'll try to do it maybe Thursday." } }
+      ]
+    },
+    {
+      id: "reading", title: "Reading", minutes: 15, type: "reading",
+      intro: "Read each text carefully, then answer the questions below it.",
+      passages: [
+        {
+          title: "Text 1: Email from a client",
+          paragraphs: [
+            "<strong>Subject:</strong> This week's priorities",
+            "Hi Maria,",
+            "Thanks for all your help last week. Here's what I need this week, in order of importance:",
+            "1. Please update the lead list in our CRM by Wednesday. Only add contacts who <em>attended</em> the webinar, not the ones who just registered.",
+            "2. Draft three Instagram captions for the new workshop. Keep each one under 150 words and include the registration link.",
+            "3. If you have time, clean up the shared Google Drive. Don't delete anything. Move old files into the \"Archive 2025\" folder instead.",
+            "I'll be traveling Thursday and Friday with limited internet, so if anything is unclear, please ask me before Wednesday afternoon. For anything urgent while I'm away, contact Daniel.",
+            "Thanks,<br>Jessica"
+          ],
+          questions: [
+            { id: "r1", text: "What is Maria's most important task this week?", options: { a: "Writing Instagram captions", b: "Updating the CRM lead list", c: "Organizing the Google Drive", d: "Contacting Daniel" } },
+            { id: "r2", text: "Which contacts should Maria add to the CRM?", options: { a: "Everyone who registered for the webinar", b: "Only people who attended the webinar", c: "Everyone on last month's list", d: "People who clicked the registration link" } },
+            { id: "r3", text: "What should Maria do with old files in the Google Drive?", options: { a: "Delete them", b: "Email them to Jessica", c: "Move them into the archive folder", d: "Leave them where they are" } },
+            { id: "r4", text: "On Thursday morning, Maria has an urgent question about the captions. Based on the email, what should she do?", options: { a: "Wait until Jessica returns next week", b: "Contact Daniel", c: "Skip the captions", d: "Keep calling Jessica until she answers" } },
+            { id: "r5", text: "In the email, the word \"limited\" (in \"limited internet\") is closest in meaning to:", options: { a: "fast", b: "free", c: "restricted", d: "expensive" } }
+          ]
+        },
+        {
+          title: "Text 2: Standard Operating Procedure (SOP)",
+          paragraphs: [
+            "<strong>SOP: Handling New Client Inquiries</strong>",
+            "When a new inquiry arrives through the website form, respond within two business hours. Use the \"New Inquiry\" email template, but personalize the first line using the details the person shared. Never quote prices in the first reply. Instead, invite the person to book a 15-minute discovery call using the calendar link.",
+            "After sending the reply, create a contact in the CRM and tag it \"New Lead.\" If the person does not book a call within three business days, send one follow-up email. If there is still no response after the follow-up, change the tag to \"Cold Lead\" and take no further action unless the person contacts us again."
+          ],
+          questions: [
+            { id: "r6", text: "How quickly should a new inquiry receive a reply?", options: { a: "Within 15 minutes", b: "Within two business hours", c: "Within three business days", d: "By the end of the week" } },
+            { id: "r7", text: "What should the first reply NOT include?", options: { a: "A personalized first line", b: "The calendar link", c: "Pricing information", d: "Content from the email template" } },
+            { id: "r8", text: "A new lead has not booked a call after three business days. What is the next step?", options: { a: "Tag the contact \"Cold Lead\"", b: "Send one follow-up email", c: "Call the person", d: "Delete the contact" } },
+            { id: "r9", text: "There is still no response after the follow-up email. What should the assistant do?", options: { a: "Keep emailing every week", b: "Change the tag to \"Cold Lead\" and stop", c: "Offer the person a discount", d: "Ask the manager to call the person" } },
+            { id: "r10", text: "Why does the SOP say to personalize the first line?", options: { a: "To make the reply longer", b: "To show the person their message was actually read", c: "Because the template contains errors", d: "To include the price" } }
+          ]
+        }
+      ]
+    },
+    {
+      id: "listening", title: "Listening", minutes: 12, type: "listening",
+      intro: "Press Play to hear each voice message. You can play each one 2 times. Use headphones if you can.",
+      clips: [
+        {
+          id: "l_clip1", title: "Recording 1: Voice message from Mark",
+          script: "Hi, it's Mark. Quick update. The team meeting has moved from Tuesday at ten a.m. to Wednesday at two p.m., Eastern time. Can you update the calendar invite and let everyone know? Also, please book a meeting room for six people. Thanks!",
+          questions: [
+            { id: "l1", text: "When is the meeting now?", options: { a: "Tuesday at 10 a.m.", b: "Tuesday at 2 p.m.", c: "Wednesday at 10 a.m.", d: "Wednesday at 2 p.m." } },
+            { id: "l2", text: "How many people should the meeting room hold?", options: { a: "2", b: "6", c: "10", d: "16" } },
+            { id: "l3", text: "Besides booking the room, what does Mark ask you to do?", options: { a: "Cancel the meeting", b: "Update the invite and tell the team", c: "Write the meeting notes", d: "Call him back" } }
+          ]
+        },
+        {
+          id: "l_clip2", title: "Recording 2: Voice message from a client's office",
+          script: "Hello, this is Priya from Bright Dental. I'm calling about the invoice you sent last week. The amount looks right, but the invoice is addressed to our old office on Pine Street. We moved to forty-eight Oak Avenue in March. Could you send a corrected invoice by Friday? Our accounts team needs it before the end of the month. You can reach me at extension two, one, four. Thanks so much.",
+          questions: [
+            { id: "l4", text: "What is wrong with the invoice?", options: { a: "The amount is wrong", b: "It is addressed to the old office", c: "It was sent late", d: "It has no date" } },
+            { id: "l5", text: "What is the company's new address?", options: { a: "48 Pine Street", b: "84 Oak Avenue", c: "48 Oak Avenue", d: "14 Oak Avenue" } },
+            { id: "l6", text: "When does Priya need the corrected invoice?", options: { a: "Today", b: "By Friday", c: "At the end of next month", d: "In March" } },
+            { id: "l7", text: "What is Priya's phone extension?", options: { a: "204", b: "214", c: "240", d: "412" } }
+          ]
+        },
+        {
+          id: "l_clip3", title: "Recording 3: Instructions about a newsletter",
+          script: "Hey, before you send the newsletter tomorrow, please double-check that all the links work, especially the one to the new pricing page. And change the subject line. Use \"Your November update\" instead of what we had. Don't send it before nine a.m. my time, because most of our readers open their emails in the morning.",
+          questions: [
+            { id: "l8", text: "What must you check before sending the newsletter?", options: { a: "The images", b: "The links", c: "The spelling", d: "The recipient list" } },
+            { id: "l9", text: "What should the new subject line be?", options: { a: "Your new pricing", b: "Your November update", c: "Our morning newsletter", d: "November pricing update" } },
+            { id: "l10", text: "Why should the newsletter go out after 9 a.m.?", options: { a: "The office opens at 9", b: "Most readers open emails in the morning", c: "The links are not ready until then", d: "It is cheaper to send then" } }
+          ]
+        }
+      ]
+    },
+    {
+      id: "writing", title: "Writing", minutes: 20, type: "writing",
+      intro: "Write your answers in your own words. Copy and paste is turned off for this section.",
+      tasks: [
+        {
+          id: "w1", title: "Task 1: Reply to an unhappy client", min: 80, max: 150,
+          prompt: "Your client writes: <em>\"Hi, I noticed the social media post that went out this morning has a typo in the headline. This is the second time this month. What happened?\"</em><br><br>Write a reply (80–150 words). Apologize, explain how you will fix it, and say what you will do to prevent it from happening again."
+        },
+        {
+          id: "w2", title: "Task 2: End-of-day update", min: 60, max: 120,
+          prompt: "Write a short end-of-day update to your client (60–120 words). Today you:<ul><li>finished 12 of 15 product listings</li><li>answered 8 customer emails</li><li>could not finish the last 3 listings because the client has not sent the product photos</li></ul>Ask the client for what you need."
+        }
+      ]
+    },
+    {
+      id: "speaking", title: "Speaking", minutes: 8, type: "speaking",
+      intro: "Record your spoken answers. Speak clearly, as if you were on a call with a client. Each answer can be up to 90 seconds. You can re-record each answer once.",
+      tasks: [
+        { id: "s1", title: "Task 1: Introduce yourself", maxSeconds: 90,
+          prompt: "Introduce yourself to a new client. Talk about your experience, your strongest skills, and the tools you use." },
+        { id: "s2", title: "Task 2: Handle a request", maxSeconds: 90,
+          prompt: "A client asks you to finish a new task by tomorrow, but you already have other urgent work. Explain what you would say to the client." }
+      ]
+    }
+  ];
+
+  /* ------------------------------ STATE ------------------------------ */
+  const state = {
+    candidate: { name: CONFIG.candidateName, email: CONFIG.candidateEmail },
+    startedAt: null, submittedAt: null,
+    sectionIndex: -1,
+    answers: {}, writing: {}, recordings: {}, recAttempts: {}, plays: {},
+    timing: {},
+    flags: { tabSwitches: 0, pasteAttempts: 0, timedOutSections: [], micUnavailable: false },
+    done: false
+  };
+
+  const app = document.getElementById("app");
+  const optionOrder = {};
+  let timerId = null, sectionEndsAt = 0, advancing = false;
+  let recorder = null, recStream = null, recTimer = null, recTaskId = null, recStart = 0;
+  let currentAudio = null;
+
+  /* ------------------------------ HELPERS ------------------------------ */
+  function shuffle(arr) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function blankify(t) { return esc(t).replace(/___/g, '<span class="blank">____</span>'); }
+  function words(t) { const m = String(t || "").trim().match(/\S+/g); return m ? m.length : 0; }
+  function fmt(sec) { sec = Math.max(0, Math.ceil(sec)); return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0"); }
+  function sectionQuestions(sec) {
+    if (sec.type === "mcq") return sec.questions;
+    if (sec.type === "reading") return sec.passages.flatMap(p => p.questions);
+    if (sec.type === "listening") return sec.clips.flatMap(c => c.questions);
+    return [];
+  }
+
+  function modal(html, buttons) {
+    return new Promise(resolve => {
+      const bg = document.createElement("div");
+      bg.className = "modal-bg";
+      bg.innerHTML = '<div class="modal" role="dialog" aria-modal="true">' + html + '<div class="actions"></div></div>';
+      const actions = bg.querySelector(".actions");
+      buttons.forEach(b => {
+        const el = document.createElement("button");
+        el.className = "btn" + (b.secondary ? " secondary" : "");
+        el.textContent = b.label;
+        el.onclick = () => { bg.remove(); resolve(b.value); };
+        actions.appendChild(el);
+      });
+      document.body.appendChild(bg);
+    });
+  }
+
+  /* ------------------------------ INTRO ------------------------------ */
+  function renderIntro(eligibilityMessage) {
+    const needsDetails = !CONFIG.candidateName || !CONFIG.candidateEmail;
+    const totalMin = SECTIONS.reduce((n, s) => n + s.minutes, 0);
+    app.innerHTML = `
+      <div class="card">
+        <div class="brandline">Amazing Assistants Online</div>
+        <h1>English Assessment</h1>
+        <p class="muted">This assessment checks the English skills you use every day with clients: reading instructions, understanding voice messages, writing emails and updates, and speaking on calls.</p>
+        ${!CONFIG.submitUrl ? '<div class="notice"><strong>Demo mode:</strong> no submit URL is set, so answers will not be sent anywhere.</div>' : ""}
+        ${eligibilityMessage ? '<div class="error">' + esc(eligibilityMessage) + "</div>" : ""}
+        <ul class="sections-list">
+          ${SECTIONS.map((s, i) => `<li><span>${i + 1}. ${esc(s.title)}</span><span class="muted">${s.minutes} min</span></li>`).join("")}
+        </ul>
+        <p><strong>Total time: about ${totalMin} minutes.</strong> Each section has its own timer. When time runs out, the test moves to the next section automatically. You cannot go back to a finished section.</p>
+        <h3>Before you start</h3>
+        <ul class="small">
+          <li>Find a quiet place and use a laptop or desktop with the Chrome, Edge, Safari or Firefox browser.</li>
+          <li>You'll need <strong>speakers or headphones</strong> for Listening and a <strong>microphone</strong> for Speaking.</li>
+          <li>Complete the test in one sitting. Don't refresh or close this page.</li>
+          <li>Work on your own. Leaving this page during the test is recorded.</li>
+        </ul>
+        ${needsDetails ? `
+          <div class="field"><label for="cand-name">Full name</label><input id="cand-name" autocomplete="name" value="${esc(state.candidate.name)}"></div>
+          <div class="field"><label for="cand-email">Email address</label><input id="cand-email" type="email" autocomplete="email" value="${esc(state.candidate.email)}"></div>` : `<p class="muted small">Taking the test as <strong>${esc(CONFIG.candidateName)}</strong> (${esc(CONFIG.candidateEmail)})</p>`}
+        <div class="rec-row">
+          <button class="btn secondary" id="mic-test">🎤 Test my microphone</button>
+          <span class="rec-status" id="mic-status"></span>
+        </div>
+        <div class="footer-nav"><button class="btn" id="start-btn" ${eligibilityMessage ? "disabled" : ""}>Start the assessment →</button></div>
+      </div>`;
+
+    document.getElementById("mic-test").onclick = testMic;
+    document.getElementById("start-btn").onclick = async () => {
+      if (needsDetails) {
+        const name = document.getElementById("cand-name").value.trim();
+        const email = document.getElementById("cand-email").value.trim();
+        if (!name || !/^\S+@\S+\.\S+$/.test(email)) { await modal("<h3>Please enter your full name and a valid email address.</h3>", [{ label: "OK", value: true }]); return; }
+        state.candidate = { name, email };
+      }
+      state.startedAt = new Date().toISOString();
+      window.addEventListener("beforeunload", beforeUnload);
+      goToSection(0);
+    };
+  }
+
+  async function testMic() {
+    const status = document.getElementById("mic-status");
+    if (!navigator.mediaDevices || !window.MediaRecorder) { status.textContent = "Your browser can't record audio. Please use Chrome, Edge, Safari or Firefox."; return; }
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+      s.getTracks().forEach(t => t.stop());
+      status.textContent = "✅ Microphone is working.";
+    } catch (e) {
+      status.textContent = "❌ We couldn't access your microphone. Please allow microphone access in your browser.";
+    }
+  }
+
+  function beforeUnload(e) { if (!state.done) { e.preventDefault(); e.returnValue = ""; } }
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden && state.sectionIndex >= 0 && !state.done) state.flags.tabSwitches++;
+  });
+
+  /* ------------------------------ SECTIONS ------------------------------ */
+  function goToSection(i) {
+    stopAudio();
+    state.sectionIndex = i;
+    advancing = false;
+    const sec = SECTIONS[i];
+    state.timing[sec.id] = { startedAt: new Date().toISOString() };
+    sectionEndsAt = Date.now() + sec.minutes * 60000;
+    renderSection();
+    clearInterval(timerId);
+    timerId = setInterval(tick, 500);
+    tick();
+    window.scrollTo(0, 0);
+  }
+
+  function tick() {
+    const left = (sectionEndsAt - Date.now()) / 1000;
+    const el = document.getElementById("timer");
+    if (el) { el.textContent = fmt(left); el.classList.toggle("low", left <= 120); }
+    if (left <= 0 && !advancing) {
+      const sec = SECTIONS[state.sectionIndex];
+      state.flags.timedOutSections.push(sec.id);
+      finishSection(true);
+    }
+  }
+
+  function header(sec) {
+    const pct = (state.sectionIndex / SECTIONS.length) * 100;
+    return `
+      <div class="topbar"><div>Section ${state.sectionIndex + 1} of ${SECTIONS.length} · <strong>${esc(sec.title)}</strong></div><div class="timer" id="timer" aria-live="off">--:--</div></div>
+      <div class="progress"><div style="width:${pct}%"></div></div>`;
+  }
+
+  function mcqHTML(q, num) {
+    const order = optionOrder[q.id] || (optionOrder[q.id] = shuffle(Object.keys(q.options)));
+    return `<fieldset class="q"><legend><span class="qnum">${num}.</span> ${blankify(q.text)}</legend>
+      <div class="opts">${order.map(k => `<label class="opt"><input type="radio" name="${q.id}" value="${k}" ${state.answers[q.id] === k ? "checked" : ""}><span>${esc(q.options[k])}</span></label>`).join("")}</div></fieldset>`;
+  }
+
+  function renderSection() {
+    const sec = SECTIONS[state.sectionIndex];
+    const last = state.sectionIndex === SECTIONS.length - 1;
+    let body = "";
+    let n = 0;
+
+    if (sec.type === "mcq") {
+      const qs = sec._order || (sec._order = sec.shuffle ? shuffle(sec.questions) : sec.questions);
+      body = qs.map(q => mcqHTML(q, ++n)).join("");
+    } else if (sec.type === "reading") {
+      body = sec.passages.map(p => `
+        <article class="passage"><h3>${esc(p.title)}</h3>${p.paragraphs.map(t => "<p>" + t + "</p>").join("")}</article>
+        ${p.questions.map(q => mcqHTML(q, ++n)).join("")}`).join('<hr style="border:0;border-top:1px solid var(--border);margin:24px 0">');
+    } else if (sec.type === "listening") {
+      body = sec.clips.map(c => {
+        const left = CONFIG.maxListeningPlays - (state.plays[c.id] || 0);
+        return `<div class="clip"><h3>${esc(c.title)}</h3>
+            <button class="btn secondary" data-play="${c.id}" ${left <= 0 ? "disabled" : ""}>▶ Play recording</button>
+            <span class="rec-status" id="plays-${c.id}">${left} play${left === 1 ? "" : "s"} left</span></div>
+          ${c.questions.map(q => mcqHTML(q, ++n)).join("")}`;
+      }).join('<hr style="border:0;border-top:1px solid var(--border);margin:24px 0">');
+    } else if (sec.type === "writing") {
+      body = sec.tasks.map(t => {
+        const val = (state.writing[t.id] && state.writing[t.id].text) || "";
+        return `<div class="task"><h3>${esc(t.title)}</h3><div class="prompt">${t.prompt}</div>
+          <textarea data-write="${t.id}" spellcheck="false" autocomplete="off" aria-label="${esc(t.title)}">${esc(val)}</textarea>
+          <div class="wc" id="wc-${t.id}"></div></div>`;
+      }).join("");
+    } else if (sec.type === "speaking") {
+      body = sec.tasks.map(t => `
+        <div class="task"><h3>${esc(t.title)}</h3><div class="prompt">${esc(t.prompt)}</div>
+          <div class="rec-row"><button class="btn rec" data-rec="${t.id}">● Start recording</button><span class="rec-status" id="rs-${t.id}">Up to ${t.maxSeconds} seconds</span></div>
+          <audio controls id="pb-${t.id}" hidden></audio></div>`).join("");
+    }
+
+    app.innerHTML = `${header(sec)}
+      <div class="card"><h2>${esc(sec.title)}</h2><p class="muted">${esc(sec.intro)}</p></div>
+      <div id="sec-body">${body}</div>
+      <div class="footer-nav"><button class="btn" id="next-btn">${last ? "Submit my assessment ✓" : "Finish section →"}</button></div>`;
+
+    if (sec.type === "writing") sec.tasks.forEach(t => updateWordCount(t));
+    if (sec.type === "speaking") sec.tasks.forEach(t => updateRecUI(t.id));
+    document.getElementById("next-btn").onclick = () => finishSection(false);
+  }
+
+  /* ------------------------------ EVENTS ------------------------------ */
+  app.addEventListener("change", e => {
+    if (e.target.matches('input[type="radio"]')) state.answers[e.target.name] = e.target.value;
+  });
+
+  app.addEventListener("input", e => {
+    const id = e.target.dataset && e.target.dataset.write;
+    if (!id) return;
+    state.writing[id] = { text: e.target.value, words: words(e.target.value) };
+    const task = SECTIONS.find(s => s.id === "writing").tasks.find(t => t.id === id);
+    updateWordCount(task);
+  });
+
+  ["paste", "drop"].forEach(evt => app.addEventListener(evt, e => {
+    if (e.target.dataset && e.target.dataset.write) { e.preventDefault(); state.flags.pasteAttempts++; }
+  }));
+
+  app.addEventListener("click", e => {
+    const play = e.target.closest("[data-play]");
+    if (play) { playClip(play.dataset.play); return; }
+    const rec = e.target.closest("[data-rec]");
+    if (rec) { toggleRecording(rec.dataset.rec); }
+  });
+
+  function updateWordCount(t) {
+    const el = document.getElementById("wc-" + t.id);
+    if (!el) return;
+    const n = (state.writing[t.id] && state.writing[t.id].words) || 0;
+    el.textContent = n + " words (aim for " + t.min + "–" + t.max + ")";
+    el.className = "wc " + (n === 0 ? "" : (n < t.min || n > t.max ? "bad" : "good"));
+  }
+
+  /* ------------------------------ LISTENING ------------------------------ */
+  function stopAudio() {
+    if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+  }
+
+  function pickVoice() {
+    const voices = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+    return voices.find(v => v.lang === "en-US" && /natural|google|samantha|aria|jenny/i.test(v.name))
+      || voices.find(v => v.lang === "en-US") || voices.find(v => /^en/i.test(v.lang)) || null;
+  }
+
+  function playClip(id) {
+    const used = state.plays[id] || 0;
+    if (used >= CONFIG.maxListeningPlays) return;
+    const clip = SECTIONS.find(s => s.id === "listening").clips.find(c => c.id === id);
+    stopAudio();
+    const btns = app.querySelectorAll("[data-play]");
+    btns.forEach(b => b.disabled = true);
+    const done = () => {
+      btns.forEach(b => { const left = CONFIG.maxListeningPlays - (state.plays[b.dataset.play] || 0); b.disabled = left <= 0; });
+    };
+    state.plays[id] = used + 1;
+    const left = CONFIG.maxListeningPlays - state.plays[id];
+    document.getElementById("plays-" + id).textContent = "Playing… (" + left + " play" + (left === 1 ? "" : "s") + " left after this)";
+    const finish = () => { document.getElementById("plays-" + id) && (document.getElementById("plays-" + id).textContent = left + " play" + (left === 1 ? "" : "s") + " left"); done(); };
+
+    if (CONFIG.audio && CONFIG.audio[id]) {
+      currentAudio = new Audio(CONFIG.audio[id]);
+      currentAudio.onended = finish; currentAudio.onerror = finish;
+      currentAudio.play().catch(finish);
+    } else if (window.speechSynthesis) {
+      const u = new SpeechSynthesisUtterance(clip.script);
+      u.lang = "en-US"; u.rate = 0.95;
+      const v = pickVoice(); if (v) u.voice = v;
+      u.onend = finish; u.onerror = finish;
+      speechSynthesis.speak(u);
+    } else {
+      finish();
+      modal("<h3>Audio isn't available in this browser.</h3><p>Please switch to Chrome, Edge, Safari or Firefox.</p>", [{ label: "OK", value: true }]);
+    }
+  }
+  if (window.speechSynthesis) speechSynthesis.onvoiceschanged = () => {};
+
+  /* ------------------------------ SPEAKING ------------------------------ */
+  function updateRecUI(id) {
+    const btn = app.querySelector('[data-rec="' + id + '"]');
+    const status = document.getElementById("rs-" + id);
+    const pb = document.getElementById("pb-" + id);
+    if (!btn) return;
+    const task = SECTIONS.find(s => s.id === "speaking").tasks.find(t => t.id === id);
+    const attempts = state.recAttempts[id] || 0;
+    const rec = state.recordings[id];
+    if (recTaskId === id) { btn.textContent = "■ Stop recording"; btn.classList.add("recording"); btn.disabled = false; return; }
+    btn.classList.remove("recording");
+    btn.disabled = !!recTaskId || attempts >= CONFIG.maxRecordingAttempts;
+    if (rec) {
+      btn.textContent = attempts >= CONFIG.maxRecordingAttempts ? "No re-records left" : "↺ Re-record (" + (CONFIG.maxRecordingAttempts - attempts) + " left)";
+      status.textContent = "✅ Recorded " + rec.seconds + " seconds. Listen back below.";
+      pb.hidden = false;
+      if (!pb.src) pb.src = URL.createObjectURL(rec.blob);
+    } else {
+      btn.textContent = "● Start recording";
+      status.textContent = "Up to " + task.maxSeconds + " seconds";
+    }
+  }
+
+  async function toggleRecording(id) {
+    if (recTaskId === id) { stopRecording(); return; }
+    if (recTaskId) return;
+    if ((state.recAttempts[id] || 0) >= CONFIG.maxRecordingAttempts) return;
+    if (!navigator.mediaDevices || !window.MediaRecorder) {
+      state.flags.micUnavailable = true;
+      await modal("<h3>Recording isn't supported in this browser.</h3><p>Please use Chrome, Edge, Safari or Firefox on a laptop or desktop.</p>", [{ label: "OK", value: true }]);
+      return;
+    }
+    const task = SECTIONS.find(s => s.id === "speaking").tasks.find(t => t.id === id);
+    try {
+      recStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    } catch (err) {
+      state.flags.micUnavailable = true;
+      await modal("<h3>We couldn't access your microphone.</h3><p>Please allow microphone access in your browser settings, then try again.</p>", [{ label: "OK", value: true }]);
+      return;
+    }
+    const mime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg"].find(m => MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(m)) || "";
+    recorder = new MediaRecorder(recStream, mime ? { mimeType: mime } : undefined);
+    const chunks = [];
+    recorder.ondataavailable = ev => { if (ev.data && ev.data.size) chunks.push(ev.data); };
+    recorder.onstop = () => {
+      const seconds = Math.round((Date.now() - recStart) / 1000);
+      const blob = new Blob(chunks, { type: recorder.mimeType || mime || "audio/webm" });
+      const pb = document.getElementById("pb-" + id);
+      if (pb && pb.src) { URL.revokeObjectURL(pb.src); pb.removeAttribute("src"); }
+      state.recordings[id] = { blob, seconds };
+      recStream.getTracks().forEach(t => t.stop());
+      clearInterval(recTimer);
+      recTaskId = null; recorder = null; recStream = null;
+      SECTIONS.find(s => s.id === "speaking").tasks.forEach(t => updateRecUI(t.id));
+      if (stopResolver) { stopResolver(); stopResolver = null; }
+    };
+    state.recAttempts[id] = (state.recAttempts[id] || 0) + 1;
+    recTaskId = id; recStart = Date.now();
+    recorder.start(1000);
+    SECTIONS.find(s => s.id === "speaking").tasks.forEach(t => updateRecUI(t.id));
+    const status = document.getElementById("rs-" + id);
+    recTimer = setInterval(() => {
+      const el = (Date.now() - recStart) / 1000;
+      if (status) status.textContent = "🔴 Recording… " + fmt(el) + " / " + fmt(task.maxSeconds);
+      if (el >= task.maxSeconds) stopRecording();
+    }, 250);
+  }
+
+  let stopResolver = null;
+  function stopRecording() {
+    return new Promise(resolve => {
+      if (!recorder || recorder.state === "inactive") { resolve(); return; }
+      stopResolver = resolve;
+      recorder.stop();
+    });
+  }
+
+  /* ------------------------------ NAVIGATION ------------------------------ */
+  async function finishSection(timedOut) {
+    if (advancing) return;
+    const sec = SECTIONS[state.sectionIndex];
+    if (!timedOut) {
+      if (recTaskId) { await modal("<h3>Please stop your recording first.</h3>", [{ label: "OK", value: true }]); return; }
+      const qs = sectionQuestions(sec);
+      const unanswered = qs.filter(q => !state.answers[q.id]).length;
+      let warn = "";
+      if (unanswered) warn = "You have <strong>" + unanswered + " unanswered question" + (unanswered > 1 ? "s" : "") + "</strong>.";
+      if (sec.type === "writing") {
+        const short = sec.tasks.filter(t => ((state.writing[t.id] && state.writing[t.id].words) || 0) < t.min).length;
+        if (short) warn = "One or more of your answers is shorter than the minimum word count.";
+      }
+      if (sec.type === "speaking") {
+        const missing = sec.tasks.filter(t => !state.recordings[t.id]).length;
+        if (missing) warn = "You haven't recorded " + (missing === sec.tasks.length ? "any answers" : "all answers") + " yet.";
+      }
+      const last = state.sectionIndex === SECTIONS.length - 1;
+      const ok = await modal(
+        "<h3>" + (last ? "Submit your assessment?" : "Finish this section?") + "</h3>" +
+        (warn ? "<p>" + warn + "</p>" : "") +
+        "<p class='muted'>You can't come back to this section later.</p>",
+        [{ label: "Go back", value: false, secondary: true }, { label: last ? "Submit" : "Continue", value: true }]
+      );
+      if (!ok) return;
+    }
+    advancing = true;
+    clearInterval(timerId);
+    if (recTaskId) await stopRecording();
+    stopAudio();
+    const t = state.timing[sec.id];
+    t.endedAt = new Date().toISOString();
+    t.secondsUsed = Math.round((Date.parse(t.endedAt) - Date.parse(t.startedAt)) / 1000);
+    t.timedOut = !!timedOut;
+
+    if (state.sectionIndex < SECTIONS.length - 1) {
+      if (timedOut) await modal("<h3>Time's up for " + esc(sec.title) + ".</h3><p>Your answers were saved. Moving to the next section.</p>", [{ label: "Continue", value: true }]);
+      goToSection(state.sectionIndex + 1);
+    } else {
+      submit();
+    }
+  }
+
+  /* ------------------------------ SUBMIT ------------------------------ */
+  function buildPayload() {
+    return {
+      test: TEST_VERSION,
+      candidate: state.candidate,
+      startedAt: state.startedAt,
+      submittedAt: state.submittedAt,
+      answers: state.answers,
+      writing: state.writing,
+      speaking: Object.fromEntries(Object.entries(state.recordings).map(([k, r]) => [k, { seconds: r.seconds, mimeType: r.blob.type }])),
+      timing: state.timing,
+      flags: state.flags,
+      client: { userAgent: navigator.userAgent, timezone: Intl.DateTimeFormat().resolvedOptions().timeZone }
+    };
+  }
+
+  async function submit() {
+    state.submittedAt = new Date().toISOString();
+    const payload = buildPayload();
+    if (!CONFIG.submitUrl) { renderDone(true, payload); return; }
+    app.innerHTML = '<div class="card center"><h2>Submitting your assessment…</h2><div class="spinner"></div><p class="muted">Please don\'t close this page. Uploading your recordings can take a moment.</p></div>';
+    try {
+      const fd = new FormData();
+      fd.append("payload", JSON.stringify(payload));
+      Object.entries(state.recordings).forEach(([id, r]) => {
+        const ext = /mp4/.test(r.blob.type) ? "m4a" : /ogg/.test(r.blob.type) ? "ogg" : "webm";
+        fd.append("audio_" + id, r.blob, id + "." + ext);
+      });
+      const headers = {};
+      { const tk = window.AAO_TOKEN ? window.AAO_TOKEN() : CONFIG.authToken; if (tk) headers.Authorization = "Bearer " + tk; }
+      const res = await fetch(CONFIG.submitUrl, { method: "POST", body: fd, headers, credentials: (window.AAO_FETCH_CREDENTIALS || "include") });
+      if (!res.ok) throw new Error("Server responded with " + res.status);
+      renderDone(false);
+    } catch (err) {
+      app.innerHTML = `<div class="card center"><h2>We couldn't submit your assessment</h2>
+        <div class="error">${esc(err.message)}. Please check your internet connection and try again.</div>
+        <button class="btn" id="retry">Try again</button></div>`;
+      document.getElementById("retry").onclick = submit;
+    }
+  }
+
+  function renderDone(demo, payload) {
+    state.done = true;
+    window.removeEventListener("beforeunload", beforeUnload);
+    try { window.parent && window.parent !== window && window.parent.postMessage({ type: "aao-english-submitted", test: TEST_VERSION }, "*"); } catch (e) {}
+    app.innerHTML = `<div class="card center">
+      <div class="brandline">Amazing Assistants Online</div>
+      <h1>Thank you, ${esc(state.candidate.name.split(" ")[0] || "")}!</h1>
+      <p>Your English Assessment has been submitted.</p>
+      <p class="muted">Our team reviews your writing and speaking answers. Your scores and your AAO English Certificate will appear on your profile, usually within 2–3 business days.</p>
+      ${demo ? `<div class="notice" style="text-align:left"><strong>Demo mode:</strong> this is a preview, so nothing was sent. On the AAO website, answers and voice recordings go to the results page.</div>` : ""}
+    </div>`;
+  }
+
+  /* ------------------------------ START ------------------------------ */
+  async function init() {
+    if (!CONFIG.eligibilityUrl) { renderIntro(); return; }
+    try {
+      const headers = {};
+      { const tk = window.AAO_TOKEN ? window.AAO_TOKEN() : CONFIG.authToken; if (tk) headers.Authorization = "Bearer " + tk; }
+      const res = await fetch(CONFIG.eligibilityUrl, { headers, credentials: (window.AAO_FETCH_CREDENTIALS || "include") });
+      const data = res.ok ? await res.json() : {};
+      renderIntro(data.eligible === false ? (data.message || "You can't take this assessment right now.") : "");
+    } catch (e) { renderIntro(); }
+  }
+  init();
+})();
+</script>
+</body>
+</html>

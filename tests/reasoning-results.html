@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAO Reasoning Results</title>
+<style>
+  :root{--brand:#1f4e79;--brand-dark:#163a5a;--gold:#c99400;--bg:#f5f7fa;--card:#fff;--text:#1d2433;--muted:#5b6475;--border:#dde2ea;--danger:#c0392b;--radius:12px}
+  *{box-sizing:border-box;min-width:0}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;font-size:15px}
+  .wrap{max-width:1100px;margin:0 auto;padding:24px 16px 60px}
+  h1{margin:0 0 4px;color:var(--brand-dark);font-size:1.5rem}
+  h2{margin:0 0 10px;color:var(--brand-dark);font-size:1.15rem}
+  .muted{color:var(--muted)} .small{font-size:.85rem}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+  .tabs{display:flex;gap:6px;margin:16px 0 0;border-bottom:2px solid var(--border)}
+  .tab{border:0;background:none;padding:10px 16px;font:inherit;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px}
+  .tab.on{color:var(--brand);border-bottom-color:var(--brand)}
+  .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:16px 0}
+  select,input{font:inherit;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff}
+  .btn{border:0;border-radius:8px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;background:var(--brand);color:#fff;text-decoration:none;display:inline-block}
+  .btn.secondary{background:#e8edf4;color:var(--brand-dark)}
+  .tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:#fff}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap}
+  th{background:#eef2f7;font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+  tbody tr{cursor:pointer} tbody tr:hover{background:#f6f9fc}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.78rem;font-weight:700;background:#e8edf4;color:var(--brand-dark)}
+  .warn{color:var(--danger);font-weight:600}
+  .stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
+  @media (max-width:760px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .stat{background:#fbfcfe;border:1px solid var(--border);border-radius:10px;padding:12px}
+  .stat .n{font-size:1.5rem;font-weight:700;color:var(--brand-dark)}
+  .row{display:grid;grid-template-columns:150px minmax(0,1fr) 50px;gap:10px;align-items:center;margin:6px 0}
+  .track{height:12px;background:#eef1f5;border-radius:6px;overflow:hidden}
+  .fill{height:100%;border-radius:6px;background:var(--brand)}
+  .row .n{text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+  .breakdown{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .bq{font-size:.78rem;padding:3px 7px;border-radius:6px;background:#fdecea;color:#7b241c}
+  .bq.ok{background:#d4efdf;color:#145a32} .bq.skip{background:#eef1f5;color:#5b6475}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:820px){.two{grid-template-columns:1fr}}
+  .notice{background:#fff7e0;border:1px solid #f2d27a;border-radius:8px;padding:10px 14px;margin-bottom:14px}
+  .error{background:#fdecea;border:1px solid #f5b7b1;color:#7b241c;border-radius:8px;padding:10px 14px}
+  details summary{cursor:pointer;font-weight:600;color:var(--brand)}
+</style>
+<script>
+/* ---- inlined from aao-assessment-content.js (keep in sync with server copy) ---- */
+/* =====================================================================
+   AAO Assessments: shared content + DISC/Motivators scoring
+   Works in the browser (window.AAO_CONTENT) and in Node (require()).
+   All items, style names and descriptions are original to
+   Amazing Assistants Online. They are based on the public-domain DISC
+   model (W. M. Marston, 1928) and classic work-values theory.
+   The reasoning ANSWER KEY is NOT here (server/reasoning-key.json).
+   ===================================================================== */
+(function (root, factory) {
+  if (typeof module === "object" && module.exports) module.exports = factory();
+  else root.AAO_CONTENT = factory();
+})(typeof self !== "undefined" ? self : this, function () {
+  "use strict";
+
+  /* ------------------------------ DISC ------------------------------ */
+  var DISC_VERSION = "aao-disc-v1";
+
+  var LIKERT = ["Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"];
+
+  var DISC_ITEMS = [
+    { id: "d1", dim: "D", text: "I like to take charge when a group needs direction." },
+    { id: "d2", dim: "D", text: "I make decisions quickly, even with limited information." },
+    { id: "d3", dim: "D", text: "I enjoy competing and winning." },
+    { id: "d4", dim: "D", text: "I speak up directly when I disagree with something." },
+    { id: "d5", dim: "D", text: "I'm comfortable pushing others to meet a deadline." },
+    { id: "d6", dim: "D", rev: true, text: "I prefer to let others take the lead." },
+    { id: "d7", dim: "D", rev: true, text: "I avoid conflict, even when something needs to be said." },
+
+    { id: "i1", dim: "I", text: "I enjoy meeting new people and starting conversations." },
+    { id: "i2", dim: "I", text: "I get energized by working with other people." },
+    { id: "i3", dim: "I", text: "I'm good at getting people excited about an idea." },
+    { id: "i4", dim: "I", text: "I like to share my thoughts and feelings openly." },
+    { id: "i5", dim: "I", text: "I enjoy being recognized for my work in front of others." },
+    { id: "i6", dim: "I", rev: true, text: "I prefer working quietly on my own." },
+    { id: "i7", dim: "I", rev: true, text: "I find small talk tiring." },
+
+    { id: "s1", dim: "S", text: "I prefer a steady, predictable routine." },
+    { id: "s2", dim: "S", text: "I'm patient when people need extra help." },
+    { id: "s3", dim: "S", text: "People describe me as calm and easygoing." },
+    { id: "s4", dim: "S", text: "I value loyalty and long-term working relationships." },
+    { id: "s5", dim: "S", text: "I like to finish one task before starting the next." },
+    { id: "s6", dim: "S", rev: true, text: "I enjoy constant change and fast-moving situations." },
+    { id: "s7", dim: "S", rev: true, text: "I get restless doing the same tasks every day." },
+
+    { id: "c1", dim: "C", text: "I double-check my work for errors before sending it." },
+    { id: "c2", dim: "C", text: "I like clear rules, processes and instructions." },
+    { id: "c3", dim: "C", text: "I want to understand the details before I decide." },
+    { id: "c4", dim: "C", text: "I hold myself to very high standards of accuracy." },
+    { id: "c5", dim: "C", text: "I prefer facts and data over gut feelings." },
+    { id: "c6", dim: "C", rev: true, text: "I'm fine with \"good enough\" when time is short." },
+    { id: "c7", dim: "C", rev: true, text: "I often skip the instructions and figure things out as I go." }
+  ];
+
+  var MOTIVATOR_ITEMS = [
+    { id: "m_learn1", mot: "learning", text: "Learning new skills is one of the most rewarding parts of my work." },
+    { id: "m_learn2", mot: "learning", text: "I enjoy researching and figuring out how things work." },
+    { id: "m_learn3", mot: "learning", text: "I often take courses or watch tutorials in my free time." },
+    { id: "m_earn1", mot: "earnings", text: "Earning more money is a major reason I work hard." },
+    { id: "m_earn2", mot: "earnings", text: "I like to see a clear return on the time and effort I put in." },
+    { id: "m_earn3", mot: "earnings", text: "I'm motivated by bonuses, raises and financial goals." },
+    { id: "m_crea1", mot: "creativity", text: "I like work that lets me be creative and express ideas." },
+    { id: "m_crea2", mot: "creativity", text: "Having a healthy work-life balance matters a lot to me." },
+    { id: "m_crea3", mot: "creativity", text: "I care about how things look and feel, not just whether they work." },
+    { id: "m_ind1", mot: "independence", text: "I like to decide how I do my own work." },
+    { id: "m_ind2", mot: "independence", text: "I do my best work without someone watching over me." },
+    { id: "m_ind3", mot: "independence", text: "I like to be known for my own style and ideas." },
+    { id: "m_lead1", mot: "leadership", text: "I want to lead people and projects." },
+    { id: "m_lead2", mot: "leadership", text: "I like having a say in important decisions." },
+    { id: "m_lead3", mot: "leadership", text: "Moving up to a higher position is important to me." },
+    { id: "m_help1", mot: "helping", text: "Helping others succeed gives me deep satisfaction." },
+    { id: "m_help2", mot: "helping", text: "I'm happiest when my work makes a real difference for someone." },
+    { id: "m_help3", mot: "helping", text: "I often put other people's needs ahead of my own." },
+    { id: "m_str1", mot: "structure", text: "I like clear rules and a proper way of doing things." },
+    { id: "m_str2", mot: "structure", text: "I feel best when I know exactly what is expected of me." },
+    { id: "m_str3", mot: "structure", text: "Order and organization are very important to me." }
+  ];
+
+  var DIMS = {
+    D: { name: "Dominance", short: "Driver", color: "#c0392b",
+      summary: "Direct, decisive and results-focused. Likes challenges, moves fast and takes charge.",
+      strengths: ["Makes decisions quickly and keeps work moving", "Takes ownership of results and deadlines", "Comfortable speaking up and solving problems head-on"],
+      struggles: ["Can seem blunt or impatient with slower pace", "May skip details or steps to get to the result"],
+      stress: "May become controlling or short with people. Give clear goals and room to act.",
+      roles: ["Project coordination", "Sales support and lead follow-up", "Operations and getting things unstuck"],
+      dos: ["Get to the point and focus on results", "Give goals and deadlines, then let them decide how", "Give them challenges and ownership"],
+      donts: ["Micromanage every step", "Ramble or bury the request in small talk", "Take their directness personally"] },
+    I: { name: "Influence", short: "Connector", color: "#e67e22",
+      summary: "Outgoing, enthusiastic and people-focused. Builds relationships and gets others excited.",
+      strengths: ["Builds rapport with clients and customers quickly", "Communicates with energy and positivity", "Brings creative ideas and keeps morale up"],
+      struggles: ["May lose focus on routine or detailed tasks", "Can over-promise or under-plan"],
+      stress: "May become scattered or talk through problems. Help them prioritize and follow up.",
+      roles: ["Customer service and client support", "Social media and community management", "Outreach, events and appointment setting"],
+      dos: ["Be friendly and allow some personal connection", "Recognize their wins out loud", "Put key details and deadlines in writing"],
+      donts: ["Isolate them on long solo tasks with no contact", "Give only criticism without encouragement", "Assume they'll remember verbal details"] },
+    S: { name: "Steadiness", short: "Supporter", color: "#27ae60",
+      summary: "Calm, patient and dependable. Values stability, cooperation and loyalty.",
+      strengths: ["Reliable and consistent day after day", "Patient, supportive and a great listener", "Follows through on routines and processes"],
+      struggles: ["May resist sudden changes", "Can hesitate to say no or raise problems"],
+      stress: "May go quiet and agree to avoid conflict. Check in privately and invite their opinion.",
+      roles: ["Executive and administrative support", "Customer care and retention", "Bookkeeping and recurring operations"],
+      dos: ["Explain changes early, with the reasons why", "Give clear routines and steady expectations", "Ask for their input directly. They may not volunteer it"],
+      donts: ["Spring last-minute changes without explanation", "Pressure them for instant decisions", "Mistake their quietness for agreement"] },
+    C: { name: "Conscientiousness", short: "Analyst", color: "#2c6fbb",
+      summary: "Careful, accurate and analytical. Values quality, logic and doing things the right way.",
+      strengths: ["High accuracy and attention to detail", "Follows SOPs and builds better processes", "Researches and checks before acting"],
+      struggles: ["Can be slow when information is unclear", "May be overly critical of their own or others' work"],
+      stress: "May withdraw or over-analyze. Give clear criteria and enough time.",
+      roles: ["Data entry, research and reporting", "Bookkeeping and quality checks", "CRM, systems and SOP management"],
+      dos: ["Give clear instructions, standards and examples", "Allow time to check work and ask questions", "Use facts and data when giving feedback"],
+      donts: ["Rush them without explaining why", "Give vague instructions like \"just make it nice\"", "Criticize without specifics"] }
+  };
+
+  var STYLES = {
+    D: { name: "The Driver", summary: "A results-first doer who takes charge, decides fast and pushes work across the finish line." },
+    I: { name: "The Connector", summary: "An energetic people person who builds relationships, communicates with ease and lifts the team's mood." },
+    S: { name: "The Supporter", summary: "A steady, loyal team player who brings calm, patience and dependable follow-through." },
+    C: { name: "The Analyst", summary: "A careful, detail-oriented thinker who values accuracy, logic and doing things right the first time." },
+    DI: { name: "The Trailblazer", summary: "Bold and persuasive. Moves fast, rallies people around goals and thrives on new challenges." },
+    DC: { name: "The Strategist", summary: "Decisive and exacting. Wants results and quality, solves complex problems and sets high standards." },
+    DS: { name: "The Steady Achiever", summary: "Determined but grounded. Drives toward goals while staying consistent and dependable." },
+    IS: { name: "The Encourager", summary: "Warm and supportive. Builds trust, keeps people happy and creates a positive working relationship." },
+    IC: { name: "The Coordinator", summary: "Friendly and organized. Combines people skills with a good eye for detail and follow-through." },
+    SC: { name: "The Specialist", summary: "Reliable and precise. Follows processes carefully and delivers consistent, high-quality work." },
+    BAL: { name: "The Adaptable", summary: "Balanced across all four styles. Adjusts naturally to what each situation and client needs." }
+  };
+
+  var MOTIVATORS = {
+    learning:     { name: "Learning",     icon: "📚", high: "Driven by growth and understanding. Loves learning new tools, skills and the \"why\" behind things.", keep: "Offer training, new tools and chances to learn something new." },
+    earnings:     { name: "Earnings",     icon: "💰", high: "Driven by financial reward and a clear return on effort.", keep: "Tie good work to raises, bonuses or more hours, and be clear about pay." },
+    creativity:   { name: "Creativity & Balance", icon: "🎨", high: "Driven by creative expression, a pleasant working environment and work-life balance.", keep: "Give room for creative input and respect their time outside work." },
+    independence: { name: "Independence", icon: "🧭", high: "Driven by freedom and autonomy. Wants to own their work and be recognized for it.", keep: "Trust them with ownership and avoid micromanaging." },
+    leadership:   { name: "Leadership",   icon: "🏆", high: "Driven by influence, responsibility and moving up.", keep: "Give them responsibility, a voice in decisions and a path to grow." },
+    helping:      { name: "Helping Others", icon: "🤝", high: "Driven by making a real difference for the people they work with.", keep: "Show the impact of their work on you and your customers." },
+    structure:    { name: "Structure",    icon: "📋", high: "Driven by order, clear expectations and doing things the proper way.", keep: "Provide SOPs, clear expectations and consistent processes." }
+  };
+
+  function score15(v, rev) { var n = Number(v); if (!(n >= 1 && n <= 5)) return null; return rev ? 6 - n : n; }
+  function toPct(vals) { var v = vals.filter(function (x) { return x != null; }); if (!v.length) return null; var m = v.reduce(function (a, b) { return a + b; }, 0) / v.length; return Math.round((m - 1) / 4 * 100); }
+
+  /** answers: { d1: 1..5, ..., m_learn1: 1..5 } */
+  function scoreDisc(answers) {
+    answers = answers || {};
+    var disc = {};
+    ["D", "I", "S", "C"].forEach(function (d) {
+      disc[d] = toPct(DISC_ITEMS.filter(function (i) { return i.dim === d; }).map(function (i) { return score15(answers[i.id], i.rev); }));
+    });
+    var order = ["D", "I", "S", "C"].slice().sort(function (a, b) { return disc[b] - disc[a] || "DISC".indexOf(a) - "DISC".indexOf(b); });
+    var range = disc[order[0]] - disc[order[3]];
+    var code;
+    if (range <= 10) code = "BAL";
+    else if (disc[order[0]] - disc[order[1]] <= 8) code = [order[0], order[1]].sort(function (a, b) { return "DISC".indexOf(a) - "DISC".indexOf(b); }).join("");
+    else code = order[0];
+    var motivators = {};
+    Object.keys(MOTIVATORS).forEach(function (m) {
+      motivators[m] = toPct(MOTIVATOR_ITEMS.filter(function (i) { return i.mot === m; }).map(function (i) { return score15(answers[i.id], false); }));
+    });
+    var motRank = Object.keys(motivators).sort(function (a, b) { return motivators[b] - motivators[a]; });
+    return { version: DISC_VERSION, disc: disc, primary: order[0], secondary: order[1], styleCode: code, motivators: motivators, motivatorRank: motRank };
+  }
+
+  /* ---------------------------- REASONING ---------------------------- */
+  var REASONING_BANDS = [
+    { min: 0,   label: "Developing",    text: "Reasoning is still developing. Works best with clear step-by-step instructions, examples and checklists." },
+    { min: 85,  label: "Average",       text: "Solid everyday problem-solving. Learns routine tasks well with good SOPs and examples." },
+    { min: 100, label: "High average",  text: "Picks up new tasks and tools at a good pace and handles common problems on their own." },
+    { min: 115, label: "Above average", text: "Learns quickly, spots patterns and errors, and solves unfamiliar problems with little guidance." },
+    { min: 130, label: "Exceptional",   text: "Very fast learner and strong problem-solver. Suited to complex, analytical or fast-changing work." }
+  ];
+  var REASONING_CATEGORIES = { numerical: "Numerical", verbal: "Verbal", logical: "Logical", pattern: "Visual patterns" };
+  function reasoningBand(score) {
+    if (score == null) return null;
+    var b = REASONING_BANDS[0];
+    REASONING_BANDS.forEach(function (x) { if (score >= x.min) b = x; });
+    return b;
+  }
+
+  return {
+    LIKERT: LIKERT, DISC_VERSION: DISC_VERSION, DISC_ITEMS: DISC_ITEMS, MOTIVATOR_ITEMS: MOTIVATOR_ITEMS,
+    DIMS: DIMS, STYLES: STYLES, MOTIVATORS: MOTIVATORS, scoreDisc: scoreDisc,
+    REASONING_BANDS: REASONING_BANDS, REASONING_CATEGORIES: REASONING_CATEGORIES, reasoningBand: reasoningBand
+  };
+});
+
+</script>
+<script>
+/* Show a message instead of a blank page if something fails to load. */
+window.addEventListener("error", function (e) {
+  var a = document.getElementById("app");
+  if (a && !a.textContent.trim()) a.innerHTML = '<div style="max-width:640px;margin:40px auto;padding:20px;border:1px solid #f5b7b1;background:#fdecea;color:#7b241c;border-radius:10px;font-family:Arial,sans-serif"><strong>This page couldn\'t load.</strong><br>' + String(e.message || "Unknown error").replace(/[<>&]/g, "") + '<br><br>Open it in Chrome, Edge, Safari or Firefox (not a file preview). Developers: check the browser console.</div>';
+});
+</script>
+<script src="../aao-config.js"></script>
+<script src="aao-tests-config.js" data-page="reasoning-admin"></script>
+</head>
+<body>
+<noscript><div style="max-width:640px;margin:40px auto;padding:20px;border:1px solid #f2d27a;background:#fff7e0;border-radius:10px;font-family:Arial,sans-serif">
+<strong>This page needs JavaScript.</strong> Previews in email, Google Drive, GitHub or a code editor don't run it, so the page looks blank.
+Download the file and open it in Chrome, Edge, Safari or Firefox, or serve it from your website.</div></noscript>
+<div class="wrap" id="app"></div>
+<script>
+/* =====================================================================
+   AAO Reasoning Results (ADMIN ONLY). Needs aao-assessment-content.js.
+   DEVELOPER SETUP:
+     window.AAO_ADMIN_CONFIG = { apiBase: "/api/assessments",
+       reasoningReportUrl: "/report/reasoning?c=", discReportUrl: "/report/disc?c=" };
+   With no apiBase it shows SAMPLE DATA.
+   ===================================================================== */
+{
+  const CONFIG = Object.assign({ apiBase: "", authToken: "", reasoningReportUrl: "aao-reasoning-report.html#", discReportUrl: "aao-disc-report.html#" }, window.AAO_ADMIN_CONFIG || {});
+  const DEMO = !CONFIG.apiBase;
+  const C = window.AAO_CONTENT;
+  const app = document.getElementById("app");
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const date = d => d ? new Date(d).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : "";
+
+  const cats = (n, v, l, p) => ({ numerical: { correct: n, total: 8 }, verbal: { correct: v, total: 8 }, logical: { correct: l, total: 8 }, pattern: { correct: p, total: 8 } });
+  const SAMPLE = {
+    reasoning: [
+      { id: 11, candidate_name: "Maria Santos", candidate_email: "maria@example.com", submitted_at: new Date(Date.now() - 3600e3).toISOString(), report_code: "DEMO2-RSN5", tab_switches: 0, timed_out: false,
+        result: { raw: 23, total: 32, score: 112, percentile: 79, band: "High average", normMode: "provisional", secondsUsed: 1380, categories: cats(6, 7, 5, 5) } },
+      { id: 10, candidate_name: "Jun Reyes", candidate_email: "jun@example.com", submitted_at: new Date(Date.now() - 172800e3).toISOString(), report_code: "DEMO3-RSN6", tab_switches: 4, timed_out: true,
+        result: { raw: 16, total: 32, score: 91, percentile: 27, band: "Average", normMode: "provisional", secondsUsed: 1500, categories: cats(4, 5, 4, 3) } }
+    ],
+    disc: [
+      { id: 21, candidate_name: "Maria Santos", candidate_email: "maria@example.com", submitted_at: new Date(Date.now() - 3000e3).toISOString(), report_code: "DEMO4-DISC9",
+        result: { disc: { D: 68, I: 46, S: 50, C: 75 }, primary: "C", secondary: "D", styleCode: "DC", motivators: { learning: 83, earnings: 58, creativity: 50, independence: 75, leadership: 42, helping: 67, structure: 79 }, motivatorRank: ["learning", "structure", "independence", "helping", "earnings", "creativity", "leadership"] } },
+      { id: 20, candidate_name: "Jun Reyes", candidate_email: "jun@example.com", submitted_at: new Date(Date.now() - 170000e3).toISOString(), report_code: "DEMO5-DISC1",
+        result: { disc: { D: 39, I: 79, S: 71, C: 43 }, primary: "I", secondary: "S", styleCode: "IS", motivators: { learning: 58, earnings: 75, creativity: 67, independence: 46, leadership: 50, helping: 88, structure: 54 }, motivatorRank: ["helping", "earnings", "creativity", "learning", "structure", "leadership", "independence"] } }
+    ]
+  };
+
+  async function api(path) {
+    const h = {}; { const tk = window.AAO_TOKEN ? window.AAO_TOKEN() : CONFIG.authToken; if (tk) h.Authorization = "Bearer " + tk; }
+    const res = await fetch(CONFIG.apiBase + path, { credentials: (window.AAO_FETCH_CREDENTIALS || "include"), headers: h });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(d.error || "Request failed (" + res.status + ")");
+    return d;
+  }
+
+  let tab = "reasoning";
+  const filters = { reasoning: { minScore: "" }, disc: { style: "" } };
+
+  async function renderList() {
+    const f = filters[tab];
+    app.innerHTML = `
+      <h1>Reasoning Results</h1>
+      <p class="muted">Amazing Assistants Online · scored automatically. Click a VA for details.</p>
+      ${DEMO ? '<div class="notice"><strong>Demo mode:</strong> these are sample VAs.</div>' : ""}
+      <div class="toolbar">${tab === "reasoning"
+        ? `<label>Minimum Reasoning Score <select id="flt"><option value="">Any</option>${[85, 100, 115, 130].map(v => `<option ${String(v) === f.minScore ? "selected" : ""}>${v}</option>`).join("")}</select></label>`
+        : `<label>Work style <select id="flt"><option value="">Any</option>${Object.entries(C.STYLES).map(([k, s]) => `<option value="${k}" ${k === f.style ? "selected" : ""}>${esc(s.name)}</option>`).join("")}</select></label>`}</div>
+      <div id="list"><p class="muted">Loading…</p></div>`;
+    app.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { tab = b.dataset.tab; renderList(); });
+    document.getElementById("flt").onchange = e => { if (tab === "reasoning") f.minScore = e.target.value; else f.style = e.target.value; renderList(); };
+    try {
+      let rows;
+      if (DEMO) rows = SAMPLE[tab].filter(r => tab === "reasoning" ? (!f.minScore || r.result.score >= Number(f.minScore)) : (!f.style || r.result.styleCode === f.style));
+      else rows = (await api(`/${tab}/results?` + new URLSearchParams(tab === "reasoning" ? (f.minScore ? { minScore: f.minScore } : {}) : (f.style ? { style: f.style } : {})))).results;
+      const head = tab === "reasoning"
+        ? "<th>VA</th><th>Completed</th><th class='num'>Reasoning Score</th><th>Range</th><th class='num'>Correct</th><th class='num'>Percentile</th><th>Flags</th>"
+        : "<th>VA</th><th>Completed</th><th>Work style</th><th class='num'>D</th><th class='num'>I</th><th class='num'>S</th><th class='num'>C</th><th>Top motivators</th>";
+      const row = r => { const x = r.result; return tab === "reasoning"
+        ? `<td><strong>${esc(r.candidate_name)}</strong><br><span class="muted small">${esc(r.candidate_email)}</span></td><td>${date(r.submitted_at)}</td>
+           <td class="num"><strong>${x.score}</strong></td><td><span class="pill">${esc(x.band)}</span></td><td class="num">${x.raw}/${x.total}</td><td class="num">${x.percentile}%</td>
+           <td>${r.tab_switches || r.timed_out ? `<span class="warn">${r.tab_switches ? "⚠ " + r.tab_switches + " tab" : ""}${r.timed_out ? " ⏱ timed out" : ""}</span>` : '<span class="muted">None</span>'}</td>`
+        : `<td><strong>${esc(r.candidate_name)}</strong><br><span class="muted small">${esc(r.candidate_email)}</span></td><td>${date(r.submitted_at)}</td>
+           <td><span class="pill">${esc((C.STYLES[x.styleCode] || {}).name || x.styleCode)}</span></td>
+           ${["D", "I", "S", "C"].map(d => `<td class="num" style="${d === x.primary ? "font-weight:700" : ""}">${x.disc[d]}</td>`).join("")}
+           <td>${x.motivatorRank.slice(0, 3).map(m => esc(C.MOTIVATORS[m].name)).join(", ")}</td>`; };
+      document.getElementById("list").innerHTML = rows.length
+        ? `<div class="tablewrap"><table><thead><tr>${head}</tr></thead><tbody>${rows.map(r => `<tr data-id="${r.id}">${row(r)}</tr>`).join("")}</tbody></table></div>`
+        : '<div class="card muted">No results match these filters yet.</div>';
+      app.querySelectorAll("tbody tr").forEach(tr => tr.onclick = () => renderDetail(Number(tr.dataset.id)));
+    } catch (e) { document.getElementById("list").innerHTML = `<div class="error">${esc(e.message)}</div>`; }
+  }
+
+  async function renderDetail(id) {
+    app.innerHTML = '<p class="muted">Loading…</p>';
+    let r;
+    try { r = DEMO ? SAMPLE[tab].find(x => x.id === id) : await api(`/${tab}/results/${id}`); }
+    catch (e) { app.innerHTML = `<div class="error">${esc(e.message)}</div>`; return; }
+    const x = r.result, flags = r.flags || { tabSwitches: r.tab_switches, timedOut: r.timed_out };
+    const reportLink = (tab === "reasoning" ? CONFIG.reasoningReportUrl : CONFIG.discReportUrl) + encodeURIComponent(r.report_code);
+    let body;
+    if (tab === "reasoning") {
+      body = `<div class="stats">
+          <div class="stat"><div class="muted">Reasoning Score</div><div class="n">${x.score}</div><span class="pill">${esc(x.band)}</span></div>
+          <div class="stat"><div class="muted">Correct</div><div class="n">${x.raw}/${x.total}</div></div>
+          <div class="stat"><div class="muted">Percentile</div><div class="n">${x.percentile}%</div><span class="muted small">${x.normMode === "aao" ? "vs AAO applicants" : "provisional norms"}</span></div>
+          <div class="stat"><div class="muted">Time used</div><div class="n">${x.secondsUsed ? Math.round(x.secondsUsed / 60) + " min" : "—"}</div><span class="muted small">of 25</span></div>
+        </div>
+        <div class="card" style="margin-top:16px"><h2>Score by area</h2>
+          ${Object.entries(C.REASONING_CATEGORIES).map(([k, l]) => { const c = x.categories[k]; return `<div class="row"><span>${esc(l)}</span><div class="track"><div class="fill" style="width:${c.correct / c.total * 100}%"></div></div><span class="n">${c.correct}/${c.total}</span></div>`; }).join("")}
+          ${r.breakdown ? `<details style="margin-top:10px"><summary>Question-by-question</summary><div class="breakdown">${r.breakdown.map(b => `<span class="bq ${b.isCorrect ? "ok" : (b.given ? "" : "skip")}" title="${esc(b.cat)} · answered ${esc(b.given || "skipped")}, correct ${esc(b.correct)}">${esc(b.id)} ${b.isCorrect ? "✓" : (b.given ? "✗" : "–")}</span>`).join("")}</div></details>` : ""}
+        </div>
+        <p class="small">${flags.tabSwitches || flags.timedOut ? `<span class="warn">⚠ Integrity notes:</span> left the page ${flags.tabSwitches || 0}×${flags.timedOut ? ", ran out of time" : ""}.` : '<span class="muted">No integrity flags.</span>'}</p>`;
+    } else {
+      const st = C.STYLES[x.styleCode];
+      body = `<div class="two" style="margin-top:14px">
+          <div class="card"><div class="muted small">Work style</div><h2 style="font-size:1.5rem;margin:2px 0 6px">${esc(st.name)}</h2><p>${esc(st.summary)}</p>
+            ${["D", "I", "S", "C"].map(d => `<div class="row"><span><b>${d}</b> ${esc(C.DIMS[d].name)}</span><div class="track"><div class="fill" style="width:${x.disc[d]}%;background:${C.DIMS[d].color}"></div></div><span class="n">${x.disc[d]}</span></div>`).join("")}</div>
+          <div class="card"><h2>Motivators</h2>
+            ${x.motivatorRank.map((m, i) => `<div class="row"><span style="${i < 3 ? "font-weight:700" : ""}">${esc(C.MOTIVATORS[m].name)}</span><div class="track"><div class="fill" style="width:${x.motivators[m]}%;background:${i < 3 ? "var(--gold)" : "#b8c6d6"}"></div></div><span class="n">${x.motivators[m]}</span></div>`).join("")}</div>
+        </div>
+        <div class="card"><h2>Quick tips for clients</h2><p><strong>Do:</strong> ${C.DIMS[x.primary].dos.map(esc).join(" · ")}</p><p style="margin:0"><strong>Don't:</strong> ${C.DIMS[x.primary].donts.map(esc).join(" · ")}</p></div>`;
+    }
+    app.innerHTML = `<button class="btn secondary" id="back">← All results</button>
+      <div class="card" style="margin-top:16px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
+        <div><h1>${esc(r.candidate_name)}</h1><p class="muted" style="margin:0">${esc(r.candidate_email)} · completed ${date(r.submitted_at)}</p></div>
+        <a class="btn" href="${esc(reportLink)}" target="_blank" rel="noopener">Open shareable report ↗</a></div></div>
+      ${body}`;
+    document.getElementById("back").onclick = renderList;
+  }
+  renderList();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAO English Results</title>
+<style>
+  :root{--brand:#1f4e79;--brand-dark:#163a5a;--accent:#f2a900;--bg:#f5f7fa;--card:#fff;--text:#1d2433;--muted:#5b6475;--border:#dde2ea;--danger:#c0392b;--ok:#1e8449;--ai:#5b3fa8;--radius:12px}
+  *{box-sizing:border-box;min-width:0}
+  body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.5;font-size:15px}
+  .wrap{max-width:1140px;margin:0 auto;padding:24px 16px 60px}
+  h1{margin:0 0 4px;color:var(--brand-dark);font-size:1.5rem}
+  h2{margin:0 0 10px;color:var(--brand-dark);font-size:1.15rem}
+  h3{margin:14px 0 6px;font-size:.95rem}
+  .muted{color:var(--muted)} .small{font-size:.85rem}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:16px 0}
+  select,input,textarea{font:inherit;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text)}
+  textarea{width:100%;min-height:80px}
+  .btn{border:0;border-radius:8px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;background:var(--brand);color:#fff}
+  .btn:hover{background:var(--brand-dark)} .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn.secondary{background:#e8edf4;color:var(--brand-dark)}
+  .btn.ok{background:var(--ok)}
+  .btn.ai{background:#efeafb;color:var(--ai)}
+  .tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--radius);background:#fff}
+  table{width:100%;border-collapse:collapse}
+  th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--border);vertical-align:middle;white-space:nowrap}
+  th{background:#eef2f7;font-size:.78rem;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
+  td.num,th.num{text-align:right}
+  tbody tr{cursor:pointer} tbody tr:hover{background:#f6f9fc}
+  .lvl{display:inline-block;min-width:34px;text-align:center;padding:1px 7px;border-radius:999px;font-weight:700;font-size:.78rem;background:#e8edf4;color:var(--brand-dark)}
+  .lvl.C1,.lvl.C2{background:#d4efdf;color:#145a32}
+  .lvl.B2{background:#dcebf9;color:#1a4f80}
+  .lvl.B1{background:#fff3cd;color:#7a5b00}
+  .lvl.A0,.lvl.A1,.lvl.A2{background:#fdecea;color:#7b241c}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.78rem;font-weight:600}
+  .pill.pending{background:#fff3cd;color:#7a5b00} .pill.approved{background:#d4efdf;color:#145a32}
+  .warn{color:var(--danger);font-weight:600}
+  .scores{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:14px}
+  @media (max-width:760px){.scores{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .stat{background:#fbfcfe;border:1px solid var(--border);border-radius:10px;padding:12px}
+  .stat.overall{background:var(--brand);color:#fff;border-color:var(--brand)}
+  .stat.overall .muted{color:#cfe0f1}
+  .stat .n{font-size:1.5rem;font-weight:700;color:var(--brand-dark);font-variant-numeric:tabular-nums}
+  .stat.overall .n{color:#fff}
+  .writing{white-space:pre-wrap;background:#fbfcfe;border:1px solid var(--border);border-radius:8px;padding:12px;margin:6px 0 2px}
+  .transcript{white-space:pre-wrap;background:#fbfcfe;border:1px dashed var(--border);border-radius:8px;padding:10px;font-size:.9rem;color:#333}
+  audio{width:100%;margin:6px 0}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:860px){.two{grid-template-columns:1fr}}
+  .aibox{border:1px solid #d9cff3;background:#f8f5ff;border-radius:10px;padding:12px 14px;margin:14px 0}
+  .aibox .head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-weight:700;color:var(--ai)}
+  .aibox ul{margin:6px 0 0 18px;padding:0}
+  .scorer{border-top:1px solid var(--border);margin-top:14px;padding-top:14px}
+  .scorer .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .scorer input[type=number]{width:84px;font-size:1.1rem;font-weight:700}
+  .scorer input[type=range]{flex:1;min-width:160px;accent-color:var(--brand)}
+  .desc{background:#fbfcfe;border-left:4px solid var(--accent);border-radius:6px;padding:10px 12px;margin-top:10px;font-size:.88rem}
+  .desc ul{margin:4px 0 0 18px;padding:0}
+  details summary{cursor:pointer;font-weight:600;color:var(--brand)}
+  .breakdown{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .bq{font-size:.78rem;padding:3px 7px;border-radius:6px;background:#fdecea;color:#7b241c}
+  .bq.ok{background:#d4efdf;color:#145a32}
+  .notice{background:#fff7e0;border:1px solid #f2d27a;border-radius:8px;padding:10px 14px;margin-bottom:14px}
+  .error{background:#fdecea;border:1px solid #f5b7b1;color:#7b241c;border-radius:8px;padding:10px 14px}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:14px}
+  .saved{color:var(--ok);font-weight:600}
+  a{color:var(--brand)}
+</style>
+<script>
+/* ---- inlined from aao-levels.js (keep in sync with server copy) ---- */
+/* AAO English Assessment: score bands and VA-focused "can-do" descriptions.
+   Shared by aao-english-results.html and aao-english-certificate.html.
+   Keep BANDS in sync with "bands" in server/answer-key.json. */
+(function () {
+  var BANDS = [
+    { min: 0,  max: 20,  level: "A0", name: "Starter" },
+    { min: 21, max: 30,  level: "A1", name: "Beginner" },
+    { min: 31, max: 40,  level: "A2", name: "Elementary" },
+    { min: 41, max: 50,  level: "B1", name: "Intermediate" },
+    { min: 51, max: 60,  level: "B2", name: "Upper Intermediate" },
+    { min: 61, max: 70,  level: "C1", name: "Advanced" },
+    { min: 71, max: 100, level: "C2", name: "Proficient" }
+  ];
+
+  var SKILLS = {
+    reading: {
+      label: "Reading",
+      A0: ["You're beginning to recognize familiar English words.", ["Can recognize simple words such as names, numbers, days and dates", "Can follow very short instructions with pictures or examples", "Needs translation for most work messages"]],
+      A1: ["You can understand very short, simple texts.", ["Can read short messages such as \"Meeting at 3 pm\"", "Can find key details like names, times and prices", "Needs help with longer emails or instructions"]],
+      A2: ["You can understand short, everyday work messages.", ["Can read simple emails, task lists and schedules", "Can find specific information in forms and notices", "May miss details in longer or less familiar texts"]],
+      B1: ["You can understand clear, straightforward work texts.", ["Can follow client emails and step-by-step instructions on familiar tasks", "Can understand the main points of SOPs and short reports", "May need to re-read complex or detailed documents"]],
+      B2: ["You can read most client communication on your own.", ["Can understand detailed instructions, SOPs and policies without help", "Can spot priorities, deadlines and exceptions in client requests", "Can read articles and reports in your field and pick out key points"]],
+      C1: ["You understand long and complex texts with ease.", ["Can read contracts, proposals and technical documents and catch fine details", "Can understand implied meaning and tone in client messages", "Can quickly summarize long documents for a client"]],
+      C2: ["You understand virtually everything you read.", ["Can read any business, legal or technical text with full understanding", "Can pick up subtle tone, humor and implied meaning", "Can review others' writing for accuracy and clarity"]]
+    },
+    listening: {
+      label: "Listening",
+      A0: ["You're beginning to recognize familiar spoken words.", ["Can understand simple greetings and numbers spoken slowly", "Can recognize your name and very basic instructions", "Needs a lot of repetition or written support"]],
+      A1: ["You can understand slow, simple speech.", ["Can understand basic personal questions spoken slowly and clearly", "Can catch numbers, times and names in short messages", "Finds normal-speed conversation difficult"]],
+      A2: ["You can understand short, clear messages about familiar topics.", ["Can follow short voice messages about simple tasks", "Can catch key details like dates, times and amounts", "May need the speaker to slow down or repeat"]],
+      B1: ["You can understand the main points of clear work conversations.", ["Can follow voice messages, video updates and calls about familiar tasks", "Can understand instructions spoken at a normal pace", "May miss details when people speak fast or use slang"]],
+      B2: ["You can follow most client calls and meetings.", ["Can understand detailed instructions and discussions at natural speed", "Can follow different accents in clear audio", "Can take accurate notes and action items from a meeting"]],
+      C1: ["You understand fast, complex speech with ease.", ["Can follow long meetings, fast speakers and group discussions", "Can understand implied meaning, tone and humor", "Can follow most accents, even with background noise"]],
+      C2: ["You understand virtually everything you hear.", ["Can follow any conversation, presentation or call without effort", "Can understand strong accents, idioms and rapid speech", "Can interpret subtle tone and intent"]]
+    },
+    writing: {
+      label: "Writing",
+      A0: ["You're beginning to write in English.", ["Can write your name, address and basic details", "Can copy short words and phrases", "Needs a translation tool for most messages"]],
+      A1: ["You can write very short, simple messages.", ["Can write short notes like \"Task done\" or \"I will send tomorrow\"", "Can fill in simple forms with personal details", "Messages often contain errors that affect meaning"]],
+      A2: ["You can write short, simple work messages.", ["Can write brief updates and simple replies to clients", "Can describe what you did using basic sentences", "Frequent errors; tone may sound too casual or too direct"]],
+      B1: ["You can write clear messages on familiar work topics.", ["Can write emails and end-of-day updates that clients can understand", "Can explain a simple problem and ask for what you need", "Some grammar errors; writing may sound plain or repetitive"]],
+      B2: ["You can write clear, professional messages to clients.", ["Can write well-organized emails, updates and short reports", "Can apologize, explain a problem and propose a solution in a professional tone", "Errors are minor and rarely affect meaning"]],
+      C1: ["You write polished, natural client communication.", ["Can write persuasive, well-structured emails, proposals and reports", "Can adjust your tone for different clients and situations", "Very few errors; writing needs little or no editing"]],
+      C2: ["You write with near-native precision.", ["Can write any business document with clarity, style and accuracy", "Can edit and improve other people's writing", "Writing reads as fluent and effortless"]]
+    },
+    speaking: {
+      label: "Speaking",
+      A0: ["You're beginning to speak in English.", ["Can say hello and introduce yourself with memorized phrases", "Can answer very simple questions with single words", "Needs a lot of support to communicate"]],
+      A1: ["You can communicate simply if the other person helps.", ["Can introduce yourself and answer simple personal questions", "Can use basic phrases for greetings and thanks", "Long pauses and frequent errors make calls difficult"]],
+      A2: ["You can handle short, simple exchanges.", ["Can describe your experience and tasks in simple sentences", "Can ask and answer basic questions about work", "Needs time to find words; may be hard to follow on calls"]],
+      B1: ["You can handle routine client calls, though you may pause to find words.", ["Can introduce yourself and explain your skills and experience", "Can give a simple update on your work and ask clarifying questions", "May struggle with unexpected questions or fast discussions"]],
+      B2: ["You can speak confidently with clients and handle most work conversations.", ["Can join calls and meetings, give updates and explain your work clearly", "Can handle common client situations politely, like thanking, apologizing or delivering bad news", "Can describe your experience, skills and strengths and answer questions about them"]],
+      C1: ["You speak fluently and naturally in professional settings.", ["Can lead calls, present ideas and handle difficult conversations", "Can adjust your tone and explain complex topics clearly", "Rare errors; speaks smoothly without searching for words"]],
+      C2: ["You speak with near-native ease.", ["Can communicate with precision and nuance in any situation", "Can negotiate, persuade and handle sensitive topics effortlessly", "Speech is fluent, natural and easy to follow"]]
+    }
+  };
+
+  function band(score) {
+    if (score == null || isNaN(score)) return null;
+    var s = Math.max(0, Math.min(100, Math.round(score)));
+    for (var i = 0; i < BANDS.length; i++) if (s >= BANDS[i].min && s <= BANDS[i].max) return BANDS[i];
+    return null;
+  }
+  function describe(skill, score) {
+    var b = band(score);
+    if (!b) return null;
+    var d = SKILLS[skill][b.level];
+    return { level: b.level, name: b.name, summary: d[0], points: d[1] };
+  }
+
+  window.AAO_LEVELS = { BANDS: BANDS, SKILLS: SKILLS, band: band, describe: describe };
+})();
+
+</script>
+<script>
+/* Show a message instead of a blank page if something fails to load. */
+window.addEventListener("error", function (e) {
+  var a = document.getElementById("app");
+  if (a && !a.textContent.trim()) a.innerHTML = '<div style="max-width:640px;margin:40px auto;padding:20px;border:1px solid #f5b7b1;background:#fdecea;color:#7b241c;border-radius:10px;font-family:Arial,sans-serif"><strong>This page couldn\'t load.</strong><br>' + String(e.message || "Unknown error").replace(/[<>&]/g, "") + '<br><br>Open it in Chrome, Edge, Safari or Firefox (not a file preview). Developers: check the browser console.</div>';
+});
+</script>
+<script src="../aao-config.js"></script>
+<script src="aao-tests-config.js" data-page="english-admin"></script>
+</head>
+<body>
+<noscript><div style="max-width:640px;margin:40px auto;padding:20px;border:1px solid #f2d27a;background:#fff7e0;border-radius:10px;font-family:Arial,sans-serif">
+<strong>This page needs JavaScript.</strong> Previews in email, Google Drive, GitHub or a code editor don't run it, so the page looks blank.
+Download the file and open it in Chrome, Edge, Safari or Firefox, or serve it from your website.</div></noscript>
+<div class="wrap" id="app"></div>
+<script>
+/* =====================================================================
+   AAO English Assessment: Admin Results & Review
+   Needs aao-levels.js in the same folder.
+   DEVELOPER SETUP (admin-only route), in a script tag placed BEFORE this one:
+     window.AAO_ADMIN_CONFIG = {
+       apiBase: "/api/assessments",
+       certificateUrl: "/certificate?c="     // public certificate page + code
+     };
+   With no apiBase, the page shows SAMPLE DATA (demo mode).
+   ===================================================================== */
+{
+  const CONFIG = Object.assign({ apiBase: "", authToken: "", certificateUrl: "aao-english-certificate.html#" }, window.AAO_ADMIN_CONFIG || {});
+  const DEMO = !CONFIG.apiBase;
+  const L = window.AAO_LEVELS;
+  const app = document.getElementById("app");
+  const objectUrls = [];
+
+  const PROMPTS = {
+    w1: "Task 1: Reply to an unhappy client about a typo (80–150 words)",
+    w2: "Task 2: End-of-day update asking for missing photos (60–120 words)",
+    s1: "Task 1: Introduce yourself to a new client (up to 90 sec)",
+    s2: "Task 2: New task by tomorrow while you have other urgent work (up to 90 sec)"
+  };
+
+  /* ---------------- sample data (demo mode) ---------------- */
+  const SAMPLE = [{
+    id: 101, candidate_name: "Maria Santos", candidate_email: "maria@example.com",
+    submitted_at: new Date(Date.now() - 3600e3).toISOString(), status: "pending", cert_code: null,
+    grammar_raw: 16, reading_raw: 25, listening_raw: 9, reading_score: 67, listening_score: 72,
+    writing_score: null, speaking_score: null, overall_score: 70, reviewer_notes: "",
+    ai_status: "done",
+    ai_writing: { score: 60, summary: "Both tasks fully completed with a clear, professional and apologetic tone. Well organized; very few errors.", strengths: ["Takes ownership and offers a specific prevention plan", "Clear structure and polite closing"], improvements: ["Could be slightly more concise in Task 1"] },
+    ai_speaking: { score: 55, summary: "Answers both tasks fully with good vocabulary and organization. Listen to confirm pronunciation and fluency.", strengths: ["Names specific tools and experience", "Proposes a sensible way to negotiate the deadline"], improvements: ["Some repeated phrases ('and then', 'so')"] },
+    transcripts: {
+      s1: { seconds: 74, text: "Hi, my name is Maria. I've been a virtual assistant for four years, mostly working with US coaches and small e-commerce stores. My strongest skills are email and calendar management, social media scheduling, and customer support. I use tools like Google Workspace, Canva, Trello, Shopify and GoHighLevel. I'm very organized and I always send an end-of-day report so my clients know exactly where things are." },
+      s2: { seconds: 61, text: "I would thank the client for letting me know and then explain that I'm currently working on two urgent tasks that are due today. I would ask which one is the highest priority for them. If the new task is more urgent, I can move one of the other tasks to tomorrow afternoon. That way they can decide and nothing is late without them knowing." }
+    },
+    writing: {
+      w1: { words: 104, text: "Hi Jessica,\n\nI'm really sorry about the typo in this morning's headline. I've already corrected the post and checked the caption and hashtags again.\n\nYou're right that this is the second time this month, and that isn't acceptable. From now on, I'll run every post through Grammarly and read the headline out loud before scheduling. I'll also send you a preview of each week's posts every Friday so you can check them before they go live.\n\nThank you for your patience. Please let me know if you'd like me to handle anything else differently.\n\nBest,\nMaria" },
+      w2: { words: 72, text: "Hi Jessica,\n\nHere's my update for today:\n- Finished 12 of 15 product listings\n- Answered 8 customer emails\n\nI couldn't complete the last 3 listings because I don't have the product photos yet. Could you send them when you have a moment? Once I receive them, I'll finish the listings within the same day.\n\nThanks!\nMaria" }
+    },
+    audio: { s1: { seconds: 74 }, s2: { seconds: 61 } },
+    flags: { tabSwitches: 0, pasteAttempts: 0, timedOutSections: [], micUnavailable: false }
+  }, {
+    id: 100, candidate_name: "Jun Reyes", candidate_email: "jun@example.com",
+    submitted_at: new Date(Date.now() - 86400e3 * 2).toISOString(), status: "approved", cert_code: "K7QXM-3PRTA",
+    grammar_raw: 11, reading_raw: 17, listening_raw: 6, reading_score: 49, listening_score: 47,
+    writing_score: 42, speaking_score: 52, overall_score: 48, reviewer_notes: "Clear speaker; writing has frequent grammar errors.",
+    ai_status: "done",
+    ai_writing: { score: 40, summary: "Both tasks attempted but short; frequent grammar errors; tone is understandable but plain.", strengths: ["Asks clearly for the missing photos"], improvements: ["Below the word range", "Verb tense and plural errors"] },
+    ai_speaking: { score: 50, summary: "Understandable answers covering the main points. Listen to confirm fluency.", strengths: ["Answers stay on topic"], improvements: ["Limited vocabulary"] },
+    transcripts: { s1: { seconds: 48, text: "Hello, I am Jun. I have two years experience as VA for a real estate company. I do data entry, email and calendar. I use Google Sheets and Canva." } },
+    writing: { w1: { words: 58, text: "Sorry for the typo. I will fix it now and be more careful next time to check before posting it." }, w2: { words: 40, text: "I finish 12 listing and 8 emails today. I need the photos for the 3 listing please send so I can finish." } },
+    audio: { s1: { seconds: 48 } }, flags: { tabSwitches: 3, pasteAttempts: 2, timedOutSections: ["writing"], micUnavailable: false }
+  }];
+  SAMPLE.forEach(r => { r.tab_switches = r.flags.tabSwitches; r.paste_attempts = r.flags.pasteAttempts; r.ai_writing_score = r.ai_writing && r.ai_writing.score; r.ai_speaking_score = r.ai_speaking && r.ai_speaking.score; });
+
+  /* ---------------- api ---------------- */
+  function headers(json) {
+    const h = {};
+    if (json) h["Content-Type"] = "application/json";
+    { const tk = window.AAO_TOKEN ? window.AAO_TOKEN() : CONFIG.authToken; if (tk) h.Authorization = "Bearer " + tk; }
+    return h;
+  }
+  async function api(path, opts = {}) {
+    const res = await fetch(CONFIG.apiBase + path, Object.assign({ credentials: (window.AAO_FETCH_CREDENTIALS || "include"), headers: headers(!!opts.body) }, opts));
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || ("Request failed (" + res.status + ")"));
+    return data;
+  }
+  function overallOf(arr) { const v = arr.filter(n => Number.isInteger(n)); return v.length ? Math.round(v.reduce((a, b) => a + b, 0) / v.length) : null; }
+
+  const store = {
+    async list(minLevel, status) {
+      if (DEMO) {
+        const min = minLevel ? L.BANDS.find(b => b.level === minLevel).min : null;
+        return SAMPLE.filter(r => (min == null || r.overall_score >= min) && (!status || r.status === status));
+      }
+      const q = new URLSearchParams();
+      if (minLevel) q.set("minLevel", minLevel);
+      if (status) q.set("status", status);
+      return (await api("/english/results?" + q)).results;
+    },
+    async get(id) { return DEMO ? SAMPLE.find(r => r.id === id) : api("/english/results/" + id); },
+    async review(id, body) {
+      if (!DEMO) return api("/english/results/" + id + "/review", { method: "PATCH", body: JSON.stringify(body) });
+      const r = SAMPLE.find(x => x.id === id);
+      if (body.approve && body.writingScore == null) throw new Error("Add a writing score before approving");
+      Object.assign(r, { writing_score: body.writingScore, speaking_score: body.speakingScore, reviewer_notes: body.notes });
+      r.overall_score = overallOf([r.reading_score, r.listening_score, r.writing_score, r.speaking_score]);
+      if (body.approve) { r.status = "approved"; r.cert_code = r.cert_code || "DEMO7-CERT2"; }
+      return r;
+    },
+    async rescore(id) { if (!DEMO) return api("/english/results/" + id + "/ai-rescore", { method: "POST" }); return { ok: true }; }
+  };
+
+  /* ---------------- helpers ---------------- */
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function lvl(score) { const b = L.band(score); return b ? `<span class="lvl ${b.level}" title="${esc(b.name)}">${b.level}</span>` : '<span class="muted">—</span>'; }
+  function sc(score) { return Number.isInteger(score) ? score : "—"; }
+  function date(d) { return d ? new Date(d).toLocaleString([], { dateStyle: "medium", timeStyle: "short" }) : ""; }
+  function certLink(code) { return CONFIG.certificateUrl + encodeURIComponent(code); }
+
+  /* ---------------- list ---------------- */
+  const filters = { minLevel: "", status: "" };
+  async function renderList() {
+    objectUrls.splice(0).forEach(u => URL.revokeObjectURL(u));
+    app.innerHTML = `
+      <h1>English Assessment Results</h1>
+      <p class="muted">Amazing Assistants Online · click a VA to read their writing, play their voice answers, check the AI suggestions and approve their scores.</p>
+      ${DEMO ? '<div class="notice"><strong>Demo mode:</strong> these are sample VAs. Your developer connects this page to real results.</div>' : ""}
+      <div class="toolbar">
+        <label>Minimum overall level <select id="f-level"><option value="">Any</option>${L.BANDS.map(b => `<option ${b.level === filters.minLevel ? "selected" : ""}>${b.level}</option>`).join("")}</select></label>
+        <label>Status <select id="f-status"><option value="">All</option><option value="pending" ${filters.status === "pending" ? "selected" : ""}>Needs review</option><option value="approved" ${filters.status === "approved" ? "selected" : ""}>Approved</option></select></label>
+      </div>
+      <div id="list"><p class="muted">Loading…</p></div>`;
+    document.getElementById("f-level").onchange = e => { filters.minLevel = e.target.value; renderList(); };
+    document.getElementById("f-status").onchange = e => { filters.status = e.target.value; renderList(); };
+    try {
+      const rows = await store.list(filters.minLevel, filters.status);
+      document.getElementById("list").innerHTML = rows.length ? `
+        <div class="tablewrap"><table><thead><tr>
+          <th>VA</th><th>Submitted</th><th class="num">Overall</th><th class="num">Reading</th><th class="num">Listening</th><th class="num">Writing</th><th class="num">Speaking</th><th>Status</th><th>Flags</th>
+        </tr></thead><tbody>${rows.map(r => `<tr data-id="${r.id}">
+          <td><strong>${esc(r.candidate_name)}</strong><br><span class="muted small">${esc(r.candidate_email)}</span></td>
+          <td>${date(r.submitted_at)}</td>
+          <td class="num"><strong>${sc(r.overall_score)}</strong> ${lvl(r.overall_score)}</td>
+          <td class="num">${sc(r.reading_score)} ${lvl(r.reading_score)}</td>
+          <td class="num">${sc(r.listening_score)} ${lvl(r.listening_score)}</td>
+          <td class="num">${Number.isInteger(r.writing_score) ? sc(r.writing_score) + " " + lvl(r.writing_score) : (Number.isInteger(r.ai_writing_score) ? `<span class="muted" title="AI suggestion">AI ${r.ai_writing_score}</span>` : "—")}</td>
+          <td class="num">${Number.isInteger(r.speaking_score) ? sc(r.speaking_score) + " " + lvl(r.speaking_score) : (Number.isInteger(r.ai_speaking_score) ? `<span class="muted" title="AI suggestion">AI ${r.ai_speaking_score}</span>` : "—")}</td>
+          <td><span class="pill ${esc(r.status)}">${r.status === "approved" ? "Approved" : "Needs review"}</span></td>
+          <td>${(r.tab_switches || 0) + (r.paste_attempts || 0) > 0 ? `<span class="warn">⚠ ${r.tab_switches || 0} tab · ${r.paste_attempts || 0} paste</span>` : '<span class="muted">None</span>'}</td>
+        </tr>`).join("")}</tbody></table></div>
+        <p class="muted small">Overall is shown as provisional until writing and speaking are approved. "AI" means a suggested score that hasn't been approved yet.</p>`
+        : '<div class="card muted">No results match these filters yet.</div>';
+      document.querySelectorAll("tbody tr").forEach(tr => tr.onclick = () => renderDetail(Number(tr.dataset.id)));
+    } catch (e) {
+      document.getElementById("list").innerHTML = `<div class="error">${esc(e.message)}</div>`;
+    }
+  }
+
+  /* ---------------- detail ---------------- */
+  async function loadAudio(url) {
+    const res = await fetch(url, { credentials: (window.AAO_FETCH_CREDENTIALS || "include"), headers: headers(false) });
+    if (!res.ok) throw new Error("Recording failed to load");
+    const u = URL.createObjectURL(await res.blob());
+    objectUrls.push(u);
+    return u;
+  }
+
+  function aiBox(skill, s, aiStatus) {
+    if (!s) {
+      const msg = { off: "AI scoring is off. Add the API keys to turn it on.", queued: "AI suggestion is queued…", running: "AI is scoring now…", error: "AI scoring failed. Try re-running it." }[aiStatus] || "No AI suggestion.";
+      return `<div class="aibox"><div class="head">🤖 AI suggestion</div><p class="muted small" style="margin:6px 0 0">${esc(msg)}</p></div>`;
+    }
+    return `<div class="aibox"><div class="head"><span>🤖 AI suggests ${s.score}/100 ${lvl(s.score)}</span><button class="btn ai" data-use="${skill}" data-score="${s.score}">Use this score</button></div>
+      <p style="margin:6px 0 0">${esc(s.summary)}</p>
+      ${s.strengths && s.strengths.length ? `<div class="small" style="margin-top:6px"><strong>Strengths</strong><ul>${s.strengths.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}
+      ${s.improvements && s.improvements.length ? `<div class="small" style="margin-top:6px"><strong>To improve</strong><ul>${s.improvements.map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>` : ""}</div>`;
+  }
+
+  function scorer(skill, value) {
+    return `<div class="scorer"><div class="row"><strong>${L.SKILLS[skill].label} score</strong>
+        <input type="number" min="0" max="100" step="1" id="${skill}-num" value="${Number.isInteger(value) ? value : ""}" placeholder="0–100">
+        <input type="range" min="0" max="100" step="1" id="${skill}-range" value="${Number.isInteger(value) ? value : 50}" aria-label="${L.SKILLS[skill].label} score slider">
+        <span id="${skill}-lvl">${lvl(value)}</span></div>
+      <div class="desc" id="${skill}-desc"></div></div>`;
+  }
+
+  function descHTML(skill, score) {
+    const d = L.describe(skill, score);
+    if (!d) return '<span class="muted">Set a score to see the description the VA and clients will see.</span>';
+    return `<strong>${d.level} ${esc(d.name)}:</strong> ${esc(d.summary)}<ul>${d.points.map(p => `<li>${esc(p)}</li>`).join("")}</ul>`;
+  }
+
+  async function renderDetail(id) {
+    app.innerHTML = '<p class="muted">Loading…</p>';
+    let r;
+    try { r = await store.get(id); } catch (e) { app.innerHTML = `<div class="error">${esc(e.message)}</div>`; return; }
+    const f = r.flags || {}, writing = r.writing || {}, audio = r.audio || {}, tr = r.transcripts || {};
+    const flagged = f.tabSwitches || f.pasteAttempts || (f.timedOutSections || []).length || f.micUnavailable;
+
+    app.innerHTML = `
+      <button class="btn secondary" id="back">← All results</button>
+      <div class="card" style="margin-top:16px">
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
+          <div><h1>${esc(r.candidate_name)}</h1><p class="muted" style="margin:0">${esc(r.candidate_email)} · submitted ${date(r.submitted_at)}</p></div>
+          <div id="status-box"></div>
+        </div>
+        <div class="scores">
+          <div class="stat overall"><div class="muted">Overall</div><div class="n" id="ov-n">${sc(r.overall_score)}</div><div id="ov-l">${lvl(r.overall_score)}</div></div>
+          <div class="stat"><div class="muted">Reading</div><div class="n">${sc(r.reading_score)}</div>${lvl(r.reading_score)} <span class="muted small">${r.reading_raw}/30 correct</span></div>
+          <div class="stat"><div class="muted">Listening</div><div class="n">${sc(r.listening_score)}</div>${lvl(r.listening_score)} <span class="muted small">${r.listening_raw}/10 correct</span></div>
+          <div class="stat"><div class="muted">Writing</div><div class="n" id="w-n">${sc(r.writing_score)}</div><span id="w-l">${lvl(r.writing_score)}</span></div>
+          <div class="stat"><div class="muted">Speaking</div><div class="n" id="s-n">${sc(r.speaking_score)}</div><span id="s-l">${lvl(r.speaking_score)}</span></div>
+        </div>
+        <p class="small" style="margin:12px 0 0">${flagged
+          ? `<span class="warn">⚠ Integrity notes:</span> left the page ${f.tabSwitches || 0}×, tried to paste ${f.pasteAttempts || 0}×${(f.timedOutSections || []).length ? ", ran out of time in: " + esc(f.timedOutSections.join(", ")) : ""}${f.micUnavailable ? ", had microphone problems" : ""}.`
+          : '<span class="muted">No integrity flags.</span>'}</p>
+        ${r.breakdown ? `<details style="margin-top:8px"><summary>Question-by-question breakdown</summary><div class="breakdown">${r.breakdown.map(b => `<span class="bq ${b.isCorrect ? "ok" : ""}" title="${esc(b.section)} · ${esc(b.level)} · answered ${esc(b.given || "none")}, correct ${esc(b.correct)}">${esc(b.id)} ${b.isCorrect ? "✓" : "✗"}</span>`).join("")}</div></details>` : ""}
+      </div>
+
+      <div class="two">
+        <div class="card">
+          <h2>✍️ Writing</h2>
+          ${["w1", "w2"].map(t => `<h3>${esc(PROMPTS[t])}</h3>
+            <div class="writing">${esc((writing[t] && writing[t].text) || "(no answer)")}</div>
+            <div class="muted small">${(writing[t] && writing[t].words) || 0} words</div>`).join("")}
+          ${aiBox("writing", r.ai_writing, r.ai_status)}
+          ${scorer("writing", r.writing_score)}
+        </div>
+        <div class="card">
+          <h2>🎙️ Speaking</h2>
+          ${["s1", "s2"].map(t => `<h3>${esc(PROMPTS[t])}</h3>
+            <div id="audio-${t}">${audio[t] ? '<span class="muted small">Loading recording…</span>' : '<span class="muted">(no recording)</span>'}</div>
+            ${audio[t] && audio[t].seconds ? `<div class="muted small">${audio[t].seconds} seconds</div>` : ""}
+            ${tr[t] && tr[t].text ? `<details style="margin-top:6px"><summary class="small">Read transcript</summary><div class="transcript">${esc(tr[t].text)}</div></details>` : ""}`).join("")}
+          ${aiBox("speaking", r.ai_speaking, r.ai_status)}
+          ${scorer("speaking", r.speaking_score)}
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Review & approve</h2>
+        <p class="muted small" style="margin-top:0">Overall = average of Reading, Listening, Writing and Speaking. When you approve, the VA's certificate is issued and they can see their results.</p>
+        <label><strong>Private notes</strong><textarea id="notes">${esc(r.reviewer_notes || "")}</textarea></label>
+        <div class="actions">
+          <button class="btn secondary" id="save">Save draft</button>
+          <button class="btn ok" id="approve">${r.status === "approved" ? "Update approved scores" : "Approve & issue certificate"}</button>
+          <button class="btn ai" id="rescore">Re-run AI</button>
+          <span id="saved"></span>
+        </div>
+      </div>`;
+
+    function renderStatus() {
+      document.getElementById("status-box").innerHTML = r.status === "approved"
+        ? `<span class="pill approved">Approved</span>${r.cert_code ? `<div class="small" style="margin-top:6px"><a href="${esc(certLink(r.cert_code))}" target="_blank" rel="noopener">View certificate ${esc(r.cert_code)} ↗</a></div>` : ""}`
+        : '<span class="pill pending">Needs review</span>';
+    }
+    renderStatus();
+
+    const val = skill => { const v = document.getElementById(skill + "-num").value; return v === "" ? null : Math.max(0, Math.min(100, Math.round(Number(v)))); };
+    function refresh() {
+      for (const skill of ["writing", "speaking"]) {
+        const v = val(skill);
+        document.getElementById(skill + "-lvl").innerHTML = lvl(v);
+        document.getElementById(skill + "-desc").innerHTML = descHTML(skill, v);
+        document.getElementById(skill[0] + "-n").textContent = sc(v);
+        document.getElementById(skill[0] + "-l").innerHTML = lvl(v);
+      }
+      const ov = overallOf([r.reading_score, r.listening_score, val("writing"), val("speaking")]);
+      document.getElementById("ov-n").textContent = sc(ov);
+      document.getElementById("ov-l").innerHTML = lvl(ov);
+    }
+    for (const skill of ["writing", "speaking"]) {
+      const num = document.getElementById(skill + "-num"), range = document.getElementById(skill + "-range");
+      num.oninput = () => { if (num.value !== "") range.value = num.value; refresh(); };
+      range.oninput = () => { num.value = range.value; refresh(); };
+    }
+    app.querySelectorAll("[data-use]").forEach(b => b.onclick = () => {
+      const skill = b.dataset.use;
+      document.getElementById(skill + "-num").value = b.dataset.score;
+      document.getElementById(skill + "-range").value = b.dataset.score;
+      refresh();
+    });
+    refresh();
+
+    document.getElementById("back").onclick = renderList;
+    async function save(approve) {
+      const s = document.getElementById("saved");
+      s.className = ""; s.textContent = "Saving…";
+      try {
+        const out = await store.review(r.id, { writingScore: val("writing"), speakingScore: val("speaking"), notes: document.getElementById("notes").value, approve });
+        Object.assign(r, { status: out.status, cert_code: out.cert_code, overall_score: out.overall_score, writing_score: out.writing_score, speaking_score: out.speaking_score });
+        renderStatus();
+        document.getElementById("approve").textContent = r.status === "approved" ? "Update approved scores" : "Approve & issue certificate";
+        s.className = "saved"; s.textContent = approve ? "✓ Approved. Certificate issued." : "✓ Draft saved";
+      } catch (e) { s.className = "warn"; s.textContent = e.message; }
+    }
+    document.getElementById("save").onclick = () => save(false);
+    document.getElementById("approve").onclick = () => save(true);
+    document.getElementById("rescore").onclick = async () => {
+      const s = document.getElementById("saved");
+      try { await store.rescore(r.id); s.className = "saved"; s.textContent = DEMO ? "Demo: AI would re-score here." : "AI is re-scoring. Refresh in a minute."; }
+      catch (e) { s.className = "warn"; s.textContent = e.message; }
+    };
+
+    for (const t of ["s1", "s2"]) {
+      if (!audio[t]) continue;
+      const box = document.getElementById("audio-" + t);
+      if (DEMO) { box.innerHTML = '<audio controls></audio><div class="muted small">(Demo: the VA\'s recording plays here.)</div>'; continue; }
+      try { box.innerHTML = `<audio controls preload="metadata" src="${await loadAudio(r.audioUrls[t])}"></audio>`; }
+      catch (e) { box.innerHTML = `<span class="warn">${esc(e.message)}</span>`; }
+    }
+  }
+
+  renderList();
+}
+</script>
+</body>
+</html>
