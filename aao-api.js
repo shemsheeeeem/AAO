@@ -312,7 +312,8 @@
       email: user.email, role: appRole, name: meta.full_name || (user.email || "").split("@")[0],
       label: appRole === "va" ? "Virtual assistant" : "Client", id: user.id, verified: !!user.email_confirmed_at,
       business: meta.business || "",
-      since: user.created_at ? new Date(user.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : ""
+      since: user.created_at ? new Date(user.created_at).toLocaleDateString("en-US", { month: "long", year: "numeric" }) : "",
+      createdAt: user.created_at || ""
     };
   }
 
@@ -417,6 +418,7 @@
       start: START_LABEL[d.start_when] ? d.start_when : "",
       subs: esc((d.sub_specialties || []).join(", ")),
       work: workFromApi(d.work_experience),
+      video: safeUrl(d.video_url),
       /* Raw text for the skill editor, which escapes what it draws. */
       banner: d.banner && safeUrl(d.banner.url) ? { url: safeUrl(d.banner.url), x: Number(d.banner.x) || 0, y: Number(d.banner.y) || 0 } : null,
       skillRatings: (d.skill_details || []).map(function (s) {
@@ -442,7 +444,8 @@
       location: row.loc || null, experience_years: isFinite(years) && years >= 0 && years <= 60 ? years : null,
       languages: splitList(row.langs, 10),
       certifications: (prev.certifications || []).map(function (c) { return { title: c.title, issuer: c.issuer || null }; }),
-      video_url: prev.video_url || null,
+      /* Intro video (decision 71): the screen sends row.video when it has the box; the API checks and cleans the link. */
+      video_url: row.video !== undefined ? (String(row.video || "").trim() || null) : (prev.video_url || null),
       hourly_rate: rate > 0 ? Math.round(rate * 100) / 100 : null, show_rate: rate > 0
     };
     /* Profile sections (decision 75). Sent only when the screen has them, so an older screen never clears them. */
@@ -518,7 +521,7 @@
     return r.data;
   }
   async function reopenJob(id) {
-    var r = await call("POST", "/me/jobs/" + encodeURIComponent(id) + "/reopen", { expires_in_days: 30 }, { auth: true });
+    var r = await call("POST", "/me/jobs/" + encodeURIComponent(id) + "/reopen", {}, { auth: true }); /* no end date: open until the client closes it (decision 70) */
     return r.data;
   }
 
@@ -542,7 +545,11 @@
   async function uploadPhoto(file) {
     if (["image/jpeg", "image/png", "image/webp"].indexOf(file.type) < 0) throw ApiError(400, "VALIDATION_ERROR", "Please choose a JPEG, PNG or WebP image.");
     if (!file.size) throw ApiError(400, "VALIDATION_ERROR", "That file is empty.");
-    if (file.size > 2 * 1024 * 1024) throw ApiError(400, "VALIDATION_ERROR", "That image is larger than 2 MB. Please choose a smaller one.");
+    /* Redraw at most 1024 px so hidden camera details (such as the GPS location of a phone photo) are not uploaded.
+       JPEG stays JPEG; PNG and WebP become WebP (or PNG where the browser cannot make WebP), so a transparent background stays transparent. */
+    file = await redrawImage(file, 1024, file.type === "image/jpeg" ? "image/jpeg" : "image/webp", 0.9);
+    if (["image/jpeg", "image/png", "image/webp"].indexOf(file.type) < 0) throw ApiError(400, "VALIDATION_ERROR", "We could not read that image. Please try another one.");
+    if (file.size > 2 * 1024 * 1024) throw ApiError(400, "VALIDATION_ERROR", "That image is still larger than 2 MB. Please choose a smaller one.");
     var a = await call("POST", "/me/talent-profile/photo/upload-url", { content_type: file.type, size: file.size }, { auth: true });
     var up = a.data.upload, put;
     try {
@@ -622,7 +629,9 @@
   }
   /* ---------- banner and personal photos (public; decision 78) ---------- */
   /* Redraws an image as a JPEG of at most maxSide px (keeps uploads small and drops hidden camera details such as location). */
-  function imageAsJpeg(file, maxSide) {
+  function imageAsJpeg(file, maxSide) { return redrawImage(file, maxSide, "image/jpeg", 0.85); }
+  /* Redrawing on a canvas keeps only the pixels: camera make, date and GPS location in the original file are left behind. */
+  function redrawImage(file, maxSide, outType, quality) {
     return new Promise(function (resolve, reject) {
       if (!file || ["image/jpeg", "image/png", "image/webp"].indexOf(file.type) < 0) { reject(ApiError(400, "VALIDATION_ERROR", "Please choose a JPG, PNG or WebP image.")); return; }
       if (file.size > 20 * 1024 * 1024) { reject(ApiError(400, "VALIDATION_ERROR", "That image is too large. Please choose one under 20 MB.")); return; }
@@ -635,7 +644,7 @@
           c.height = Math.max(1, Math.round(img.naturalHeight * scale));
           c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
           URL.revokeObjectURL(url);
-          c.toBlob(function (b) { b ? resolve(b) : reject(ApiError(400, "VALIDATION_ERROR", "We could not read that image.")); }, "image/jpeg", 0.85);
+          c.toBlob(function (b) { b ? resolve(b) : reject(ApiError(400, "VALIDATION_ERROR", "We could not read that image.")); }, outType, quality);
         } catch (e) { URL.revokeObjectURL(url); reject(ApiError(400, "VALIDATION_ERROR", "We could not read that image.")); }
       };
       img.onerror = function () { URL.revokeObjectURL(url); reject(ApiError(400, "VALIDATION_ERROR", "We could not read that image. Please try another one.")); };
@@ -748,6 +757,29 @@
     return r.data;
   }
 
+  /* ---------- administrators: oversight of jobs, messages and assistants (decision 83). Every call is logged by the server. ---------- */
+  function qs(o) {
+    var parts = [];
+    Object.keys(o).forEach(function (k) { if (o[k] !== undefined && o[k] !== null && o[k] !== "") parts.push(encodeURIComponent(k) + "=" + encodeURIComponent(o[k])); });
+    return parts.length ? "?" + parts.join("&") : "";
+  }
+  async function adminGet(path) {
+    var r = await call("GET", path, undefined, { auth: true, fresh: true });
+    return { items: r.data || [], meta: r.meta || {} };
+  }
+  function adminJobs(o) { o = o || {}; return adminGet("/admin/jobs" + qs({ status: o.status, limit: 20, offset: o.offset || 0 })); }
+  function adminJobApplicants(jobId) { return adminGet("/admin/jobs/" + encodeURIComponent(jobId) + "/applications"); }
+  function adminMessages(o) { o = o || {}; return adminGet("/admin/messages" + qs({ flagged: o.flagged ? "true" : "", limit: 20, offset: o.offset || 0 })); }
+  function adminTalentList(o) { o = o || {}; return adminGet("/admin/talent" + qs({ status: o.status, q: o.q, limit: o.limit || 20, offset: o.offset || 0 })); }
+  async function adminSetJobStatus(jobId, status, reason) {
+    var r = await call("POST", "/admin/jobs/" + encodeURIComponent(jobId) + "/status", { status: status, reason: reason || undefined }, { auth: true });
+    return r.data;
+  }
+  async function adminSetTalentStatus(profileId, status, reason) {
+    var r = await call("POST", "/admin/talent/" + encodeURIComponent(profileId) + "/status", { status: status, reason: reason || undefined }, { auth: true });
+    return r.data;
+  }
+
   /* ---------- job applications ---------- */
   var START_FROM_LABEL = { "Immediately": "immediately", "Within a week": "within_week", "In 2 weeks": "in_two_weeks", "In a month": "in_a_month" };
 
@@ -783,6 +815,8 @@
     identityStatus: identityStatus,
     adminIdentityList: adminIdentityList, adminIdentityLink: adminIdentityLink, adminIdentityReview: adminIdentityReview,
     adminAssessmentList: adminAssessmentList, adminAssessmentLink: adminAssessmentLink, adminAssessmentReview: adminAssessmentReview,
+    adminJobs: adminJobs, adminJobApplicants: adminJobApplicants, adminMessages: adminMessages, adminTalentList: adminTalentList,
+    adminSetJobStatus: adminSetJobStatus, adminSetTalentStatus: adminSetTalentStatus,
     uploadIdentity: uploadIdentity, myPhotoUrl: myPhotoUrl,
     assessmentStatus: assessmentStatus, saveAssessment: saveAssessment, uploadAssessmentPdf: uploadAssessmentPdf,
     hasTalentProfile: function () { return !!(mine && mine.kind === "talent" && mine.data); },
