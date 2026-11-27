@@ -984,6 +984,26 @@ body.booting .foot{visibility:hidden}
 .jobs-side input[type="radio"],.jobs-side input[type="checkbox"]{color-scheme:light}
 /* Edit profile sections (live) */
 #vpf input,#vpf select,#vpf textarea{color-scheme:light}
+/* Profile photo: "Adjust your photo" window (zoom, drag, rotate) before upload */
+.pa-modal{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(2,15,32,.78);padding:16px;color-scheme:light}
+.pa-box{background:#fff;color:#0B1A33;border-radius:18px;width:min(440px,100%);max-height:calc(100vh - 32px);overflow:auto;padding:20px 20px 18px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+.pa-box h2{margin:0 0 4px;font:600 1.2rem var(--body);color:#06244A}
+.pa-box p{margin:0 0 12px;color:#51617C;font-size:.88rem}
+.pa-stage{position:relative;width:100%;max-width:340px;aspect-ratio:1/1;margin:0 auto 12px;border-radius:12px;overflow:hidden;background:#E9EEF6;touch-action:none;cursor:grab}
+.pa-stage:active{cursor:grabbing}
+.pa-stage:focus-visible{outline:3px solid #C49B3F;outline-offset:3px}
+.pa-stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.pa-ring{position:absolute;inset:0;pointer-events:none;border-radius:50%;box-shadow:0 0 0 999px rgba(6,36,74,.35);outline:2px dashed rgba(255,255,255,.9);outline-offset:-2px}
+.pa-row{display:flex;align-items:center;gap:10px;margin:0 0 10px}
+.pa-row label{font-size:.85rem;font-weight:600;color:#06244A;min-width:3.2em}
+.pa-row input[type=range]{flex:1;accent-color:#1B4B91}
+.pa-tools{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 14px}
+.pa-tools button{font:600 .84rem var(--body);padding:.45em .9em;border-radius:999px;border:1px solid #C9D3E3;background:#fff;color:#06244A;cursor:pointer}
+.pa-tools button:hover{background:#F3F6FB}
+.pa-actions{display:flex;gap:10px;justify-content:flex-end}
+.pa-actions .btn-line{color:#06244A;border-color:#C9D3E3;background:#fff}
+.pa-actions .btn-line:hover{background:#F3F6FB}
+.pa-hint{font-size:.78rem!important;margin:0 0 12px!important}
 .vp-photo-prev{width:96px;height:96px;object-fit:cover;border-radius:50%;margin:6px 0 4px;border:1px solid var(--vap-line);background:#F3F6FB}
 .vpf-intro{margin:0 0 6px;color:var(--vap-muted);font-size:.92rem}
 .vpf-req{color:#B4232A;font-weight:700}
@@ -3383,6 +3403,93 @@ function photoGridHtml(list){
 }
 /* One shared viewer for every photo grid (personal photos, portfolio page images). Image URLs come from the grid itself (API https URLs);
    captions are copied as text. Esc closes, arrow keys and swipes move, focus returns to the photo that opened it. */
+/* Profile photo: lets the VA zoom, drag, rotate and reset before upload. Resolves with a square Blob (1024 px), or null on
+   Cancel. Drawing on a canvas keeps only the pixels (no camera details or location). PNG/WebP keep a transparent background. */
+function openPhotoAdjuster(file){
+  return new Promise(function(resolve,reject){
+    var url=URL.createObjectURL(file),img=new Image();
+    img.onerror=function(){URL.revokeObjectURL(url);reject(new Error("We could not read that image. Please choose another one."));};
+    img.onload=function(){
+      var keepAlpha=file.type!=="image/jpeg";
+      var box=document.createElement("div");
+      box.className="pa-modal";box.setAttribute("role","dialog");box.setAttribute("aria-modal","true");box.setAttribute("aria-labelledby","pa-title");
+      box.innerHTML='<div class="pa-box"><h2 id="pa-title">Adjust your photo</h2><p>Drag to move it, and zoom so your face fills the circle. Clients see the square on assistant cards and the circle on your profile.</p>'+
+        '<div class="pa-stage" tabindex="0" aria-label="Photo position. Use the arrow keys to move it, plus and minus to zoom."><canvas></canvas><div class="pa-ring" aria-hidden="true"></div></div>'+
+        '<div class="pa-row"><label for="pa-zoom">Zoom</label><input type="range" id="pa-zoom" min="1" max="4" step="0.01" value="1"></div>'+
+        '<div class="pa-tools"><button type="button" data-pa="left" aria-label="Rotate left">⟲ Rotate left</button><button type="button" data-pa="right" aria-label="Rotate right">⟳ Rotate right</button><button type="button" data-pa="reset">Reset</button></div>'+
+        '<p class="pa-hint">Tip: arrow keys move the photo, + and − zoom.</p>'+
+        '<div class="pa-actions"><button type="button" class="btn btn-line" data-pa="cancel">Cancel</button><button type="button" class="btn btn-gold" data-pa="save">Save photo</button></div></div>';
+      document.body.appendChild(box);
+      document.documentElement.classList.add("vlock");
+      var stage=box.querySelector(".pa-stage"),cv=box.querySelector("canvas"),ctx=cv.getContext("2d"),zoomEl=box.querySelector("#pa-zoom");
+      var st={zoom:1,x:0,y:0,rot:0},S=0,lastFocus=document.activeElement;
+      function dims(){var turned=st.rot%180!==0;return {w:turned?img.naturalHeight:img.naturalWidth,h:turned?img.naturalWidth:img.naturalHeight};}
+      /* scale so the (rotated) image always covers the square, then the zoom on top */
+      function scaleFor(size){var d=dims();return size/Math.min(d.w,d.h)*st.zoom;}
+      function clamp(){var d=dims(),k=scaleFor(S),mx=Math.max(0,(d.w*k-S)/2),my=Math.max(0,(d.h*k-S)/2);st.x=Math.min(mx,Math.max(-mx,st.x));st.y=Math.min(my,Math.max(-my,st.y));}
+      function paint(c,size,offX,offY){
+        var g=c.getContext("2d"),k=scaleFor(size);
+        g.clearRect(0,0,size,size);
+        g.save();g.translate(size/2+offX,size/2+offY);g.rotate(st.rot*Math.PI/180);g.scale(k,k);
+        g.drawImage(img,-img.naturalWidth/2,-img.naturalHeight/2);g.restore();
+      }
+      function draw(){
+        var px=Math.round(stage.clientWidth*(window.devicePixelRatio||1));
+        if(cv.width!==px){cv.width=px;cv.height=px;}
+        S=stage.clientWidth;clamp();
+        var r=px/S;paint(cv,px,st.x*r,st.y*r);
+      }
+      function done(result){
+        window.removeEventListener("resize",draw);document.removeEventListener("keydown",onKey,true);
+        box.remove();document.documentElement.classList.remove("vlock");URL.revokeObjectURL(url);
+        if(lastFocus&&lastFocus.focus)try{lastFocus.focus({preventScroll:true});}catch(e){}
+        resolve(result);
+      }
+      function save(){
+        var OUT=1024,out=document.createElement("canvas");out.width=OUT;out.height=OUT;
+        var r=OUT/S;paint(out,OUT,st.x*r,st.y*r);
+        out.toBlob(function(b){
+          if(!b){reject(new Error("We could not prepare that photo. Please try another one."));return;}
+          done(b);
+        },keepAlpha?"image/webp":"image/jpeg",0.9);
+      }
+      function setZoom(z){st.zoom=Math.min(4,Math.max(1,z));zoomEl.value=st.zoom;draw();}
+      /* drag (mouse, touch, pen) */
+      var drag=null;
+      stage.addEventListener("pointerdown",function(e){drag={x:e.clientX,y:e.clientY};stage.setPointerCapture(e.pointerId);});
+      stage.addEventListener("pointermove",function(e){if(!drag)return;st.x+=e.clientX-drag.x;st.y+=e.clientY-drag.y;drag={x:e.clientX,y:e.clientY};draw();});
+      ["pointerup","pointercancel"].forEach(function(t){stage.addEventListener(t,function(){drag=null;});});
+      stage.addEventListener("wheel",function(e){e.preventDefault();setZoom(st.zoom*(e.deltaY<0?1.08:1/1.08));},{passive:false});
+      zoomEl.addEventListener("input",function(){setZoom(Number(zoomEl.value));});
+      box.addEventListener("click",function(e){
+        var b=e.target.closest("[data-pa]");
+        if(!b)return; /* no close on backdrop click: a drag that ends outside the box must not cancel */
+        var a=b.getAttribute("data-pa");
+        if(a==="left"){st.rot=(st.rot+270)%360;draw();}
+        else if(a==="right"){st.rot=(st.rot+90)%360;draw();}
+        else if(a==="reset"){st.zoom=1;st.x=0;st.y=0;st.rot=0;zoomEl.value=1;draw();}
+        else if(a==="cancel")done(null);
+        else if(a==="save")save();
+      });
+      function onKey(e){
+        if(e.key==="Escape"){e.preventDefault();done(null);return;}
+        if(document.activeElement!==stage)return;
+        var step=e.shiftKey?40:10;
+        if(e.key==="ArrowLeft"){st.x-=step;}else if(e.key==="ArrowRight"){st.x+=step;}
+        else if(e.key==="ArrowUp"){st.y-=step;}else if(e.key==="ArrowDown"){st.y+=step;}
+        else if(e.key==="+"||e.key==="="){setZoom(st.zoom*1.1);e.preventDefault();return;}
+        else if(e.key==="-"||e.key==="_"){setZoom(st.zoom/1.1);e.preventDefault();return;}
+        else return;
+        e.preventDefault();draw();
+      }
+      document.addEventListener("keydown",onKey,true);
+      window.addEventListener("resize",draw);
+      draw();
+      stage.focus({preventScroll:true});
+    };
+    img.src=url;
+  });
+}
 function photoViewer(){
   var box=$("#lbx");
   if(box)return box;
@@ -6695,9 +6802,16 @@ V.vaProfile.init = function(){
       var input=this,f=input.files[0],pn=$("#vp-photo-note");
       if(!f)return;
       if(!AAOApi.hasTalentProfile()){pn.textContent="Save your profile first, then add a photo.";input.value="";return;}
-      pn.textContent="Uploading…";
-      AAOApi.uploadPhoto(f).then(function(url){pn.textContent="Photo saved.";showPhoto(url);photoRm.hidden=false;return reloadCatalog();}).catch(function(err){pn.textContent=err.message;});
+      if(["image/jpeg","image/png","image/webp"].indexOf(f.type)<0){pn.textContent="Please choose a JPEG, PNG or WebP image.";input.value="";return;}
       input.value="";
+      pn.textContent="";
+      /* Adjust first (zoom, move, rotate); nothing is uploaded until Save photo. */
+      openPhotoAdjuster(f).then(function(blob){
+        if(!blob){pn.textContent="Photo not changed.";return;}
+        pn.textContent="Uploading…";
+        var name=(blob.type==="image/jpeg"?"photo.jpg":blob.type==="image/png"?"photo.png":"photo.webp");
+        return AAOApi.uploadPhoto(new File([blob],name,{type:blob.type})).then(function(url){pn.textContent="Photo saved.";showPhoto(url);photoRm.hidden=false;return reloadCatalog();});
+      }).catch(function(err){pn.textContent=err.message;});
     });
     var photoRm=document.createElement("button");
     photoRm.type="button";photoRm.className="btn btn-line";photoRm.textContent="Remove photo";photoRm.hidden=!AAOApi.myPhotoUrl();
