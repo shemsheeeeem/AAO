@@ -3360,6 +3360,15 @@ function applyFolds(){
     var su=d.querySelector("summary");if(su)su.tabIndex=ph?0:-1;
   });
 }
+/* Member photos (profile photos, banners, personal photos, portfolio images) come from AAO storage. On the site, right-click
+   "Save image" and dragging them out are turned off. This only stops casual copying: screenshots are always possible. */
+function isMemberImage(t){
+  if(!t||t.tagName!=="IMG")return false;
+  var src=t.currentSrc||t.src||"";
+  return src.indexOf("/storage/v1/object/")>=0||src.indexOf("/preview-files/")>=0||src.indexOf("blob:")===0;
+}
+document.addEventListener("contextmenu",function(e){if(isMemberImage(e.target))e.preventDefault();});
+document.addEventListener("dragstart",function(e){if(isMemberImage(e.target))e.preventDefault();});
 function setFoldCount(el,n){var d=el&&el.closest?el.closest("details.fold"):null,c=d?d.querySelector(".fold-n"):null;if(c)c.textContent=n?"("+n+")":"";}
 document.addEventListener("click",function(e){
   var su=e.target.closest&&e.target.closest("details.fold>summary");
@@ -6677,7 +6686,7 @@ V.vaProfile.init = function(){
     }
     var photoField=document.createElement("label");
     photoField.className="field";
-    photoField.innerHTML='Profile photo<img id="vp-photo-prev" class="vp-photo-prev" alt="Your current profile photo" hidden><input type="file" id="vp-photo" accept="image/jpeg,image/png,image/webp"><small id="vp-photo-note" class="muted">JPEG, PNG or WebP, up to 2 MB.</small>';
+    photoField.innerHTML='Profile photo<img id="vp-photo-prev" class="vp-photo-prev" alt="Your current profile photo" hidden><input type="file" id="vp-photo" accept="image/jpeg,image/png,image/webp"><small id="vp-photo-note" class="muted">JPEG, PNG or WebP. Hidden camera details such as location are removed before upload.</small>';
     var photoSlot=$("#vp-photo-slot");
     if(photoSlot)photoSlot.parentNode.insertBefore(photoField,photoSlot);else form.insertBefore(photoField,form.querySelector(".app-actions"));
     if(!AAOApi.hasTalentProfile())photoField.hidden=true; /* the notice above explains it; the photo can be added after the first save */
