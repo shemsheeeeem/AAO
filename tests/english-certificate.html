@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAO English Certificate</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#163a5a;--brand:#1f4e79;--gold:#c99400;--gold-soft:#f6e7b8;--ink:#1d2433;--muted:#5b6475;--line:#e3e7ee;--bg:#eef1f5}
+  *{box-sizing:border-box;min-width:0}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .page{max-width:900px;margin:24px auto;padding:0 16px 48px}
+  .cert{background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(22,58,90,.12);overflow:hidden}
+  .frame{margin:14px;border:2px solid var(--gold-soft);border-radius:10px;padding:clamp(22px,5vw,48px) clamp(18px,5vw,56px);text-align:center;position:relative}
+  .brandline{font-weight:700;letter-spacing:.08em;color:var(--brand);font-size:.8rem}
+  .title{font-family:"Libre Baskerville",Georgia,serif;font-size:clamp(26px,4vw,36px);color:var(--navy);margin:8px 0 22px}
+  .name{font-family:"Libre Baskerville",Georgia,serif;font-size:clamp(28px,5vw,44px);margin:0;line-height:1.15;color:var(--ink);border-bottom:1px solid var(--line);display:inline-block;padding:0 18px 10px}
+  .lead{color:var(--muted);margin:14px 0 6px}
+  .big{font-size:clamp(44px,8vw,64px);font-weight:700;color:var(--navy);line-height:1.05;margin:10px 0 0;font-variant-numeric:tabular-nums}
+  .big small{font-size:.4em;color:var(--muted);font-weight:600}
+  .biglevel{font-size:clamp(18px,3vw,22px);font-weight:700;color:var(--gold);margin:4px 0 22px}
+  .rings{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:8px 0 18px}
+  .ring{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .ring svg{width:100%;max-width:110px;height:auto}
+  .ring .lbl{font-weight:700;font-size:.92rem}
+  .ring .lv{font-size:.82rem;color:var(--muted)}
+  .meta{color:var(--muted);font-size:.9rem;margin:6px 0 0}
+  .scale{margin:30px 0 8px;text-align:left}
+  .scale h2{font-size:1.05rem;text-align:center;margin:0 0 14px;color:var(--navy)}
+  .bands{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+  .band{border-radius:6px;padding:8px 4px;text-align:center;background:#f3f5f8;font-size:.78rem;color:var(--muted)}
+  .band b{display:block;font-size:.95rem;color:var(--ink)}
+  .band.on{background:var(--navy);color:#dfe9f3}
+  .band.on b{color:#fff}
+  .explain{font-size:.9rem;color:var(--muted);text-align:center;margin:12px auto 0;max-width:640px}
+  .verify{margin-top:22px;font-size:.85rem;color:var(--muted)}
+  .verify code{color:var(--navy);font-weight:700;font-family:inherit;letter-spacing:.04em}
+  .details{padding:clamp(18px,4vw,40px);border-top:1px solid var(--line)}
+  .details h2{font-size:1.2rem;color:var(--navy);margin:0 0 16px;text-align:center}
+  .skill{border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:14px}
+  .skill h3{margin:0;color:var(--brand);font-size:1.05rem;letter-spacing:.02em}
+  .skill .lvname{font-weight:700;color:var(--muted);font-size:.85rem;text-transform:uppercase;letter-spacing:.04em;margin:2px 0 8px}
+  .skill p{margin:0 0 6px}
+  .skill ul{margin:0;padding-left:20px}
+  .skill li{margin:3px 0}
+  .disclaimer{font-size:.78rem;color:var(--muted);text-align:center;margin-top:18px}
+  .toolbar{display:flex;justify-content:flex-end;gap:10px;margin-bottom:12px}
+  .btn{border:0;border-radius:8px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;background:var(--brand);color:#fff}
+  .btn.secondary{background:#e3e9f1;color:var(--navy)}
+  .msg{background:#fff;border-radius:12px;padding:32px;text-align:center}
+  .demo{background:#fff7e0;border:1px solid #f2d27a;border-radius:8px;padding:8px 12px;font-size:.88rem;margin-bottom:12px}
+  @media (max-width:600px){.rings{grid-template-columns:repeat(2,minmax(0,1fr))}.bands{grid-template-columns:repeat(4,minmax(0,1fr))}}
+  @media print{body{background:#fff}.page{margin:0;max-width:none}.toolbar,.demo{display:none}.cert{box-shadow:none}.details{page-break-before:always}}
+</style>
+<script>
+/* ---- inlined from aao-levels.js (keep in sync with server copy) ---- */
+/* AAO English Assessment: score bands and VA-focused "can-do" descriptions.
+   Shared by aao-english-results.html and aao-english-certificate.html.
+   Keep BANDS in sync with "bands" in server/answer-key.json. */
+(function () {
+  var BANDS = [
+    { min: 0,  max: 20,  level: "A0", name: "Starter" },
+    { min: 21, max: 30,  level: "A1", name: "Beginner" },
+    { min: 31, max: 40,  level: "A2", name: "Elementary" },
+    { min: 41, max: 50,  level: "B1", name: "Intermediate" },
+    { min: 51, max: 60,  level: "B2", name: "Upper Intermediate" },
+    { min: 61, max: 70,  level: "C1", name: "Advanced" },
+    { min: 71, max: 100, level: "C2", name: "Proficient" }
+  ];
+
+  var SKILLS = {
+    reading: {
+      label: "Reading",
+      A0: ["You're beginning to recognize familiar English words.", ["Can recognize simple words such as names, numbers, days and dates", "Can follow very short instructions with pictures or examples", "Needs translation for most work messages"]],
+      A1: ["You can understand very short, simple texts.", ["Can read short messages such as \"Meeting at 3 pm\"", "Can find key details like names, times and prices", "Needs help with longer emails or instructions"]],
+      A2: ["You can understand short, everyday work messages.", ["Can read simple emails, task lists and schedules", "Can find specific information in forms and notices", "May miss details in longer or less familiar texts"]],
+      B1: ["You can understand clear, straightforward work texts.", ["Can follow client emails and step-by-step instructions on familiar tasks", "Can understand the main points of SOPs and short reports", "May need to re-read complex or detailed documents"]],
+      B2: ["You can read most client communication on your own.", ["Can understand detailed instructions, SOPs and policies without help", "Can spot priorities, deadlines and exceptions in client requests", "Can read articles and reports in your field and pick out key points"]],
+      C1: ["You understand long and complex texts with ease.", ["Can read contracts, proposals and technical documents and catch fine details", "Can understand implied meaning and tone in client messages", "Can quickly summarize long documents for a client"]],
+      C2: ["You understand virtually everything you read.", ["Can read any business, legal or technical text with full understanding", "Can pick up subtle tone, humor and implied meaning", "Can review others' writing for accuracy and clarity"]]
+    },
+    listening: {
+      label: "Listening",
+      A0: ["You're beginning to recognize familiar spoken words.", ["Can understand simple greetings and numbers spoken slowly", "Can recognize your name and very basic instructions", "Needs a lot of repetition or written support"]],
+      A1: ["You can understand slow, simple speech.", ["Can understand basic personal questions spoken slowly and clearly", "Can catch numbers, times and names in short messages", "Finds normal-speed conversation difficult"]],
+      A2: ["You can understand short, clear messages about familiar topics.", ["Can follow short voice messages about simple tasks", "Can catch key details like dates, times and amounts", "May need the speaker to slow down or repeat"]],
+      B1: ["You can understand the main points of clear work conversations.", ["Can follow voice messages, video updates and calls about familiar tasks", "Can understand instructions spoken at a normal pace", "May miss details when people speak fast or use slang"]],
+      B2: ["You can follow most client calls and meetings.", ["Can understand detailed instructions and discussions at natural speed", "Can follow different accents in clear audio", "Can take accurate notes and action items from a meeting"]],
+      C1: ["You understand fast, complex speech with ease.", ["Can follow long meetings, fast speakers and group discussions", "Can understand implied meaning, tone and humor", "Can follow most accents, even with background noise"]],
+      C2: ["You understand virtually everything you hear.", ["Can follow any conversation, presentation or call without effort", "Can understand strong accents, idioms and rapid speech", "Can interpret subtle tone and intent"]]
+    },
+    writing: {
+      label: "Writing",
+      A0: ["You're beginning to write in English.", ["Can write your name, address and basic details", "Can copy short words and phrases", "Needs a translation tool for most messages"]],
+      A1: ["You can write very short, simple messages.", ["Can write short notes like \"Task done\" or \"I will send tomorrow\"", "Can fill in simple forms with personal details", "Messages often contain errors that affect meaning"]],
+      A2: ["You can write short, simple work messages.", ["Can write brief updates and simple replies to clients", "Can describe what you did using basic sentences", "Frequent errors; tone may sound too casual or too direct"]],
+      B1: ["You can write clear messages on familiar work topics.", ["Can write emails and end-of-day updates that clients can understand", "Can explain a simple problem and ask for what you need", "Some grammar errors; writing may sound plain or repetitive"]],
+      B2: ["You can write clear, professional messages to clients.", ["Can write well-organized emails, updates and short reports", "Can apologize, explain a problem and propose a solution in a professional tone", "Errors are minor and rarely affect meaning"]],
+      C1: ["You write polished, natural client communication.", ["Can write persuasive, well-structured emails, proposals and reports", "Can adjust your tone for different clients and situations", "Very few errors; writing needs little or no editing"]],
+      C2: ["You write with near-native precision.", ["Can write any business document with clarity, style and accuracy", "Can edit and improve other people's writing", "Writing reads as fluent and effortless"]]
+    },
+    speaking: {
+      label: "Speaking",
+      A0: ["You're beginning to speak in English.", ["Can say hello and introduce yourself with memorized phrases", "Can answer very simple questions with single words", "Needs a lot of support to communicate"]],
+      A1: ["You can communicate simply if the other person helps.", ["Can introduce yourself and answer simple personal questions", "Can use basic phrases for greetings and thanks", "Long pauses and frequent errors make calls difficult"]],
+      A2: ["You can handle short, simple exchanges.", ["Can describe your experience and tasks in simple sentences", "Can ask and answer basic questions about work", "Needs time to find words; may be hard to follow on calls"]],
+      B1: ["You can handle routine client calls, though you may pause to find words.", ["Can introduce yourself and explain your skills and experience", "Can give a simple update on your work and ask clarifying questions", "May struggle with unexpected questions or fast discussions"]],
+      B2: ["You can speak confidently with clients and handle most work conversations.", ["Can join calls and meetings, give updates and explain your work clearly", "Can handle common client situations politely, like thanking, apologizing or delivering bad news", "Can describe your experience, skills and strengths and answer questions about them"]],
+      C1: ["You speak fluently and naturally in professional settings.", ["Can lead calls, present ideas and handle difficult conversations", "Can adjust your tone and explain complex topics clearly", "Rare errors; speaks smoothly without searching for words"]],
+      C2: ["You speak with near-native ease.", ["Can communicate with precision and nuance in any situation", "Can negotiate, persuade and handle sensitive topics effortlessly", "Speech is fluent, natural and easy to follow"]]
+    }
+  };
+
+  function band(score) {
+    if (score == null || isNaN(score)) return null;
+    var s = Math.max(0, Math.min(100, Math.round(score)));
+    for (var i = 0; i < BANDS.length; i++) if (s >= BANDS[i].min && s <= BANDS[i].max) return BANDS[i];
+    return null;
+  }
+  function describe(skill, score) {
+    var b = band(score);
+    if (!b) return null;
+    var d = SKILLS[skill][b.level];
+    return { level: b.level, name: b.name, summary: d[0], points: d[1] };
+  }
+
+  window.AAO_LEVELS = { BANDS: BANDS, SKILLS: SKILLS, band: band, describe: describe };
+})();
+
+</script>
+<script>
+/* Show a message instead of a blank page if something fails to load. */
+window.addEventListener("error", function (e) {
+  var a = document.getElementById("app");
+  if (a && !a.textContent.trim()) a.innerHTML = '<div style="max-width:640px;margin:40px auto;padding:20px;border:1px solid #f5b7b1;background:#fdecea;color:#7b241c;border-radius:10px;font-family:Arial,sans-serif"><strong>This page couldn\'t load.</strong><br>' + String(e.message || "Unknown error").replace(/[<>&]/g, "") + '<br><br>Open it in Chrome, Edge, Safari or Firefox (not a file preview). Developers: check the browser console.</div>';
+});
+</script>
+<script src="../aao-config.js"></script>
+<script src="aao-tests-config.js" data-page="english-report"></script>
+</head>
+<body>
+<noscript><div style="max-width:640px;margin:40px auto;padding:20px;border:1px solid #f2d27a;background:#fff7e0;border-radius:10px;font-family:Arial,sans-serif">
+<strong>This page needs JavaScript.</strong> Previews in email, Google Drive, GitHub or a code editor don't run it, so the page looks blank.
+Download the file and open it in Chrome, Edge, Safari or Firefox, or serve it from your website.</div></noscript>
+<div class="page" id="app"></div>
+<script>
+/* =====================================================================
+   AAO English Certificate (public page). Needs aao-levels.js beside it.
+   URL: /certificate?c=K7QXM-3PRTA   (or #K7QXM-3PRTA)
+   DEVELOPER SETUP, in a script tag placed BEFORE this one:
+     window.AAO_CERT_CONFIG = { apiBase: "/api/assessments", publicBaseUrl: "https://findmyaao.com/certificate?c=" };
+   With no apiBase, the page shows a SAMPLE certificate (demo mode).
+   ===================================================================== */
+{
+  const CONFIG = Object.assign({ apiBase: "", publicBaseUrl: "findmyaao.com/tests/english-certificate.html?c=" }, window.AAO_CERT_CONFIG || {});
+  const DEMO = !CONFIG.apiBase;
+  const L = window.AAO_LEVELS;
+  const app = document.getElementById("app");
+  const ORDER = ["reading", "listening", "writing", "speaking"];
+
+  const SAMPLE = {
+    code: "DEMO7-CERT2", name: "Maria Santos", awardedOn: new Date().toISOString(),
+    overall: { score: 64 },
+    skills: { reading: { score: 67 }, listening: { score: 72 }, writing: { score: 60 }, speaking: { score: 55 } }
+  };
+
+  function publicName(full){var p=String(full||"").trim().split(/\s+/).filter(Boolean);if(!p.length)return "";if(p.length===1)return p[0];return p[0]+" "+p[p.length-1].charAt(0).toUpperCase()+".";} /* AAO: no last names on public pages */
+  function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+  function codeFromUrl() {
+    const q = new URLSearchParams(location.search).get("c");
+    return (q || location.hash.replace(/^#/, "") || "").toUpperCase().replace(/[^A-Z0-9-]/g, "");
+  }
+
+  function ring(score) {
+    const r = 42, c = 2 * Math.PI * r;
+    const has = Number.isInteger(score);
+    const pct = has ? Math.max(0, Math.min(100, score)) / 100 : 0;
+    return `<svg viewBox="0 0 100 100" role="img" aria-label="${has ? score + " out of 100" : "Not assessed"}">
+      <circle cx="50" cy="50" r="${r}" fill="none" stroke="#e8edf3" stroke-width="9"/>
+      <circle cx="50" cy="50" r="${r}" fill="none" stroke="#c99400" stroke-width="9" stroke-linecap="round"
+        stroke-dasharray="${(c * pct).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 50 50)"/>
+      <text x="50" y="57" text-anchor="middle" font-family="Inter,Arial,sans-serif" font-size="24" font-weight="700" fill="#163a5a">${has ? score : "–"}</text>
+    </svg>`;
+  }
+
+  function render(c) {
+    const ob = L.band(c.overall.score);
+    const date = new Date(c.awardedOn).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+    const verifyUrl = CONFIG.publicBaseUrl + c.code;
+    const assessed = ORDER.filter(s => Number.isInteger(c.skills[s] && c.skills[s].score));
+
+    app.innerHTML = `
+      ${DEMO ? '<div class="demo"><strong>Demo:</strong> sample certificate. On the AAO website each VA gets their own link.</div>' : ""}
+      <div class="toolbar">
+        <button class="btn secondary" id="copy">Copy link</button>
+        <button class="btn" id="print">Print / Save as PDF</button>
+      </div>
+      <div class="cert">
+        <div class="frame">
+          <div class="brandline">AMAZING ASSISTANTS ONLINE</div>
+          <div class="title">English Certificate</div>
+          <p class="name">${esc(publicName(c.name))}</p>
+          <p class="lead">has completed the AAO English Assessment and earned level:</p>
+          <div class="big">${c.overall.score}<small>/100</small></div>
+          <div class="biglevel">${ob ? ob.level + " " + esc(ob.name) : ""}</div>
+          <div class="rings">${ORDER.map(s => {
+            const sk = c.skills[s] || {}, b = L.band(sk.score);
+            return `<div class="ring">${ring(sk.score)}<div class="lbl">${L.SKILLS[s].label}</div><div class="lv">${b ? b.level + " " + esc(b.name) : "Not assessed"}</div></div>`;
+          }).join("")}</div>
+          <p class="meta">Awarded on: ${esc(date)}</p>
+
+          <div class="scale">
+            <h2>Understanding the results</h2>
+            <div class="bands">${L.BANDS.map(b => `<div class="band ${ob && ob.level === b.level ? "on" : ""}"><b>${b.level}</b>${esc(b.name)}<br>${b.min}–${b.max}</div>`).join("")}</div>
+            <p class="explain">The achieved level is ${c.overall.score}/100 on the AAO score scale and ${ob ? ob.level + " " + esc(ob.name) : ""} on the Common European Framework of Reference (CEFR). The overall score is the average of the ${assessed.length === 4 ? "four" : assessed.length} skill scores.</p>
+          </div>
+
+          <div class="verify">Verify this certificate: <code>${esc(verifyUrl)}</code></div>
+        </div>
+
+        <div class="details">
+          <h2>What this level means at work</h2>
+          ${ORDER.map(s => {
+            const sk = c.skills[s] || {}, d = L.describe(s, sk.score);
+            if (!d) return `<div class="skill"><h3>${L.SKILLS[s].label.toUpperCase()}</h3><div class="lvname">Not assessed</div></div>`;
+            return `<div class="skill"><h3>${L.SKILLS[s].label.toUpperCase()} · ${sk.score}/100</h3><div class="lvname">${d.level} ${esc(d.name)}</div>
+              <p>${esc(d.summary)}</p><ul>${d.points.map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>`;
+          }).join("")}
+          <p class="disclaimer">The AAO English Assessment is developed by Amazing Assistants Online for virtual assistant roles and is aligned with the CEFR scale (A1–C2). It is not an EF SET, IELTS, TOEFL or Cambridge score. Writing and speaking scores are reviewed by the AAO team.</p>
+        </div>
+      </div>`;
+
+    document.getElementById("print").onclick = () => { try { window.print(); } catch (e) {} };
+    document.getElementById("copy").onclick = async e => {
+      const btn = e.currentTarget;
+      const full = /^https?:/.test(verifyUrl) ? verifyUrl : "https://" + verifyUrl;
+      try { await navigator.clipboard.writeText(full); btn.textContent = "Copied ✓"; }
+      catch (err) { btn.textContent = full; }
+      setTimeout(() => { btn.textContent = "Copy link"; }, 2500);
+    };
+  }
+
+  async function init() {
+    if (DEMO) { render(SAMPLE); return; }
+    const code = codeFromUrl();
+    if (!code) { app.innerHTML = '<div class="msg"><h2>Certificate not found</h2><p>Check the link and try again.</p></div>'; return; }
+    try {
+      const res = await fetch(CONFIG.apiBase + "/english/certificate/" + encodeURIComponent(code));
+      if (!res.ok) throw new Error(res.status === 404 ? "This certificate doesn't exist or hasn't been issued yet." : "Something went wrong. Please try again.");
+      render(await res.json());
+    } catch (e) {
+      app.innerHTML = `<div class="msg"><h2>Certificate not found</h2><p>${esc(e.message)}</p></div>`;
+    }
+  }
+  init();
+}
+</script>
+</body>
+</html>

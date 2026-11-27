@@ -2990,6 +2990,91 @@ var JOBS = [
 /* Live mode: when aao-config.js points at the backend, the sample data above is dropped and real data is loaded at start-up.
    With an empty config (the default) nothing changes and the site runs on the sample data and demo logins. */
 var API_ON=!!(window.AAOApi&&window.AAOApi.enabled());
+/* VA profile: the new edit form (6 sections, skills with stars, work experience, profile photo, banner, personal photos, portfolio pages)
+   runs in BOTH modes. Live mode talks to the backend (AAOApi). Demo mode uses DEMO_VPA below, which keeps the same data in this
+   browser only, so demos and local copies show exactly what the live site shows. VP_NEW / VPA are used only by the VA profile code. */
+var VP_NEW=true;
+var DEMO_VPA=(function(){
+  var KEY="aao_demo_vp";
+  var START={immediately:"Immediately",within_week:"Within a week",in_two_weeks:"In 2 weeks",in_a_month:"In a month"};
+  function E(v){return escHtml(v==null?"":String(v));}
+  function fail(m){var e=new Error(m);e.status=400;return e;}
+  function who(){var u=getDemoUser();return (u&&u.email)||"guest";}
+  function all(){try{return JSON.parse(localStorage.getItem(KEY)||"{}")||{};}catch(e){return {};}}
+  function get(){var d=all()[who()]||{};d.photos=d.photos||[];d.pages=d.pages||[];return d;}
+  function put(d){
+    var a=all();a[who()]=d;
+    try{localStorage.setItem(KEY,JSON.stringify(a));}
+    catch(e){throw fail("This browser’s storage is full. Remove a photo or a portfolio image and try again. (Demo mode only: the live site stores images on the server.)");}
+  }
+  function uid(){return "d"+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+  /* Same checks as the live upload, then a resized JPEG kept as a data: URL. */
+  function img(file,maxSide,maxMb){
+    return new Promise(function(resolve,reject){
+      if(!file||["image/jpeg","image/png","image/webp"].indexOf(file.type)<0){reject(fail("Please choose a JPG, PNG or WebP image."));return;}
+      if(file.size>maxMb*1024*1024){reject(fail("That image is larger than "+maxMb+" MB. Please choose a smaller one."));return;}
+      var url=URL.createObjectURL(file),im=new Image();
+      im.onload=function(){
+        try{
+          var k=Math.min(1,maxSide/Math.max(im.naturalWidth,im.naturalHeight)),c=document.createElement("canvas");
+          c.width=Math.max(1,Math.round(im.naturalWidth*k));c.height=Math.max(1,Math.round(im.naturalHeight*k));
+          c.getContext("2d").drawImage(im,0,0,c.width,c.height);URL.revokeObjectURL(url);
+          resolve(c.toDataURL("image/jpeg",0.82));
+        }catch(e){URL.revokeObjectURL(url);reject(fail("We could not read that image."));}
+      };
+      im.onerror=function(){URL.revokeObjectURL(url);reject(fail("We could not read that image. Please try another one."));};
+      im.src=url;
+    });
+  }
+  function run(fn){return new Promise(function(resolve){resolve(fn());});}
+  function sorted(l){return l.slice().sort(function(a,b){return a.sort-b.sort;});}
+  function renumber(l){sorted(l).forEach(function(x,i){x.sort=i;});}
+  function page(id){var d=get(),pg=d.pages.filter(function(x){return x.id===id;})[0];if(!pg)throw fail("That page no longer exists.");return {d:d,pg:pg};}
+  return {
+    esc:E,
+    startLabel:function(v){return START[v]||"";},
+    /* The demo VA starts with a sample profile, so photos, banner and pages can be added straight away. */
+    hasTalentProfile:function(){return true;},
+    myTalentForUi:function(){
+      var d=get(),p=d.profile;
+      if(!p)return d.banner?{banner:d.banner}:null;
+      return {name:E(p.name),headline:E(p.headline),about:E(p.about),cat:p.cat,avail:p.avail,loc:E(p.loc),exp:p.exp,langs:E(p.langs),
+        skills:E(p.skills),rate:p.rate||"",education:E(p.education),hours:p.hours,start:p.start||"",subs:E(p.subs),
+        work:(p.work||[]).map(function(w){return {role:E(w.role),business:E(w.business||""),start:w.start,end:w.end==null?null:w.end,bullets:(w.bullets||[]).map(E),tools:E(w.tools||"")};}),
+        banner:d.banner||null,skillRatings:p.skillRatings||[]};
+    },
+    saveTalentProfile:function(row){return run(function(){
+      var d=get(),yrs=parseInt(String(row.exp||"").replace(/[^0-9]/g,""),10),hrs=parseInt(String(row.hours||"").replace(/[^0-9]/g,""),10);
+      d.profile={name:row.name,headline:row.headline,about:row.about,cat:row.cat,avail:row.avail,loc:row.loc,
+        exp:isFinite(yrs)&&yrs>=0?yrs+(yrs===1?" year":" years"):"",langs:row.langs,skills:row.skills,rate:row.rate||"",
+        education:row.education||"",hours:hrs>=1&&hrs<=80?hrs+" hours/week":"",start:START[row.start]?row.start:"",
+        subs:String(row.subs||"").split(/[,|]/).map(function(x){return x.trim();}).filter(Boolean).slice(0,5).join(", "),
+        work:Array.isArray(row.work)?row.work:[],
+        skillRatings:(row.skillDetails||[]).map(function(s){var c=String(s.category||"Other");return {name:s.name,category:c,path:[c,s.name],rating:Number(s.rating)||3,about:s.note||"",isTop:!!s.is_top,custom:c==="Other"};})};
+      put(d);return d.profile;
+    });},
+    myPhotoUrl:function(){return get().photo||"";},
+    uploadPhoto:function(f){return img(f,600,2).then(function(u){var d=get();d.photo=u;put(d);return u;});},
+    removeProfilePhoto:function(){return run(function(){var d=get();delete d.photo;put(d);});},
+    uploadBanner:function(f){return img(f,1600,5).then(function(u){var d=get();d.banner={url:u,x:50,y:50};put(d);return d.banner;});},
+    setBannerPosition:function(x,y){return run(function(){var d=get();if(d.banner){d.banner.x=Number(x)||0;d.banner.y=Number(y)||0;put(d);}return d.banner;});},
+    removeBanner:function(){return run(function(){var d=get();delete d.banner;put(d);});},
+    myPhotos:function(){return run(function(){return sorted(get().photos);});},
+    addPhoto:function(f,cap){return img(f,1200,5).then(function(u){var d=get();var ph={id:uid(),url:u,caption:cap||"",sort:d.photos.length};d.photos.push(ph);put(d);return ph;});},
+    updatePhoto:function(id,o){return run(function(){var d=get(),ph=d.photos.filter(function(x){return x.id===id;})[0];if(!ph)throw fail("That photo no longer exists.");
+      if("caption" in o)ph.caption=o.caption||"";if("sort_order" in o)ph.sort=o.sort_order;put(d);return ph;});},
+    deletePhoto:function(id){return run(function(){var d=get();d.photos=d.photos.filter(function(x){return x.id!==id;});renumber(d.photos);put(d);});},
+    myPages:function(){return run(function(){return sorted(get().pages);});},
+    addPage:function(o){return run(function(){var d=get();var pg={id:uid(),title:o.title||"",body:o.body||"",featured:!!o.featured,sort:d.pages.length,images:[]};d.pages.push(pg);put(d);return pg;});},
+    updatePage:function(id,o){return run(function(){var r=page(id);
+      if("title" in o)r.pg.title=o.title||"";if("body" in o)r.pg.body=o.body||"";if("featured" in o)r.pg.featured=!!o.featured;if("sort_order" in o)r.pg.sort=o.sort_order;
+      put(r.d);return r.pg;});},
+    deletePage:function(id){return run(function(){var d=get();d.pages=d.pages.filter(function(x){return x.id!==id;});renumber(d.pages);put(d);});},
+    addPageImage:function(id,f){return img(f,1600,5).then(function(u){var r=page(id);var im={id:uid(),url:u};r.pg.images.push(im);put(r.d);return im;});},
+    deletePageImage:function(id,imId){return run(function(){var r=page(id);r.pg.images=r.pg.images.filter(function(x){return x.id!==imId;});put(r.d);});}
+  };
+})();
+var VPA=API_ON?window.AAOApi:DEMO_VPA;
 /* Predefined skills come from aao-skills.js (one list admins can extend). If that file is missing, VAs can still add custom skills. */
 var SKILL_CATEGORIES=(window.AAO_SKILL_CATEGORIES||[]).slice();
 var SKILL_CATALOG=(function(){
@@ -3364,12 +3449,12 @@ function bindMediaSection(){
   var prev=$("#vp-bn-prev"),pos=$("#vp-bn-pos"),rx=$("#vp-bn-x"),ry=$("#vp-bn-y"),file=$("#vp-bn-file"),rm=$("#vp-bn-remove"),note=$("#vp-bn-note");
   var list=$("#vp-ph-list"),pfile=$("#vp-ph-file"),pnote=$("#vp-ph-note"),count=$("#vp-ph-count"),addBtn=$("#vp-ph-addbtn");
   if(!prev||!list)return;
-  var has=AAOApi.hasTalentProfile();
+  var has=VPA.hasTalentProfile();
   if(!has){
     note.textContent="Save your profile first, then add a banner and photos.";
     file.disabled=true;pfile.disabled=true;return;
   }
-  var p=(AAOApi.myTalentForUi()||{}),banner=p.banner||null,timer=null,photos=[];
+  var p=(VPA.myTalentForUi()||{}),banner=p.banner||null,timer=null,photos=[];
   function showBanner(){
     if(banner){prev.setAttribute("style",bannerStyle(banner).replace(/&quot;/g,'"'));rx.value=banner.x;ry.value=banner.y;}
     else prev.removeAttribute("style");
@@ -3379,19 +3464,19 @@ function bindMediaSection(){
   file.addEventListener("change",function(){
     var f=file.files&&file.files[0];if(!f)return;
     note.textContent="Uploading…";
-    AAOApi.uploadBanner(f).then(function(b){banner=b;showBanner();note.textContent="Banner saved.";}).catch(function(err){note.textContent=err.message;});
+    VPA.uploadBanner(f).then(function(b){banner=b;showBanner();note.textContent="Banner saved.";}).catch(function(err){note.textContent=err.message;});
     file.value="";
   });
   function moved(){
     if(!banner)return;
     banner.x=Number(rx.value);banner.y=Number(ry.value);showBanner();
     clearTimeout(timer);
-    timer=setTimeout(function(){AAOApi.setBannerPosition(banner.x,banner.y).then(function(){note.textContent="Position saved.";}).catch(function(err){note.textContent=err.message;});},400);
+    timer=setTimeout(function(){VPA.setBannerPosition(banner.x,banner.y).then(function(){note.textContent="Position saved.";}).catch(function(err){note.textContent=err.message;});},400);
   }
   rx.addEventListener("input",moved);ry.addEventListener("input",moved);
   rm.addEventListener("click",function(){
     if(!window.confirm("Remove your banner?"))return;
-    AAOApi.removeBanner().then(function(){banner=null;showBanner();note.textContent="Banner removed.";}).catch(function(err){note.textContent=err.message;});
+    VPA.removeBanner().then(function(){banner=null;showBanner();note.textContent="Banner removed.";}).catch(function(err){note.textContent=err.message;});
   });
   function draw(){
     count.textContent="("+photos.length+" of "+PHOTO_MAX+")";
@@ -3406,25 +3491,25 @@ function bindMediaSection(){
         '<button type="button" class="btn btn-line" data-ph-del>Delete</button></span></li>';
     }).join("");
   }
-  function load(){return AAOApi.myPhotos().then(function(l){photos=l;draw();}).catch(function(err){pnote.textContent=err.message;});}
+  function load(){return VPA.myPhotos().then(function(l){photos=l;draw();}).catch(function(err){pnote.textContent=err.message;});}
   load();
   pfile.addEventListener("change",function(){
     var files=[].slice.call(pfile.files||[]);pfile.value="";
-    uploadMany(files,PHOTO_MAX-photos.length,function(f){return AAOApi.addPhoto(f,"");},pnote,"photo").then(load);
+    uploadMany(files,PHOTO_MAX-photos.length,function(f){return VPA.addPhoto(f,"");},pnote,"photo").then(load);
   });
   list.addEventListener("click",function(e){
     var row=e.target.closest("[data-ph]");if(!row)return;
     var id=row.getAttribute("data-ph"),i=photos.findIndex(function(x){return x.id===id;});if(i<0)return;
     if(e.target.closest("[data-ph-del]")){
       if(!window.confirm("Delete this photo?"))return;
-      AAOApi.deletePhoto(id).then(function(){pnote.textContent="Photo deleted.";return load();}).catch(function(err){pnote.textContent=err.message;});
+      VPA.deletePhoto(id).then(function(){pnote.textContent="Photo deleted.";return load();}).catch(function(err){pnote.textContent=err.message;});
     }else if(e.target.closest("[data-ph-save]")){
       var cap=row.querySelector("[data-ph-cap]").value.trim();
-      AAOApi.updatePhoto(id,{caption:cap||null}).then(function(){pnote.textContent="Caption saved.";return load();}).catch(function(err){pnote.textContent=err.message;});
+      VPA.updatePhoto(id,{caption:cap||null}).then(function(){pnote.textContent="Caption saved.";return load();}).catch(function(err){pnote.textContent=err.message;});
     }else if(e.target.closest("[data-ph-up]")||e.target.closest("[data-ph-down]")){
       var j=e.target.closest("[data-ph-up]")?i-1:i+1;if(j<0||j>=photos.length)return;
       var a=photos[i],b=photos[j];
-      Promise.all([AAOApi.updatePhoto(a.id,{sort_order:j}),AAOApi.updatePhoto(b.id,{sort_order:i})].concat(photos.map(function(x,k){return k!==i&&k!==j&&x.sort!==k?AAOApi.updatePhoto(x.id,{sort_order:k}):null;}).filter(Boolean)))
+      Promise.all([VPA.updatePhoto(a.id,{sort_order:j}),VPA.updatePhoto(b.id,{sort_order:i})].concat(photos.map(function(x,k){return k!==i&&k!==j&&x.sort!==k?VPA.updatePhoto(x.id,{sort_order:k}):null;}).filter(Boolean)))
         .then(function(){pnote.textContent="Order saved.";return load();}).catch(function(err){pnote.textContent=err.message;});
     }
   });
@@ -3482,7 +3567,7 @@ function pagesSectionHtml(){
 function bindPagesSection(){
   var list=$("#vp-pg-list"),note=$("#vp-pg-note"),count=$("#vp-pg-count"),box=$("#vp-pg-new");
   if(!list)return;
-  if(!AAOApi.hasTalentProfile()){note.textContent="Save your profile first, then add portfolio pages.";box.hidden=true;return;}
+  if(!VPA.hasTalentProfile()){note.textContent="Save your profile first, then add portfolio pages.";box.hidden=true;return;}
   var pages=[];
   function draw(){
     count.textContent="("+pages.length+" of "+PAGE_MAX+")";
@@ -3503,13 +3588,13 @@ function bindPagesSection(){
     }).join("")||'<p class="muted">No portfolio pages yet.</p>';
   }
   function fail(err){note.textContent=err.message;}
-  function load(){return AAOApi.myPages().then(function(l){pages=l;draw();}).catch(fail);}
+  function load(){return VPA.myPages().then(function(l){pages=l;draw();}).catch(fail);}
   load();
   $("#vp-pg-add").addEventListener("click",function(){
     var t=$("#vp-pg-title").value.trim(),b=$("#vp-pg-body").value.trim();
     if(!t&&!b){note.textContent="Add a title or some text first.";return;}
     note.textContent="Saving…";
-    AAOApi.addPage({title:t,body:b,featured:$("#vp-pg-feat").checked}).then(function(){
+    VPA.addPage({title:t,body:b,featured:$("#vp-pg-feat").checked}).then(function(){
       $("#vp-pg-title").value="";$("#vp-pg-body").value="";$("#vp-pg-feat").checked=false;
       note.textContent="Page added. You can add images to it below.";return load();
     }).catch(fail);
@@ -3518,7 +3603,7 @@ function bindPagesSection(){
     var inp=e.target.closest("[data-pg-file]");if(!inp)return;
     var row=e.target.closest("[data-pg]"),files=[].slice.call(inp.files||[]);inp.value="";if(!row||!files.length)return;
     var pid=row.getAttribute("data-pg"),pg=pages.filter(function(x){return x.id===pid;})[0];
-    uploadMany(files,PAGE_IMG_MAX-(pg?pg.images.length:0),function(f){return AAOApi.addPageImage(pid,f);},note,"image").then(load);
+    uploadMany(files,PAGE_IMG_MAX-(pg?pg.images.length:0),function(f){return VPA.addPageImage(pid,f);},note,"image").then(load);
   });
   list.addEventListener("click",function(e){
     var row=e.target.closest("[data-pg]");if(!row)return;
@@ -3526,18 +3611,18 @@ function bindPagesSection(){
     var imgDel=e.target.closest("[data-pg-imgdel]");
     if(imgDel){
       if(!window.confirm("Remove this image?"))return;
-      AAOApi.deletePageImage(id,imgDel.getAttribute("data-pg-imgdel")).then(function(){note.textContent="Image removed.";return load();}).catch(fail);
+      VPA.deletePageImage(id,imgDel.getAttribute("data-pg-imgdel")).then(function(){note.textContent="Image removed.";return load();}).catch(fail);
     }else if(e.target.closest("[data-pg-del]")){
       if(!window.confirm("Delete this page and its images?"))return;
-      AAOApi.deletePage(id).then(function(){note.textContent="Page deleted.";return load();}).catch(fail);
+      VPA.deletePage(id).then(function(){note.textContent="Page deleted.";return load();}).catch(fail);
     }else if(e.target.closest("[data-pg-save]")){
       var t=row.querySelector("[data-pg-title]").value.trim(),b=row.querySelector("[data-pg-body]").value.trim();
       if(!t&&!b){note.textContent="A page needs a title or some text.";return;}
-      AAOApi.updatePage(id,{title:t||null,body:b||null,featured:row.querySelector("[data-pg-feat]").checked}).then(function(){note.textContent="Page saved.";return load();}).catch(fail);
+      VPA.updatePage(id,{title:t||null,body:b||null,featured:row.querySelector("[data-pg-feat]").checked}).then(function(){note.textContent="Page saved.";return load();}).catch(fail);
     }else if(e.target.closest("[data-pg-up]")||e.target.closest("[data-pg-down]")){
       var j=e.target.closest("[data-pg-up]")?i-1:i+1;if(j<0||j>=pages.length)return;
       var order=pages.slice();order[i]=pages[j];order[j]=pages[i];
-      Promise.all(order.map(function(x,k){return x.sort!==k?AAOApi.updatePage(x.id,{sort_order:k}):null;}).filter(Boolean))
+      Promise.all(order.map(function(x,k){return x.sort!==k?VPA.updatePage(x.id,{sort_order:k}):null;}).filter(Boolean))
         .then(function(){note.textContent="Order saved.";return load();}).catch(fail);
     }
   });
@@ -5942,14 +6027,14 @@ V.dashboardLive = function(){
     return '<section class="dash"><div class="wrap">'+
       '<div class="dash-head"><div><div class="dash-badge"><em>VA desk</em></div><h1>Welcome back, '+first+'.</h1><p>'+(has?"Your profile is live. Keep it current so clients can find you.":"Create your profile so clients can find you.")+'</p></div>'+
       '<div class="dash-actions"><a class="btn btn-navy" href="#jobs">Browse openings</a><a class="btn btn-line" href="#va-profile">'+(has?"Edit profile":"Create profile")+'</a><a class="btn btn-line" href="#messages">Inquiries</a><a class="btn btn-line" href="#logout">Log out</a></div></div>'+
-      '<div class="dash-toast" id="dtoast" role="status"></div>'+
+      '<div class="dash-toast" id="dtoast" role="status"></div>'+testsPromptSlot("desk")+
       '<div class="dash-stats"><div class="dash-stat"><strong>'+(has?"Live":"Not yet")+'</strong><span>Your profile</span></div><div class="dash-stat"><strong id="dl-count">…</strong><span>Inquiries received</span></div></div>'+
       '<div class="dash-panels"><div class="dash-panel"><h2>Next steps</h2>'+dashRows([
         [has?"Update your profile":"Create your profile","Skills, availability and a short introduction",has?"Edit profile":"Start","#va-profile"],
         ["Browse new openings","Open roles from clients","View jobs","#jobs"],
         ["Read your inquiries","Clients who contacted you","Open","#messages"]
       ])+'<div class="dash-row"><div><strong>Verify your identity</strong><span id="dl-id">Upload a photo of your government ID</span></div><a class="dash-act" href="#va-settings" id="dl-id-act">Upload</a></div>'+
-      '<div class="dash-row"><div><strong>Take the three tests</strong><span id="dl-tests">Typing, DISC and aptitude</span></div><a class="dash-act" href="#va-settings" id="dl-tests-act">Start</a></div>'+
+      '<div class="dash-row"><div><strong>Take the three tests</strong><span id="dl-tests">'+(liveTestsOff()?"Typing, DISC and aptitude":"English, work style and reasoning")+'</span></div><a class="dash-act" href="#va-settings" id="dl-tests-act">Start</a></div>'+
       '<p class="dash-note">Signed in as '+E(u.email)+'</p></div></div></div></section>';
   }
   var memOn=isAaOMember();
@@ -5974,12 +6059,23 @@ V.dashboardLive.init = function(){
       line.textContent=idStatusText(st).label;
       if(act)act.textContent=st.status==="approved"?"View":(st.status==="submitted"?"View":"Upload");
     }).catch(function(){});
-    AAOApi.assessmentStatus().then(function(st){
+    if(liveTestsOff())AAOApi.assessmentStatus().then(function(st){
       var line=$("#dl-tests"),act=$("#dl-tests-act");
       if(!line||!document.body.contains(line))return;
-      line.textContent=testsStatusText(st).label;
+      if(legacyTestsDone(st)){var row=line.closest(".dash-row");if(row)row.remove();return;} /* submitted: no more reminder */
+      line.textContent=legacyTestsStatusText(st).label;
       if(act)act.textContent=st.status==="none"?"Start":(st.status==="rejected"?"Fix":"View");
     }).catch(function(){});
+    else Promise.all(AAO_TESTS.map(function(t){return assessStatus(t.k);})).then(function(list){
+      var line=$("#dl-tests"),act=$("#dl-tests-act");
+      if(!line||!document.body.contains(line)||!assessBase())return;
+      /* All three submitted (English may still be under review): the reminder row goes away, like the "Take your AAO tests" card. */
+      if(list.filter(vpTestDone).length===3){var row=line.closest(".dash-row");if(row)row.remove();return;}
+      var done=list.filter(function(st){return st&&(st.status==="approved"||st.status==="completed");}).length;
+      var waiting=list.filter(function(st){return st&&st.status==="pending";}).length;
+      line.textContent=done+" of 3 done"+(waiting?" · English under review":"");
+      if(act)act.textContent=done===3?"View":(done||waiting?"Continue":"Start");
+    });
     return;
   }
   var box=$("#dl-jobs");
@@ -6039,7 +6135,7 @@ V.dashboard = function(){
     return '<section class="dash"><div class="wrap">'+
       '<div class="dash-head"><div><div class="dash-badge">Demo · <em>VA desk</em></div><h1>Welcome back, '+u.name.split(" ")[0]+'.</h1><p>Track applications, open roles, and profile strength. This is a preview desk — nothing is live yet.</p></div>'+
       '<div class="dash-actions"><a class="btn btn-navy" href="#jobs">Browse openings</a><a class="btn btn-line" href="#va-profile">Edit profile</a><a class="btn btn-line" href="#messages">Messages</a><a class="btn btn-line" href="#logout">Log out</a></div></div>'+
-      '<div class="dash-toast" id="dtoast" role="status"></div>'+
+      '<div class="dash-toast" id="dtoast" role="status"></div>'+testsPromptSlot("desk")+
       '<div class="dash-stats">'+
         '<div class="dash-stat"><strong>3</strong><span>Active applications</span></div>'+
         '<div class="dash-stat"><strong>12</strong><span>New roles this week</span></div>'+
@@ -6085,6 +6181,7 @@ V.dashboard = function(){
     '</div></div></section>';
 };
 V.dashboard.init = function(){
+  bindTestsPrompts();
   if(API_ON){V.dashboardLive.init();return;}
   if(!getDemoUser()){go("login");return;}
   var root=$(".dash");
@@ -6165,14 +6262,17 @@ function defaultVaProfile(u){
     langs:seed?seed.langs:"English",
     skills:seed?seed.skills.join(", "):"Calendar, email, Notion",
     email:u.email||"",
-    rate:"18",
-    hours:"Part-time · 20 hours/week",
+    rate:"",
+    hours:"20",
     education:"Bachelor’s degree",
     memberSince:u.since||"March 2024",
     status:"Open to work",
     portfolio:"",
     gender:"",
-    age:""
+    age:"",
+    subs:"",
+    /* Demo mode uses the same skill editor as live mode: start with the sample skills, rated 4 of 5, the first two marked as top skills. */
+    skillRatings:(seed?seed.skills:["Calendar","Email","Notion"]).map(function(s,i){return {name:s,category:"Other",path:["Other",s],rating:4,about:"",isTop:i<2,custom:true};})
   };
 }
 function vapStars(n){
@@ -6184,7 +6284,7 @@ function vapSkillRows(p){
   var skills=String(p.skills||"").split(",").map(function(s){return s.trim();}).filter(Boolean);
   if(!skills.length)return '<p class="vap-desc">Add skills to show them here.</p>';
   return skills.slice(0,6).map(function(s,i){
-    if(API_ON)return '<div class="vap-skill"><strong>'+(p.cat?p.cat+' › ':'')+s+'</strong>'+(p.exp?'<div class="vap-skill-meta">Experience: '+p.exp+'</div>':'')+'</div>';
+    if(VP_NEW)return '<div class="vap-skill"><strong>'+(p.cat?p.cat+' › ':'')+s+'</strong>'+(p.exp?'<div class="vap-skill-meta">Experience: '+p.exp+'</div>':'')+'</div>';
     return '<div class="vap-skill"><strong>'+(p.cat||"Admin")+' › '+s+'</strong><div class="vap-skill-meta">Experience: '+(p.exp||"3 years")+'</div><div class="vap-stars" aria-label="5 out of 5">'+vapStars(5-Math.min(i,1))+'</div><p>Hands-on work with '+s.toLowerCase()+' for client workflows.</p></div>';
   }).join("");
 }
@@ -6192,11 +6292,11 @@ function loadVaProfile(u){
   var all=localStore("aao_va_profiles",{});
   var saved=all[u.email];
   /* Live mode: what the backend stores wins; fields it has no column for (hours, education, status, portfolio) stay on this device. */
-  if(API_ON){var srv=AAOApi.myTalentForUi();if(srv)saved=Object.assign({},saved||{},srv);}
+  if(VP_NEW){var srv=VPA.myTalentForUi();if(srv)saved=Object.assign({},saved||{},srv);}
   var base=defaultVaProfile(u);
   if(!saved||typeof saved!=="object")return base;
   Object.keys(base).forEach(function(k){if(saved[k]!=null&&saved[k]!=="")base[k]=saved[k];});
-  if(API_ON){if(saved.start!=null)base.start=saved.start;if(saved.subs!=null)base.subs=saved.subs;if(Array.isArray(saved.work))base.work=saved.work;if(Array.isArray(saved.skillRatings))base.skillRatings=saved.skillRatings;if(saved.banner)base.banner=saved.banner;}
+  if(VP_NEW){if(saved.start!=null)base.start=saved.start;if(saved.subs!=null)base.subs=saved.subs;if(Array.isArray(saved.work))base.work=saved.work;if(Array.isArray(saved.skillRatings))base.skillRatings=saved.skillRatings;if(saved.banner)base.banner=saved.banner;}
   return base;
 }
 /* Live mode: work experience editor rows. Values from the backend are already HTML-escaped, so they go straight into attributes/textarea. */
@@ -6360,6 +6460,43 @@ function unmarkHired(talentId){
   b.all[b.key]=b.mine;
   localSave("aao_hires",b.all);
 }
+/* Profile completeness (own profile only; employers never see it): the 10 profile parts plus AAO's 3 tests, equal weight.
+   Banner and personal photos are optional extras and don't count. "field" is the edit-form control each item opens;
+   test items link to "Your tests" in settings. A test counts once it is submitted (the English review is AAO's job). */
+var VP_PROGRESS=[
+  {k:"photo",label:"Add a profile photo",field:"#vp-photo",ok:function(p,x){return !!x.photo;}},
+  {k:"headline",label:"Write your headline",field:"#vp-headline",ok:function(p){return String(p.headline||"").trim().length>=6;}},
+  {k:"about",label:"Write a few sentences in About you",field:"#vp-about",ok:function(p){return String(p.about||"").trim().length>=80;}},
+  {k:"exp",label:"Add your years of experience",field:"#vp-exp",ok:function(p){return /[0-9]/.test(String(p.exp||""));}},
+  {k:"skills",label:"Add at least 3 skills",field:"#vp-skill-search",ok:function(p){return (p.skillRatings||[]).length>=3;}},
+  {k:"avail",label:"Add your availability and hours per week",field:"#vp-hours",ok:function(p){return !!p.avail&&/[0-9]/.test(String(p.hours||""));}},
+  {k:"loc",label:"Add where you live and your languages",field:"#vp-loc",ok:function(p){return !!String(p.loc||"").trim()&&!!String(p.langs||"").trim();}},
+  {k:"education",label:"Add your education",field:"#vp-education",ok:function(p){return !!String(p.education||"").trim();}},
+  {k:"work",label:"Add at least one job to Work experience",field:"#vp-work-add",ok:function(p){return (p.work||[]).length>=1;}},
+  {k:"pages",label:"Add at least one portfolio page",field:"#vp-pg-title",ok:function(p,x){return x.pages>=1;}},
+  {k:"t-legacy",legacy:true,label:"Submit your test results (typing, DISC and aptitude)",href:"#va-settings",ok:function(p,x){return legacyTestsDone(x.legacy);}},
+  {k:"t-english",aao:true,label:"Take the English test",href:"#va-settings",ok:function(p,x){return vpTestDone(x.tests.english);}},
+  {k:"t-disc",aao:true,label:"Take the work style test (DISC)",href:"#va-settings",ok:function(p,x){return vpTestDone(x.tests.disc);}},
+  {k:"t-reasoning",aao:true,label:"Take the reasoning test",href:"#va-settings",ok:function(p,x){return vpTestDone(x.tests.reasoning);}}
+];
+function vpTestDone(st){return !!st&&(st.status==="completed"||st.status==="approved"||st.status==="pending");}
+/* Which items count: the AAO tests, or (live, until they are switched on) the one legacy test-results item. */
+function vpProgressItems(){var off=liveTestsOff();return VP_PROGRESS.filter(function(it){return off?!it.aao:!it.legacy;});}
+function vpProgressHtml(p,x){
+  var items=vpProgressItems();
+  var missing=items.filter(function(it){return !it.ok(p,x);});
+  var total=items.length,pct=Math.round((total-missing.length)/total*100);
+  var done=pct===100;
+  return '<div class="vap-card-head"><h2>'+(done?"Your profile is complete":"Complete your profile")+'</h2><strong class="vpp-pct" style="font-size:22px;color:'+(done?"#0F7A5A":"var(--vap-navy)")+'">'+pct+'%</strong></div>'+
+    '<div class="vpp-bar" role="progressbar" aria-label="Profile completeness" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pct+'" style="height:10px;border-radius:999px;background:var(--vap-line);overflow:hidden;margin:10px 0 12px">'+
+      '<div style="height:100%;width:'+pct+'%;background:'+(done?"#13A06F":"var(--vap-gold)")+';border-radius:999px;transition:width .4s"></div></div>'+
+    (done?'<p class="vap-desc" style="margin:0">Your profile is filled in and your tests are done. Keep it up to date so clients see your latest work.</p>':
+      '<p class="vap-desc" style="margin:0 0 8px">'+(total-missing.length)+' of '+total+' done. Complete profiles get more attention from clients. Still to do:</p>'+
+      '<ul class="vpp-list" style="list-style:none;margin:0;padding:0;display:grid;gap:6px">'+missing.map(function(it){
+        return '<li>'+(it.href?'<a class="vap-edit-toggle" href="'+it.href+'" style="display:inline-block;text-align:left;min-height:36px;line-height:36px;text-decoration:none">+ '+it.label+'</a>':
+          '<button type="button" class="vap-edit-toggle" data-vpp="'+it.k+'" style="text-align:left;min-height:36px">+ '+it.label+'</button>')+'</li>';
+      }).join("")+'</ul>');
+}
 V.vaProfile = function(){
   var u=getDemoUser();
   if(!u)return V.login();
@@ -6370,23 +6507,24 @@ V.vaProfile = function(){
   var availWord=/full/i.test(p.avail||"")?"Full-time":(/part/i.test(p.avail||"")?"Part-time":"");
   var availLine=hrsNum?("Available for "+hrsNum[1]+" hrs/week"+(availWord?" · "+availWord:"")):(p.avail||(p.hours?"Available: "+p.hours:""));
   var overview=
-    '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><p>'+(availLine?'<strong>'+availLine+'</strong>':'Add your availability and hours per week.')+(API_ON&&p.start?'<br>Can start: <strong>'+AAOApi.startLabel(p.start)+'</strong>':'')+'</p></div>'+
+    '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg><p>'+(availLine?'<strong>'+availLine+'</strong>':'Add your availability and hours per week.')+(VP_NEW&&p.start?'<br>Can start: <strong>'+VPA.startLabel(p.start)+'</strong>':'')+'</p></div>'+
     '<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3 4 7v5c0 4.4 3.2 7.6 8 9 4.8-1.4 8-4.6 8-9V7l-8-4z"/></svg><p>'+(p.education||"Education not listed yet")+'</p></div>'+
-    (API_ON?'':'<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5c1.8-3.2 4.1-4.8 6.5-4.8s4.7 1.6 6.5 4.8"/></svg><p>'+(p.memberSince?'Member since '+p.memberSince:'Member since 2024')+'</p></div>');
+    (VP_NEW?'':'<div class="vap-overview-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5.5 19.5c1.8-3.2 4.1-4.8 6.5-4.8s4.7 1.6 6.5 4.8"/></svg><p>'+(p.memberSince?'Member since '+p.memberSince:'Member since 2024')+'</p></div>');
   return '<section class="vap" id="vap"><div class="wrap">'+
     '<a class="vap-crumb" href="#dashboard">← Back to VA desk</a>'+
     '<div class="vap-view">'+
-      '<div class="vap-hero'+(API_ON&&p.banner?' has-banner" style="'+bannerStyle(p.banner):'')+'">'+(API_ON?'':'<p class="vap-status">Current status: '+(p.status||"Open to work")+'</p>')+'<div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
-      '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+(API_ON?(p.subs?String(p.subs).split(/\s*[,|]\s*/).filter(Boolean).join(" | "):(CATS[p.cat]||"Virtual assistant")):(p.headline||"Virtual assistant"))+'</p><div class="vap-badges">'+((API_ON&&!(p.avail||p.hours))?'':'<span class="vap-badge gold">'+(p.avail||(API_ON?p.hours:"Available"))+'</span>')+'</div></div>'+
+      '<div class="vap-hero'+(VP_NEW&&p.banner?' has-banner" style="'+bannerStyle(p.banner):'')+'">'+(VP_NEW?'':'<p class="vap-status">Current status: '+(p.status||"Open to work")+'</p>')+'<div class="vap-avatar" aria-hidden="true">'+initial+'</div></div>'+
+      '<div class="vap-identity"><h1>'+p.name+'</h1><p class="vap-title">'+(VP_NEW?(p.subs?String(p.subs).split(/\s*[,|]\s*/).filter(Boolean).join(" | "):(CATS[p.cat]||"Virtual assistant")):(p.headline||"Virtual assistant"))+'</p><div class="vap-badges">'+((VP_NEW&&!(p.avail||p.hours))?'':'<span class="vap-badge gold">'+(p.avail||(VP_NEW?p.hours:"Available"))+'</span>')+'</div></div>'+
       '<div class="vap-actions"><button class="btn btn-gold" type="button" id="vap-edit-btn">Edit profile</button><a class="btn btn-navy" href="#jobs">Browse jobs</a></div>'+
       '<div class="vap-layout"><div>'+
-        (API_ON?'<div class="vap-card"><p class="vap-headline'+(p.headline?'':' is-empty')+'">'+(p.headline||"Add a headline with Edit profile, for example “Customer support specialist for online stores”.")+'</p></div>':'')+
+        (VP_NEW?'<div class="vap-card vap-progress" id="vap-progress" aria-live="polite"><p class="vap-desc">Checking your profile…</p></div>':'')+
+        (VP_NEW?'<div class="vap-card"><p class="vap-headline'+(p.headline?'':' is-empty')+'">'+(p.headline||"Add a headline with Edit profile, for example “Customer support specialist for online stores”.")+'</p></div>':'')+
         '<div class="vap-card"><h2>Overview</h2><div class="vap-overview">'+overview+'</div></div>'+
         '<div class="vap-card"><h2>Profile description</h2><p class="vap-desc">'+(p.about||"Add a short description of how you work.")+'</p></div>'+
-        (API_ON?'<div class="vap-card"><h2>Personal photos</h2><div id="vap-photos"><p class="vap-desc">Loading…</p></div></div>':"")+
-        (API_ON?'<div class="vap-card"><h2>Portfolio pages</h2><div id="vap-pages"><p class="vap-desc">Loading…</p></div></div>':"")+
-        (API_ON?'<div class="vap-card"><h2>Work experience</h2>'+((p.work&&p.work.length)?workListHtml(p.work):'<p class="vap-desc">Add the jobs you have done: role, type of business, years, and what you achieved.</p>')+'</div>':"")+
-        '<div class="vap-card"><div class="vap-card-head"><h2>Top skills</h2><button class="vap-edit-toggle" type="button" data-vap-edit>Update skills</button></div>'+(API_ON?liveSkillRows(p.skillRatings):vapSkillRows(p))+'</div>'+
+        (VP_NEW?'<div class="vap-card"><h2>Personal photos</h2><div id="vap-photos"><p class="vap-desc">Loading…</p></div></div>':"")+
+        (VP_NEW?'<div class="vap-card"><h2>Portfolio pages</h2><div id="vap-pages"><p class="vap-desc">Loading…</p></div></div>':"")+
+        (VP_NEW?'<div class="vap-card"><h2>Work experience</h2>'+((p.work&&p.work.length)?workListHtml(p.work):'<p class="vap-desc">Add the jobs you have done: role, type of business, years, and what you achieved.</p>')+'</div>':"")+
+        '<div class="vap-card"><div class="vap-card-head"><h2>Top skills</h2><button class="vap-edit-toggle" type="button" data-vap-edit>Update skills</button></div>'+(VP_NEW?liveSkillRows(p.skillRatings):vapSkillRows(p))+'</div>'+
       '</div><aside>'+
         '<div class="vap-card"><h2>Basic information</h2><dl class="vap-dl">'+
           '<div><dt>Field</dt><dd>'+(CATS[p.cat]||p.cat||"—")+'</dd></div>'+
@@ -6395,15 +6533,15 @@ V.vaProfile = function(){
           '<div><dt>Location</dt><dd>'+(p.loc||"—")+'</dd></div>'+
           (p.age?'<div><dt>Age</dt><dd>'+p.age+'</dd></div>':"")+
           (p.gender?'<div><dt>Gender</dt><dd>'+p.gender+'</dd></div>':"")+
-          (API_ON?'':'<div><dt>Portfolio / website</dt><dd>'+(p.portfolio?('<a href="'+p.portfolio.replace(/"/g,"&quot;")+'" target="_blank" rel="noopener noreferrer">'+p.portfolio+'</a>'):"Not added yet")+'</dd></div>')+
+          (VP_NEW?'':'<div><dt>Portfolio / website</dt><dd>'+(p.portfolio?('<a href="'+p.portfolio.replace(/"/g,"&quot;")+'" target="_blank" rel="noopener noreferrer">'+p.portfolio+'</a>'):"Not added yet")+'</dd></div>')+
           '<div><dt>Email</dt><dd>'+(p.email||u.email)+'</dd></div>'+
-          (API_ON?'<div><dt>Member since</dt><dd>'+(p.memberSince||"New member")+'</dd></div>':"")+
-        '</dl><div class="vap-tests" style="margin-top:16px"><div class="vap-test"><strong>English</strong><span>'+(p.langs||(API_ON?"Not added yet":"English"))+'</span></div></div></div>'+
+          (VP_NEW?'<div><dt>Member since</dt><dd>'+(p.memberSince||"New member")+'</dd></div>':"")+
+        '</dl><div class="vap-tests" style="margin-top:16px"><div class="vap-test"><strong>English</strong><span>'+(p.langs||(VP_NEW?"Not added yet":"English"))+'</span></div></div></div>'+
       '</aside></div>'+
     '</div>'+
-    '<div class="vap-edit"><div class="vap-card"><h2>Edit profile</h2><p class="lede" style="margin:0 0 16px;color:#51617C">'+(API_ON?"Your details are saved to your AAO profile.":"Changes save on this device until your backend is connected.")+'</p>'+
+    '<div class="vap-edit"><div class="vap-card"><h2>Edit profile</h2><p class="lede" style="margin:0 0 16px;color:#51617C">'+(VP_NEW?"Your details are saved to your AAO profile.":"Changes save on this device until your backend is connected.")+'</p>'+testsPromptSlot("edit")+
       '<form class="app-form" id="vpf" novalidate>'+
-        (API_ON?vpLiveFields():(''+
+        (VP_NEW?vpLiveFields():(''+
         '<label class="field">Full name<input type="text" id="vp-name" required maxlength="80"></label>'+
         '<label class="field">Headline<input type="text" id="vp-headline" required maxlength="120"></label>'+
         '<label class="field">About you<textarea id="vp-about" required></textarea></label>'+
@@ -6417,21 +6555,21 @@ V.vaProfile = function(){
         '</div>'+
         '<div class="two">'+
           '<label class="field">Hourly rate (USD)<input type="number" id="vp-rate" min="1" step="1" placeholder="18"></label>'+
-          (API_ON?'<label class="field">Hours per week<input type="number" id="vp-hours" min="1" max="80" step="1" inputmode="numeric" placeholder="e.g. 40"></label>':
+          (VP_NEW?'<label class="field">Hours per week<input type="number" id="vp-hours" min="1" max="80" step="1" inputmode="numeric" placeholder="e.g. 40"></label>':
             '<label class="field">Hours / week<input type="text" id="vp-hours" maxlength="80" placeholder="Part-time · 20 hours/week"></label>')+
         '</div>'+
         '<div class="two">'+
           '<label class="field">Education<input type="text" id="vp-education" maxlength="120"></label>'+
-          (API_ON?'<label class="field">When can you start?<select id="vp-start"><option value="">Not said yet</option><option value="immediately">Immediately</option><option value="within_week">Within a week</option><option value="in_two_weeks">In 2 weeks</option><option value="in_a_month">In a month</option></select></label>':
+          (VP_NEW?'<label class="field">When can you start?<select id="vp-start"><option value="">Not said yet</option><option value="immediately">Immediately</option><option value="within_week">Within a week</option><option value="in_two_weeks">In 2 weeks</option><option value="in_a_month">In a month</option></select></label>':
             '<label class="field">Status<input type="text" id="vp-status" maxlength="80" placeholder="Open to work"></label>')+
         '</div>'+
         '<label class="field">Languages<input type="text" id="vp-langs" maxlength="120"></label>'+
-        (API_ON?skillEditorHtml("vp",{title:"Skills",copy:"Search for a skill or add your own, then rate yourself from 1 (beginner) to 5 (expert). Up to "+SKILL_MAX+" skills. Your notes are seen only by you and AAO staff."}):'<label class="field">Skills (comma separated)<input type="text" id="vp-skills" maxlength="240"></label>')+
-        (API_ON?'<label class="field">Specialties (up to 5, separated by commas or |)<input type="text" id="vp-subs" maxlength="230" placeholder="e.g. Bookkeeping, Inbox management"></label>'+
+        (VP_NEW?skillEditorHtml("vp",{title:"Skills",copy:"Search for a skill or add your own, then rate yourself from 1 (beginner) to 5 (expert). Up to "+SKILL_MAX+" skills. Your notes are seen only by you and AAO staff."}):'<label class="field">Skills (comma separated)<input type="text" id="vp-skills" maxlength="240"></label>')+
+        (VP_NEW?'<label class="field">Specialties (up to 5, separated by commas or |)<input type="text" id="vp-subs" maxlength="230" placeholder="e.g. Bookkeeping, Inbox management"></label>'+
           '<div class="field"><span>Work experience</span><div id="vp-work"></div><button type="button" class="btn btn-line" id="vp-work-add">Add a job</button></div>'+
-          (AAOApi.hasTalentProfile()?mediaSectionHtml()+pagesSectionHtml():
+          (VPA.hasTalentProfile()?mediaSectionHtml()+pagesSectionHtml():
             '<div class="field media-edit"><span>Photos, banner and portfolio pages</span><p class="vp-locked" id="vp-first-save"><strong>Save your profile first.</strong> Fill in the details above and press <strong>Save profile</strong> at the bottom. This page then opens again here so you can add your profile photo, a banner, personal photos and portfolio pages.</p></div>'):"")+
-        (API_ON?'':'<label class="field">Portfolio / website<input type="url" id="vp-portfolio" maxlength="200" placeholder="https://"></label>')))+
+        (VP_NEW?'':'<label class="field">Portfolio / website<input type="url" id="vp-portfolio" maxlength="200" placeholder="https://"></label>')))+
         '<div class="app-actions"><button class="btn btn-gold" type="submit">Save profile</button><button class="btn btn-navy" type="button" id="vap-cancel">Cancel</button></div>'+
         '<div class="notice" id="vp-note" role="status"></div>'+
       '</form></div></div>'+
@@ -6475,7 +6613,7 @@ function vpLiveFields(){
       '<label class="field">Hourly rate (USD)<input type="number" id="vp-rate" min="1" step="1" placeholder="e.g. 8">'+vpTip("Never shown to clients. AAO uses it when matching you with work.")+'</label>'+
     '</fieldset>'+
     '<fieldset class="vpf-sec"><legend>6. Photos and portfolio</legend>'+
-      (AAOApi.hasTalentProfile()?'<div id="vp-photo-slot"></div>'+mediaSectionHtml()+pagesSectionHtml():
+      (VPA.hasTalentProfile()?'<div id="vp-photo-slot"></div>'+mediaSectionHtml()+pagesSectionHtml():
         '<p class="vp-locked" id="vp-first-save"><strong>Save your profile first.</strong> Fill in sections 1 to 5 and press <strong>Save profile</strong> at the bottom. This page then opens again here so you can add your profile photo, a banner, personal photos and portfolio pages.</p>')+
     '</fieldset>';
 }
@@ -6483,16 +6621,16 @@ V.vaProfile.init = function(){
   var u=requireVaPage();
   if(!u)return;
   var root=$("#vap"),form=$("#vpf"),note=$("#vp-note"),p=loadVaProfile(u);
-  if(API_ON&&$("#vap-photos")){
+  if(VP_NEW&&$("#vap-photos")){
     var phBox=$("#vap-photos");
-    (AAOApi.hasTalentProfile()?AAOApi.myPhotos():Promise.resolve([])).then(function(l){
+    (VPA.hasTalentProfile()?VPA.myPhotos():Promise.resolve([])).then(function(l){
       if(!document.body.contains(phBox))return;
       phBox.innerHTML=l.length?photoGridHtml(l.map(function(x){return {url:x.url,caption:escHtml(x.caption)};})):'<p class="vap-desc">Add up to '+PHOTO_MAX+' photos with Edit profile.</p>';
     }).catch(function(){phBox.innerHTML='<p class="vap-desc">We could not load your photos.</p>';});
   }
-  if(API_ON&&$("#vap-pages")){
+  if(VP_NEW&&$("#vap-pages")){
     var pgBox=$("#vap-pages");
-    (AAOApi.hasTalentProfile()?AAOApi.myPages():Promise.resolve([])).then(function(l){
+    (VPA.hasTalentProfile()?VPA.myPages():Promise.resolve([])).then(function(l){
       if(!document.body.contains(pgBox))return;
       l=l.slice().sort(function(a,b){return (b.featured?1:0)-(a.featured?1:0)||a.sort-b.sort;});
       pgBox.innerHTML=l.length?pagesHtml(l.map(function(x){return {title:x.title,body:x.body,featured:x.featured,images:x.images.map(function(im){return im.url;})};})):'<p class="vap-desc">Show your best work: add up to '+PAGE_MAX+' pages with Edit profile.</p>';
@@ -6505,7 +6643,7 @@ V.vaProfile.init = function(){
     $("#vp-cat").value=p.cat||"Admin";
     $("#vp-avail").value=p.avail||"Available full-time";
     $("#vp-loc").value=U(p.loc||"");
-    $("#vp-exp").value=API_ON?(String(U(p.exp||"")).match(/[0-9]{1,2}/)||[""])[0]:U(p.exp||"");
+    $("#vp-exp").value=VP_NEW?(String(U(p.exp||"")).match(/[0-9]{1,2}/)||[""])[0]:U(p.exp||"");
     $("#vp-langs").value=U(p.langs||"");
     if($("#vp-skills"))$("#vp-skills").value=U(p.skills||"");
     $("#vp-rate").value=p.rate||"";
@@ -6514,7 +6652,7 @@ V.vaProfile.init = function(){
     if($("#vp-status"))$("#vp-status").value=p.status||"";
     if($("#vp-start"))$("#vp-start").value=p.start||"";
     if($("#vp-portfolio"))$("#vp-portfolio").value=p.portfolio||"";
-    if(API_ON){
+    if(VP_NEW){
       $("#vp-education").value=U(p.education||"");
       /* Hours per week is a number box in live mode: "40 hours/week" -> 40 (text without a number stays empty). */
       $("#vp-hours").value=(String(U(p.hours||"")).match(/[0-9]{1,2}/)||[""])[0];
@@ -6528,7 +6666,29 @@ V.vaProfile.init = function(){
     if(on)window.scrollTo(0,0);
   }
   fill();
-  if(API_ON){
+  bindTestsPrompts();
+  /* Profile completeness card (needs the photo and the number of portfolio pages, which load separately). */
+  var progBox=$("#vap-progress");
+  if(progBox){
+    var hasProf=VP_NEW&&VPA.hasTalentProfile();
+    var legacyP=liveTestsOff()?AAOApi.assessmentStatus().catch(function(){return null;}):Promise.resolve(null);
+    Promise.all([(hasProf?VPA.myPages():Promise.resolve([])).catch(function(){return [];}),legacyP].concat(AAO_TESTS.map(function(t){return assessStatus(t.k);}))).then(function(r){
+      if(!document.body.contains(progBox))return;
+      progBox.innerHTML=vpProgressHtml(p,{photo:hasProf?VPA.myPhotoUrl():"",pages:(r[0]||[]).length,legacy:r[1],tests:{english:r[2],disc:r[3],reasoning:r[4]}});
+    });
+    progBox.addEventListener("click",function(e){
+      var b=e.target.closest("[data-vpp]");if(!b)return;
+      var it=VP_PROGRESS.filter(function(x){return x.k===b.getAttribute("data-vpp");})[0];
+      setEditing(true);
+      setTimeout(function(){
+        var el=it&&$(it.field);
+        if(!el){if(it&&(it.k==="photo"||it.k==="pages")){var n=$("#vp-note");if(n){n.classList.add("show");n.innerHTML="<strong>Save your profile first.</strong>Then you can add your photo and portfolio pages.";}}return;}
+        var f=el.closest(".field")||el;f.scrollIntoView({block:"center",behavior:"smooth"});
+        if(el.focus)try{el.focus({preventScroll:true});}catch(err){el.focus();}
+      },80);
+    });
+  }
+  if(VP_NEW){
     /* Live mode: profile photo. Needs an existing profile; uploads straight to storage through a signed URL, then registers the file. */
     var avatarEl=root.querySelector(".vap-avatar");
     /* The current photo also shows as a preview in the Profile photo box of the form. */
@@ -6541,36 +6701,36 @@ V.vaProfile.init = function(){
     photoField.innerHTML='Profile photo<img id="vp-photo-prev" class="vp-photo-prev" alt="Your current profile photo" hidden><input type="file" id="vp-photo" accept="image/jpeg,image/png,image/webp"><small id="vp-photo-note" class="muted">JPEG, PNG or WebP, up to 2 MB.</small>';
     var photoSlot=$("#vp-photo-slot");
     if(photoSlot)photoSlot.parentNode.insertBefore(photoField,photoSlot);else form.insertBefore(photoField,form.querySelector(".app-actions"));
-    if(!AAOApi.hasTalentProfile())photoField.hidden=true; /* the notice above explains it; the photo can be added after the first save */
-    showPhoto(AAOApi.myPhotoUrl());
+    if(!VPA.hasTalentProfile())photoField.hidden=true; /* the notice above explains it; the photo can be added after the first save */
+    showPhoto(VPA.myPhotoUrl());
     $("#vp-photo").addEventListener("change",function(){
       var input=this,f=input.files[0],pn=$("#vp-photo-note");
       if(!f)return;
-      if(!AAOApi.hasTalentProfile()){pn.textContent="Save your profile first, then add a photo.";input.value="";return;}
+      if(!VPA.hasTalentProfile()){pn.textContent="Save your profile first, then add a photo.";input.value="";return;}
       pn.textContent="Uploading…";
-      AAOApi.uploadPhoto(f).then(function(url){pn.textContent="Photo saved.";showPhoto(url);photoRm.hidden=false;return reloadCatalog();}).catch(function(err){pn.textContent=err.message;});
+      VPA.uploadPhoto(f).then(function(url){pn.textContent="Photo saved.";showPhoto(url);photoRm.hidden=false;return reloadCatalog();}).catch(function(err){pn.textContent=err.message;});
       input.value="";
     });
     var photoRm=document.createElement("button");
-    photoRm.type="button";photoRm.className="btn btn-line";photoRm.textContent="Remove photo";photoRm.hidden=!AAOApi.myPhotoUrl();
+    photoRm.type="button";photoRm.className="btn btn-line";photoRm.textContent="Remove photo";photoRm.hidden=!VPA.myPhotoUrl();
     photoField.insertAdjacentElement("afterend",photoRm);
     photoRm.addEventListener("click",function(){
       if(!window.confirm("Remove your profile photo?"))return;
       var pn=$("#vp-photo-note");pn.textContent="Removing…";
-      AAOApi.removeProfilePhoto().then(function(){pn.textContent="Photo removed.";photoRm.hidden=true;showPhoto("");if(avatarEl)avatarEl.textContent=initialOf();return reloadCatalog();}).catch(function(err){pn.textContent=err.message;});
+      VPA.removeProfilePhoto().then(function(){pn.textContent="Photo removed.";photoRm.hidden=true;showPhoto("");if(avatarEl)avatarEl.textContent=initialOf();return reloadCatalog();}).catch(function(err){pn.textContent=err.message;});
     });
     function initialOf(){return (($("#vp-name")&&$("#vp-name").value)||"V").charAt(0).toUpperCase();}
     bindMediaSection();
     bindPagesSection();
     var mediaNext=false;try{mediaNext=sessionStorage.getItem("aao_vp_media_next")==="1";sessionStorage.removeItem("aao_vp_media_next");}catch(e){}
-    if(mediaNext&&AAOApi.hasTalentProfile()&&$("#vp-bn-prev")){
+    if(mediaNext&&VPA.hasTalentProfile()&&$("#vp-bn-prev")){
       setEditing(true);
       var mf=$("#vp-bn-prev").closest(".field");
       var bnNote=$("#vp-bn-note");if(bnNote)bnNote.textContent="Profile saved. You can now add your profile photo (below), a banner, personal photos and portfolio pages.";
       setTimeout(function(){mf.scrollIntoView({block:"start",behavior:"smooth"});},50);
     }
   }
-  var skillEd=API_ON&&$("#vp-skill-picker")?mountSkillEditor("vp",p.skillRatings||[]):null;
+  var skillEd=VP_NEW&&$("#vp-skill-picker")?mountSkillEditor("vp",p.skillRatings||[]):null;
   var workAdd=$("#vp-work-add"),workBox=$("#vp-work");
   if(workAdd&&workBox){
     workAdd.addEventListener("click",function(){
@@ -6592,7 +6752,7 @@ V.vaProfile.init = function(){
     var about=$("#vp-about").value.trim();
     note.classList.add("show");
     if(name.length<2||headline.length<6||about.length<20){note.innerHTML="<strong>Add more detail.</strong>Name, headline, and a short about section are required.";return;}
-    if(API_ON){
+    if(VP_NEW){
       var hEl=$("#vp-hours"),hv=hEl.value.trim();
       if((hEl.validity&&hEl.validity.badInput)||(hv&&(!/^[0-9]{1,2}$/.test(hv)||+hv<1||+hv>80))){note.innerHTML="<strong>Check hours per week.</strong>Enter a number from 1 to 80, for example 40.";hEl.focus();return;}
     }
@@ -6601,9 +6761,9 @@ V.vaProfile.init = function(){
       loc:$("#vp-loc").value.trim(),exp:$("#vp-exp").value.trim(),langs:$("#vp-langs").value.trim(),skills:$("#vp-skills")?$("#vp-skills").value.trim():"",
       rate:$("#vp-rate").value.trim(),hours:$("#vp-hours").value.trim(),education:$("#vp-education").value.trim(),
       status:(($("#vp-status")||{}).value||"").trim(),start:$("#vp-start")?$("#vp-start").value:undefined,portfolio:(($("#vp-portfolio")||{}).value||"").trim(),
-      memberSince:p.memberSince||(API_ON?(u.since||""):"March 2024"),email:u.email,updatedAt:new Date().toISOString()
+      memberSince:p.memberSince||(VP_NEW?(u.since||""):"March 2024"),email:u.email,updatedAt:new Date().toISOString()
     };
-    if(API_ON){
+    if(VP_NEW){
       /* Live mode: save to the backend. Local-only extras (status, portfolio) stay on this device. */
       var wk=collectWork();
       if(wk.error){note.innerHTML="<strong>Check your work experience.</strong>"+wk.error;return;}
@@ -6615,8 +6775,8 @@ V.vaProfile.init = function(){
       }
       row.subs=$("#vp-subs")?$("#vp-subs").value.trim():undefined;
       note.innerHTML="<strong>Saving…</strong>";
-      var firstSave=!AAOApi.hasTalentProfile();
-      AAOApi.saveTalentProfile(row).then(function(){
+      var firstSave=!VPA.hasTalentProfile();
+      VPA.saveTalentProfile(row).then(function(){
         saveVaProfile(u,{status:row.status,portfolio:row.portfolio,memberSince:row.memberSince});
         setDemoUser(Object.assign({},u,{name:name}));
         return reloadCatalog();
@@ -6626,7 +6786,7 @@ V.vaProfile.init = function(){
         syncAuthNav();go("va-profile");
       }).catch(function(err){
         note.classList.add("show");
-        note.innerHTML="<strong>We could not save your profile.</strong>"+AAOApi.esc(err.status===403?"Please confirm your email address first (check your inbox), then try again.":err.message);
+        note.innerHTML="<strong>We could not save your profile.</strong>"+VPA.esc(err.status===403?"Please confirm your email address first (check your inbox), then try again.":err.message);
       });
       return;
     }
@@ -6747,15 +6907,15 @@ function bindIdSection(){
     });
   });
 }
-/* Live mode: test results (typing, DISC, aptitude). The assistant takes each test on the linked site and types in the result. */
-function testsStatusText(st){
+/* LEGACY (used only in live mode until assessmentsApi is set in aao-config.js): test results (typing, DISC, aptitude). The assistant takes each test on the linked site and types in the result. */
+function legacyTestsStatusText(st){
   var E=AAOApi.esc;
   if(!st||st.status==="none")return {label:"Not done yet",text:"Take the three tests below and enter your results."};
   if(st.status==="submitted")return {label:"Waiting for review",text:"Thanks. AAO will check your results."};
   if(st.status==="verified")return {label:"Verified",text:"Your test results are verified."};
   return {label:"Not accepted",text:"Your results were not accepted"+(st.review_note?": "+E(st.review_note):"")+". Please check them and save again."};
 }
-function testsSectionHtml(){
+function legacyTestsSectionHtml(){
   function field(id,label,link,site,ph,test){
     return '<label class="field">'+label+'<input type="text" id="'+id+'" maxlength="120" placeholder="'+ph+'"><span class="field-hint">Take it on <a href="'+link+'" target="_blank" rel="noopener noreferrer">'+site+'</a>, type your result here, and attach the results page saved as a PDF.</span></label>'+
       '<label class="field">PDF of your '+label.toLowerCase()+' result<input type="file" accept="application/pdf,.pdf" data-test-pdf="'+test+'"><span class="field-hint" data-pdf-state="'+test+'">No PDF attached yet.</span></label>';
@@ -6771,12 +6931,12 @@ function testsSectionHtml(){
     '<div class="notice" id="vtf-note" role="status"></div>'+
   '</form>';
 }
-function bindTestsSection(){
+function legacyBindTestsSection(){
   var form=$("#vtf"),status=$("#vtf-status"),note=$("#vtf-note");
   if(!form||!status)return;
   var typing=$("#vtf-typing"),disc=$("#vtf-disc"),apt=$("#vtf-aptitude"),btn=form.querySelector('button[type="submit"]');
   function show(st){
-    var t=testsStatusText(st);
+    var t=legacyTestsStatusText(st);
     status.innerHTML="<strong>"+t.label+".</strong> "+t.text;
     ["typing","disc","aptitude"].forEach(function(k){
       var el=form.querySelector('[data-pdf-state="'+k+'"]');
@@ -6815,6 +6975,125 @@ function bindTestsSection(){
     }).catch(function(err){
       btn.disabled=false;
       note.innerHTML="<strong>We could not save that.</strong>"+AAOApi.esc(err.status===403?"Please confirm your email address first (check your inbox), then try again.":err.message);
+    });
+  });
+}
+/* SAFETY SWITCH: on the live site the AAO tests take over only once assessmentsApi is set in aao-config.js.
+   Until then live mode keeps the typing / DISC / aptitude results with PDF upload (the legacy functions below), so VAs can
+   always submit something. Demo mode always shows the AAO tests (practice mode). */
+function liveTestsOff(){return API_ON&&!assessBase();}
+function legacyTestsDone(st){return !!st&&(st.status==="submitted"||st.status==="verified");}
+/* VA tests: AAO's own English, Work style (DISC) and Reasoning tests (pages in /tests/). They replace the three outside tests
+   (typing, Tony Robbins DISC, JobCannon aptitude). Results are saved by the assessments backend: set assessmentsApi in aao-config.js
+   to turn it on. Until then the tests run in practice mode (nothing is saved) and this section says so. */
+var AAO_TESTS=[
+  {k:"english",name:"English test",what:"Reading, listening, writing and speaking. About 70 minutes, with a microphone.",file:"tests/english.html",report:"tests/english-certificate.html",reportLabel:"View certificate"},
+  {k:"disc",name:"Work style test (DISC)",what:"49 short statements. About 10 minutes, no time limit.",file:"tests/disc.html",report:"tests/disc-report.html",reportLabel:"View report"},
+  {k:"reasoning",name:"Reasoning test",what:"32 questions in 25 minutes.",file:"tests/reasoning.html",report:"tests/reasoning-report.html",reportLabel:"View report"}
+];
+function assessBase(){return String((window.AAO_API_CONFIG||{}).assessmentsApi||"").replace(/\/+$/,"");}
+function assessToken(){try{var s=JSON.parse(localStorage.getItem("aao-job-board-auth")||"null");return (s&&s.access_token)||"";}catch(e){return "";}}
+/* One test's status from the backend: {status:"none"|"pending"|"approved"|"completed", certificateCode|reportCode}. null when not connected or not loaded. */
+function assessStatus(k){
+  var b=assessBase();
+  if(!b)return Promise.resolve(null);
+  return fetch(b+"/"+k+"/me",{headers:{Authorization:"Bearer "+assessToken()}}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+}
+function assessView(t,st){
+  var code=st&&(st.certificateCode||st.reportCode);
+  if(!assessBase())return {label:"Practice mode",href:t.file,act:"Practice"};
+  if(!st)return {label:"We could not load this result. Please refresh the page.",href:t.file,act:"Open"};
+  if(st.status==="approved"||st.status==="completed")return {label:"Done",href:code?t.report+"?c="+encodeURIComponent(code):"",act:t.reportLabel};
+  if(st.status==="pending")return {label:"Submitted. AAO is reviewing your writing and speaking (usually 2 to 3 business days).",href:"",act:""};
+  return {label:"Not started",href:t.file,act:"Start"};
+}
+function testsSectionHtml(){
+  if(liveTestsOff())return legacyTestsSectionHtml();
+  var on=!!assessBase();
+  return '<div class="app-form" id="vtests" style="margin-top:26px">'+
+    '<h2 style="margin:0">Your tests</h2>'+
+    '<p class="app-note">Take AAO’s three tests. Your scores are worked out and saved for you, so there is nothing to type in or upload.</p>'+
+    (on?'':'<p class="app-note" style="border:1px solid rgba(200,160,40,.55);background:rgba(232,190,70,.14);border-radius:10px;padding:10px 12px"><strong>Practice mode.</strong> AAO is still switching the tests on, so your answers are not saved yet. You can try them now; you will be asked to take them again once they are on.</p>')+
+    AAO_TESTS.map(function(t){
+      return '<div class="dash-row" data-test="'+t.k+'"><div><strong>'+t.name+'</strong><span>'+t.what+'</span><span class="app-note" data-test-status style="display:block;margin:4px 0 0">'+(on?"Checking…":"Practice mode")+'</span></div>'+
+        '<a class="dash-act" data-test-act href="'+t.file+'">'+(on?"Start":"Practice")+'</a></div>';
+    }).join("")+
+    '<p class="app-note">Before the English test: use a laptop or desktop with a microphone, in a quiet place. Each section has its own timer, and you cannot go back to a finished section.</p>'+
+  '</div>';
+}
+/* "Take your tests" card on the VA desk and at the top of Edit profile. Lists only the tests not done yet and
+   disappears once all three are done (a test counts once submitted). where = "desk" (dark desk style) or "edit" (light profile style). */
+function testsPromptSlot(where){return '<div data-tests-prompt="'+where+'" hidden></div>';}
+function testsPromptHtml(where,list){
+  var on=!!assessBase(),dark=where==="desk";
+  var todo=AAO_TESTS.filter(function(t,i){return !vpTestDone(list[i]);});
+  var c=dark?{bg:"#0C1D3B",line:"rgba(255,255,255,.12)",ink:"#fff",muted:"#B9C6DC"}:{bg:"#FFF8E6",line:"#EAD9A6",ink:"var(--vap-ink,#0B1A33)",muted:"var(--vap-muted,#51617C)"};
+  var left=todo.length;
+  return '<div style="background:'+c.bg+';border:1px solid '+c.line+';border-left:4px solid #DDBB68;border-radius:16px;padding:18px 20px;margin:0 0 18px;color:'+c.ink+'">'+
+    '<h2 style="margin:0 0 4px;font:700 1.08rem var(--body,inherit);color:'+c.ink+'">Take your AAO tests</h2>'+
+    '<p style="margin:0 0 10px;color:'+c.muted+';font-size:.95rem">'+(on?(left===3?"You haven’t taken your tests yet. ":left+" of 3 tests still to take. ")+"Clients look at your test results, and they count toward a complete profile.":
+      "Practice mode: AAO is still switching the tests on, so answers are not saved yet. You can try them now.")+'</p>'+
+    todo.map(function(t){
+      var st=list[AAO_TESTS.indexOf(t)];
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:10px 0;border-top:1px solid '+c.line+'">'+
+        '<div><strong style="display:block">'+t.name+'</strong><span style="color:'+c.muted+';font-size:.9rem">'+t.what+'</span></div>'+
+        '<a class="btn btn-gold" href="'+t.file+'" style="min-height:40px">'+(on?"Start":"Practice")+'</a></div>';
+    }).join("")+
+    '<p style="margin:8px 0 0;font-size:.88rem"><a href="#va-settings" style="color:'+(dark?"#DDBB68":"var(--vap-link,#1B4B91)")+'">See all your tests</a></p>'+
+  '</div>';
+}
+function legacyPromptHtml(where,st){
+  var dark=where==="desk";
+  var c=dark?{bg:"#0C1D3B",line:"rgba(255,255,255,.12)",ink:"#fff",muted:"#B9C6DC"}:{bg:"#FFF8E6",line:"#EAD9A6",ink:"var(--vap-ink,#0B1A33)",muted:"var(--vap-muted,#51617C)"};
+  var rejected=st&&st.status==="rejected";
+  return '<div style="background:'+c.bg+';border:1px solid '+c.line+';border-left:4px solid #DDBB68;border-radius:16px;padding:18px 20px;margin:0 0 18px;color:'+c.ink+'">'+
+    '<h2 style="margin:0 0 4px;font:700 1.08rem var(--body,inherit);color:'+c.ink+'">'+(rejected?"Please check your test results":"Take your tests")+'</h2>'+
+    '<p style="margin:0 0 12px;color:'+c.muted+';font-size:.95rem">'+(rejected?"AAO could not accept your test results. Open your settings to see why and save them again.":"Take the typing, DISC and aptitude tests, then enter your results and attach the PDFs. Clients look at your test results, and they count toward a complete profile.")+'</p>'+
+    '<a class="btn btn-gold" href="#va-settings" style="min-height:40px">'+(rejected?"Fix my results":"Go to my tests")+'</a>'+
+  '</div>';
+}
+function bindTestsPrompts(){
+  var slots=document.querySelectorAll("[data-tests-prompt]");
+  if(!slots.length)return;
+  if(liveTestsOff()){
+    /* Live, AAO tests not on yet: remind VAs to submit their typing / DISC / aptitude results until they have. */
+    AAOApi.assessmentStatus().catch(function(){return null;}).then(function(st){
+      Array.prototype.forEach.call(slots,function(el){
+        if(!document.body.contains(el))return;
+        if(legacyTestsDone(st)){el.remove();return;}
+        el.innerHTML=legacyPromptHtml(el.getAttribute("data-tests-prompt"),st);el.hidden=false;
+      });
+    });
+    return;
+  }
+  Promise.all(AAO_TESTS.map(function(t){return assessStatus(t.k);})).then(function(list){
+    Array.prototype.forEach.call(slots,function(el){
+      if(!document.body.contains(el))return;
+      var on=!!assessBase(),done=list.filter(vpTestDone).length;
+      if(on&&done===3){el.remove();return;}
+      el.innerHTML=testsPromptHtml(el.getAttribute("data-tests-prompt"),list);
+      el.hidden=false;
+    });
+  });
+}
+function bindTestsSection(){
+  if(liveTestsOff()){legacyBindTestsSection();return;}
+  var box=$("#vtests");
+  if(!box)return;
+  /* All three submitted: no more "take your tests" wording, the section just keeps the results and report links. */
+  Promise.all(AAO_TESTS.map(function(t){return assessStatus(t.k);})).then(function(list){
+    if(!assessBase()||list.filter(vpTestDone).length<3||!document.body.contains(box))return;
+    var intro=box.querySelector(".app-note");
+    if(intro)intro.textContent="You have taken all three AAO tests. Open your reports and certificate below.";
+  });
+  AAO_TESTS.forEach(function(t){
+    var row=box.querySelector('[data-test="'+t.k+'"]');
+    if(!row||!assessBase())return;
+    assessStatus(t.k).then(function(st){
+      if(!document.body.contains(row))return;
+      var v=assessView(t,st),line=row.querySelector("[data-test-status]"),act=row.querySelector("[data-test-act]");
+      line.textContent=v.label;
+      if(v.href){act.hidden=false;act.href=v.href;act.textContent=v.act;}else act.hidden=true;
     });
   });
 }
@@ -6948,13 +7227,14 @@ V.vaSettings = function(){
       '<div class="app-actions"><button class="btn btn-gold" type="submit">Save settings</button><a class="btn btn-line" href="#logout">Log out</a></div>'+
       '<p class="app-note">Frontend only. Password and security settings will live here once the backend is ready.</p>'+
       '<div class="notice" id="vs-note" role="status"></div>'+
-    '</form></div></div></section>');
+    '</form>'+testsSectionHtml()+'</div></div></section>');
 };
 V.vaSettings.init = function(){
   var u=requireVaPage();
   if(!u)return;
   var form=$("#vsf"),note=$("#vs-note"),p=loadVaProfile(u);
-  if(!form){if(API_ON){bindIdSection();bindTestsSection();}return;} /* live mode: no settings form, only the ID check and test results */
+  bindTestsSection();
+  if(!form){if(API_ON)bindIdSection();return;} /* live mode: no settings form, only the ID check and test results */
   var prefs=localStore("aao_va_settings",{});
   $("#vs-name").value=p.name||u.name||"";
   $("#vs-notify").value=prefs[u.email]&&prefs[u.email].notify||"all";

@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAO Work Style Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@400;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--navy:#163a5a;--brand:#1f4e79;--gold:#c99400;--ink:#1d2433;--muted:#5b6475;--line:#e3e7ee;--bg:#eef1f5}
+  *{box-sizing:border-box;min-width:0}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  .page{max-width:900px;margin:24px auto;padding:0 16px 48px}
+  .sheet{background:#fff;border-radius:14px;box-shadow:0 10px 30px rgba(22,58,90,.12);overflow:hidden}
+  .hero{background:var(--navy);color:#fff;padding:clamp(24px,5vw,44px)}
+  .brandline{font-weight:700;letter-spacing:.08em;color:#f6d77a;font-size:.78rem}
+  .hero h1{font-family:"Libre Baskerville",Georgia,serif;font-weight:400;font-size:clamp(15px,2vw,18px);margin:6px 0 2px;color:#cfe0f1}
+  .hero .name{font-family:"Libre Baskerville",Georgia,serif;font-size:clamp(28px,5vw,40px);margin:0 0 4px;line-height:1.15}
+  .hero .date{color:#a9c1d8;font-size:.9rem}
+  .hero-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:28px;margin-top:24px;align-items:center}
+  @media (max-width:700px){.hero-grid{grid-template-columns:1fr}}
+  .style-label{font-size:.8rem;color:#a9c1d8;text-transform:uppercase;letter-spacing:.06em}
+  .style-name{font-size:clamp(28px,5vw,38px);font-weight:700;color:#f6d77a;margin:2px 0 8px;line-height:1.1}
+  .style-sum{color:#e7eef6;margin:0}
+  .bars{display:grid;gap:12px}
+  .bar .top{display:flex;justify-content:space-between;font-size:.9rem;margin-bottom:4px}
+  .bar .top b{font-size:1rem}
+  .track{height:14px;background:rgba(255,255,255,.14);border-radius:7px;overflow:hidden}
+  .fill{height:100%;border-radius:7px}
+  .body{padding:clamp(20px,4vw,40px)}
+  h2{font-size:1.15rem;color:var(--navy);margin:0 0 12px}
+  section{margin-bottom:28px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:640px){.grid2{grid-template-columns:1fr}}
+  .box{border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+  .box h3{margin:0 0 8px;font-size:1rem}
+  .box ul{margin:0;padding-left:20px} .box li{margin:4px 0}
+  .do h3{color:#1e8449} .dont h3{color:#c0392b}
+  .mot-row{display:grid;grid-template-columns:170px minmax(0,1fr) 40px;gap:10px;align-items:center;margin:8px 0}
+  @media (max-width:520px){.mot-row{grid-template-columns:120px minmax(0,1fr) 34px;font-size:.9rem}}
+  .mot-track{height:12px;background:#eef1f5;border-radius:6px;overflow:hidden}
+  .mot-fill{height:100%;background:#b8c6d6;border-radius:6px}
+  .mot-row.top .mot-fill{background:var(--gold)}
+  .mot-row.top .mlabel{font-weight:700}
+  .mot-row .num{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+  .motcards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+  @media (max-width:700px){.motcards{grid-template-columns:1fr}}
+  .motcard{background:#fffaf0;border:1px solid #f1e2b5;border-radius:10px;padding:14px}
+  .motcard h3{margin:0 0 6px;font-size:1rem}
+  .motcard p{margin:0 0 6px;font-size:.92rem}
+  .motcard .tip{color:var(--muted);font-size:.88rem}
+  .disclaimer{font-size:.8rem;color:var(--muted);text-align:center;border-top:1px solid var(--line);padding-top:16px}
+  .toolbar{display:flex;justify-content:flex-end;gap:10px;margin-bottom:12px}
+  .btn{border:0;border-radius:8px;padding:9px 16px;font:inherit;font-weight:600;cursor:pointer;background:var(--brand);color:#fff}
+  .btn.secondary{background:#e3e9f1;color:var(--navy)}
+  .demo{background:#fff7e0;border:1px solid #f2d27a;border-radius:8px;padding:8px 12px;font-size:.88rem;margin-bottom:12px}
+  .msg{background:#fff;border-radius:12px;padding:32px;text-align:center}
+  .code{font-size:.82rem;color:var(--muted);text-align:center;margin-top:8px}
+  @media print{body{background:#fff}.page{margin:0;max-width:none}.toolbar,.demo{display:none}.sheet{box-shadow:none}.hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style>
+<script>
+/* ---- inlined from aao-assessment-content.js (keep in sync with server copy) ---- */
+/* =====================================================================
+   AAO Assessments: shared content + DISC/Motivators scoring
+   Works in the browser (window.AAO_CONTENT) and in Node (require()).
+   All items, style names and descriptions are original to
+   Amazing Assistants Online. They are based on the public-domain DISC
+   model (W. M. Marston, 1928) and classic work-values theory.
+   The reasoning ANSWER KEY is NOT here (server/reasoning-key.json).
+   ===================================================================== */
+(function (root, factory) {
+  if (typeof module === "object" && module.exports) module.exports = factory();
+  else root.AAO_CONTENT = factory();
+})(typeof self !== "undefined" ? self : this, function () {
+  "use strict";
+
+  /* ------------------------------ DISC ------------------------------ */
+  var DISC_VERSION = "aao-disc-v1";
+
+  var LIKERT = ["Strongly disagree", "Disagree", "Neutral", "Agree", "Strongly agree"];
+
+  var DISC_ITEMS = [
+    { id: "d1", dim: "D", text: "I like to take charge when a group needs direction." },
+    { id: "d2", dim: "D", text: "I make decisions quickly, even with limited information." },
+    { id: "d3", dim: "D", text: "I enjoy competing and winning." },
+    { id: "d4", dim: "D", text: "I speak up directly when I disagree with something." },
+    { id: "d5", dim: "D", text: "I'm comfortable pushing others to meet a deadline." },
+    { id: "d6", dim: "D", rev: true, text: "I prefer to let others take the lead." },
+    { id: "d7", dim: "D", rev: true, text: "I avoid conflict, even when something needs to be said." },
+
+    { id: "i1", dim: "I", text: "I enjoy meeting new people and starting conversations." },
+    { id: "i2", dim: "I", text: "I get energized by working with other people." },
+    { id: "i3", dim: "I", text: "I'm good at getting people excited about an idea." },
+    { id: "i4", dim: "I", text: "I like to share my thoughts and feelings openly." },
+    { id: "i5", dim: "I", text: "I enjoy being recognized for my work in front of others." },
+    { id: "i6", dim: "I", rev: true, text: "I prefer working quietly on my own." },
+    { id: "i7", dim: "I", rev: true, text: "I find small talk tiring." },
+
+    { id: "s1", dim: "S", text: "I prefer a steady, predictable routine." },
+    { id: "s2", dim: "S", text: "I'm patient when people need extra help." },
+    { id: "s3", dim: "S", text: "People describe me as calm and easygoing." },
+    { id: "s4", dim: "S", text: "I value loyalty and long-term working relationships." },
+    { id: "s5", dim: "S", text: "I like to finish one task before starting the next." },
+    { id: "s6", dim: "S", rev: true, text: "I enjoy constant change and fast-moving situations." },
+    { id: "s7", dim: "S", rev: true, text: "I get restless doing the same tasks every day." },
+
+    { id: "c1", dim: "C", text: "I double-check my work for errors before sending it." },
+    { id: "c2", dim: "C", text: "I like clear rules, processes and instructions." },
+    { id: "c3", dim: "C", text: "I want to understand the details before I decide." },
+    { id: "c4", dim: "C", text: "I hold myself to very high standards of accuracy." },
+    { id: "c5", dim: "C", text: "I prefer facts and data over gut feelings." },
+    { id: "c6", dim: "C", rev: true, text: "I'm fine with \"good enough\" when time is short." },
+    { id: "c7", dim: "C", rev: true, text: "I often skip the instructions and figure things out as I go." }
+  ];
+
+  var MOTIVATOR_ITEMS = [
+    { id: "m_learn1", mot: "learning", text: "Learning new skills is one of the most rewarding parts of my work." },
+    { id: "m_learn2", mot: "learning", text: "I enjoy researching and figuring out how things work." },
+    { id: "m_learn3", mot: "learning", text: "I often take courses or watch tutorials in my free time." },
+    { id: "m_earn1", mot: "earnings", text: "Earning more money is a major reason I work hard." },
+    { id: "m_earn2", mot: "earnings", text: "I like to see a clear return on the time and effort I put in." },
+    { id: "m_earn3", mot: "earnings", text: "I'm motivated by bonuses, raises and financial goals." },
+    { id: "m_crea1", mot: "creativity", text: "I like work that lets me be creative and express ideas." },
+    { id: "m_crea2", mot: "creativity", text: "Having a healthy work-life balance matters a lot to me." },
+    { id: "m_crea3", mot: "creativity", text: "I care about how things look and feel, not just whether they work." },
+    { id: "m_ind1", mot: "independence", text: "I like to decide how I do my own work." },
+    { id: "m_ind2", mot: "independence", text: "I do my best work without someone watching over me." },
+    { id: "m_ind3", mot: "independence", text: "I like to be known for my own style and ideas." },
+    { id: "m_lead1", mot: "leadership", text: "I want to lead people and projects." },
+    { id: "m_lead2", mot: "leadership", text: "I like having a say in important decisions." },
+    { id: "m_lead3", mot: "leadership", text: "Moving up to a higher position is important to me." },
+    { id: "m_help1", mot: "helping", text: "Helping others succeed gives me deep satisfaction." },
+    { id: "m_help2", mot: "helping", text: "I'm happiest when my work makes a real difference for someone." },
+    { id: "m_help3", mot: "helping", text: "I often put other people's needs ahead of my own." },
+    { id: "m_str1", mot: "structure", text: "I like clear rules and a proper way of doing things." },
+    { id: "m_str2", mot: "structure", text: "I feel best when I know exactly what is expected of me." },
+    { id: "m_str3", mot: "structure", text: "Order and organization are very important to me." }
+  ];
+
+  var DIMS = {
+    D: { name: "Dominance", short: "Driver", color: "#c0392b",
+      summary: "Direct, decisive and results-focused. Likes challenges, moves fast and takes charge.",
+      strengths: ["Makes decisions quickly and keeps work moving", "Takes ownership of results and deadlines", "Comfortable speaking up and solving problems head-on"],
+      struggles: ["Can seem blunt or impatient with slower pace", "May skip details or steps to get to the result"],
+      stress: "May become controlling or short with people. Give clear goals and room to act.",
+      roles: ["Project coordination", "Sales support and lead follow-up", "Operations and getting things unstuck"],
+      dos: ["Get to the point and focus on results", "Give goals and deadlines, then let them decide how", "Give them challenges and ownership"],
+      donts: ["Micromanage every step", "Ramble or bury the request in small talk", "Take their directness personally"] },
+    I: { name: "Influence", short: "Connector", color: "#e67e22",
+      summary: "Outgoing, enthusiastic and people-focused. Builds relationships and gets others excited.",
+      strengths: ["Builds rapport with clients and customers quickly", "Communicates with energy and positivity", "Brings creative ideas and keeps morale up"],
+      struggles: ["May lose focus on routine or detailed tasks", "Can over-promise or under-plan"],
+      stress: "May become scattered or talk through problems. Help them prioritize and follow up.",
+      roles: ["Customer service and client support", "Social media and community management", "Outreach, events and appointment setting"],
+      dos: ["Be friendly and allow some personal connection", "Recognize their wins out loud", "Put key details and deadlines in writing"],
+      donts: ["Isolate them on long solo tasks with no contact", "Give only criticism without encouragement", "Assume they'll remember verbal details"] },
+    S: { name: "Steadiness", short: "Supporter", color: "#27ae60",
+      summary: "Calm, patient and dependable. Values stability, cooperation and loyalty.",
+      strengths: ["Reliable and consistent day after day", "Patient, supportive and a great listener", "Follows through on routines and processes"],
+      struggles: ["May resist sudden changes", "Can hesitate to say no or raise problems"],
+      stress: "May go quiet and agree to avoid conflict. Check in privately and invite their opinion.",
+      roles: ["Executive and administrative support", "Customer care and retention", "Bookkeeping and recurring operations"],
+      dos: ["Explain changes early, with the reasons why", "Give clear routines and steady expectations", "Ask for their input directly. They may not volunteer it"],
+      donts: ["Spring last-minute changes without explanation", "Pressure them for instant decisions", "Mistake their quietness for agreement"] },
+    C: { name: "Conscientiousness", short: "Analyst", color: "#2c6fbb",
+      summary: "Careful, accurate and analytical. Values quality, logic and doing things the right way.",
+      strengths: ["High accuracy and attention to detail", "Follows SOPs and builds better processes", "Researches and checks before acting"],
+      struggles: ["Can be slow when information is unclear", "May be overly critical of their own or others' work"],
+      stress: "May withdraw or over-analyze. Give clear criteria and enough time.",
+      roles: ["Data entry, research and reporting", "Bookkeeping and quality checks", "CRM, systems and SOP management"],
+      dos: ["Give clear instructions, standards and examples", "Allow time to check work and ask questions", "Use facts and data when giving feedback"],
+      donts: ["Rush them without explaining why", "Give vague instructions like \"just make it nice\"", "Criticize without specifics"] }
+  };
+
+  var STYLES = {
+    D: { name: "The Driver", summary: "A results-first doer who takes charge, decides fast and pushes work across the finish line." },
+    I: { name: "The Connector", summary: "An energetic people person who builds relationships, communicates with ease and lifts the team's mood." },
+    S: { name: "The Supporter", summary: "A steady, loyal team player who brings calm, patience and dependable follow-through." },
+    C: { name: "The Analyst", summary: "A careful, detail-oriented thinker who values accuracy, logic and doing things right the first time." },
+    DI: { name: "The Trailblazer", summary: "Bold and persuasive. Moves fast, rallies people around goals and thrives on new challenges." },
+    DC: { name: "The Strategist", summary: "Decisive and exacting. Wants results and quality, solves complex problems and sets high standards." },
+    DS: { name: "The Steady Achiever", summary: "Determined but grounded. Drives toward goals while staying consistent and dependable." },
+    IS: { name: "The Encourager", summary: "Warm and supportive. Builds trust, keeps people happy and creates a positive working relationship." },
+    IC: { name: "The Coordinator", summary: "Friendly and organized. Combines people skills with a good eye for detail and follow-through." },
+    SC: { name: "The Specialist", summary: "Reliable and precise. Follows processes carefully and delivers consistent, high-quality work." },
+    BAL: { name: "The Adaptable", summary: "Balanced across all four styles. Adjusts naturally to what each situation and client needs." }
+  };
+
+  var MOTIVATORS = {
+    learning:     { name: "Learning",     icon: "📚", high: "Driven by growth and understanding. Loves learning new tools, skills and the \"why\" behind things.", keep: "Offer training, new tools and chances to learn something new." },
+    earnings:     { name: "Earnings",     icon: "💰", high: "Driven by financial reward and a clear return on effort.", keep: "Tie good work to raises, bonuses or more hours, and be clear about pay." },
+    creativity:   { name: "Creativity & Balance", icon: "🎨", high: "Driven by creative expression, a pleasant working environment and work-life balance.", keep: "Give room for creative input and respect their time outside work." },
+    independence: { name: "Independence", icon: "🧭", high: "Driven by freedom and autonomy. Wants to own their work and be recognized for it.", keep: "Trust them with ownership and avoid micromanaging." },
+    leadership:   { name: "Leadership",   icon: "🏆", high: "Driven by influence, responsibility and moving up.", keep: "Give them responsibility, a voice in decisions and a path to grow." },
+    helping:      { name: "Helping Others", icon: "🤝", high: "Driven by making a real difference for the people they work with.", keep: "Show the impact of their work on you and your customers." },
+    structure:    { name: "Structure",    icon: "📋", high: "Driven by order, clear expectations and doing things the proper way.", keep: "Provide SOPs, clear expectations and consistent processes." }
+  };
+
+  function score15(v, rev) { var n = Number(v); if (!(n >= 1 && n <= 5)) return null; return rev ? 6 - n : n; }
+  function toPct(vals) { var v = vals.filter(function (x) { return x != null; }); if (!v.length) return null; var m = v.reduce(function (a, b) { return a + b; }, 0) / v.length; return Math.round((m - 1) / 4 * 100); }
+
+  /** answers: { d1: 1..5, ..., m_learn1: 1..5 } */
+  function scoreDisc(answers) {
+    answers = answers || {};
+    var disc = {};
+    ["D", "I", "S", "C"].forEach(function (d) {
+      disc[d] = toPct(DISC_ITEMS.filter(function (i) { return i.dim === d; }).map(function (i) { return score15(answers[i.id], i.rev); }));
+    });
+    var order = ["D", "I", "S", "C"].slice().sort(function (a, b) { return disc[b] - disc[a] || "DISC".indexOf(a) - "DISC".indexOf(b); });
+    var range = disc[order[0]] - disc[order[3]];
+    var code;
+    if (range <= 10) code = "BAL";
+    else if (disc[order[0]] - disc[order[1]] <= 8) code = [order[0], order[1]].sort(function (a, b) { return "DISC".indexOf(a) - "DISC".indexOf(b); }).join("");
+    else code = order[0];
+    var motivators = {};
+    Object.keys(MOTIVATORS).forEach(function (m) {
+      motivators[m] = toPct(MOTIVATOR_ITEMS.filter(function (i) { return i.mot === m; }).map(function (i) { return score15(answers[i.id], false); }));
+    });
+    var motRank = Object.keys(motivators).sort(function (a, b) { return motivators[b] - motivators[a]; });
+    return { version: DISC_VERSION, disc: disc, primary: order[0], secondary: order[1], styleCode: code, motivators: motivators, motivatorRank: motRank };
+  }
+
+  /* ---------------------------- REASONING ---------------------------- */
+  var REASONING_BANDS = [
+    { min: 0,   label: "Developing",    text: "Reasoning is still developing. Works best with clear step-by-step instructions, examples and checklists." },
+    { min: 85,  label: "Average",       text: "Solid everyday problem-solving. Learns routine tasks well with good SOPs and examples." },
+    { min: 100, label: "High average",  text: "Picks up new tasks and tools at a good pace and handles common problems on their own." },
+    { min: 115, label: "Above average", text: "Learns quickly, spots patterns and errors, and solves unfamiliar problems with little guidance." },
+    { min: 130, label: "Exceptional",   text: "Very fast learner and strong problem-solver. Suited to complex, analytical or fast-changing work." }
+  ];
+  var REASONING_CATEGORIES = { numerical: "Numerical", verbal: "Verbal", logical: "Logical", pattern: "Visual patterns" };
+  function reasoningBand(score) {
+    if (score == null) return null;
+    var b = REASONING_BANDS[0];
+    REASONING_BANDS.forEach(function (x) { if (score >= x.min) b = x; });
+    return b;
+  }
+
+  return {
+    LIKERT: LIKERT, DISC_VERSION: DISC_VERSION, DISC_ITEMS: DISC_ITEMS, MOTIVATOR_ITEMS: MOTIVATOR_ITEMS,
+    DIMS: DIMS, STYLES: STYLES, MOTIVATORS: MOTIVATORS, scoreDisc: scoreDisc,
+    REASONING_BANDS: REASONING_BANDS, REASONING_CATEGORIES: REASONING_CATEGORIES, reasoningBand: reasoningBand
+  };
+});
+
+</script>
+<script>
+/* Show a message instead of a blank page if something fails to load. */
+window.addEventListener("error", function (e) {
+  var a = document.getElementById("app");
+  if (a && !a.textContent.trim()) a.innerHTML = '<div style="max-width:640px;margin:40px auto;padding:20px;border:1px solid #f5b7b1;background:#fdecea;color:#7b241c;border-radius:10px;font-family:Arial,sans-serif"><strong>This page couldn\'t load.</strong><br>' + String(e.message || "Unknown error").replace(/[<>&]/g, "") + '<br><br>Open it in Chrome, Edge, Safari or Firefox (not a file preview). Developers: check the browser console.</div>';
+});
+</script>
+<script src="../aao-config.js"></script>
+<script src="aao-tests-config.js" data-page="disc-report"></script>
+</head>
+<body>
+<noscript><div style="max-width:640px;margin:40px auto;padding:20px;border:1px solid #f2d27a;background:#fff7e0;border-radius:10px;font-family:Arial,sans-serif">
+<strong>This page needs JavaScript.</strong> Previews in email, Google Drive, GitHub or a code editor don't run it, so the page looks blank.
+Download the file and open it in Chrome, Edge, Safari or Firefox, or serve it from your website.</div></noscript>
+<div class="page" id="app"></div>
+<script>
+/* =====================================================================
+   AAO Work Style Report (public). Needs aao-assessment-content.js beside it.
+   URL: /report/disc?c=CODE  (or #CODE)
+   DEVELOPER SETUP: window.AAO_REPORT_CONFIG = { apiBase: "/api/assessments", publicBaseUrl: "https://findmyaao.com/report/disc?c=" };
+   With no apiBase it shows a SAMPLE report.
+   ===================================================================== */
+{
+  const CONFIG = Object.assign({ apiBase: "", publicBaseUrl: "findmyaao.com/tests/disc-report.html?c=" }, window.AAO_REPORT_CONFIG || {});
+  const DEMO = !CONFIG.apiBase;
+  const C = window.AAO_CONTENT;
+  const app = document.getElementById("app");
+  function publicName(full){var p=String(full||"").trim().split(/\s+/).filter(Boolean);if(!p.length)return "";if(p.length===1)return p[0];return p[0]+" "+p[p.length-1].charAt(0).toUpperCase()+".";} /* AAO: no last names on public pages */
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  const SAMPLE = { code: "DEMO4-DISC9", name: "Maria Santos", completedOn: new Date().toISOString(),
+    result: { disc: { D: 68, I: 46, S: 50, C: 75 }, primary: "C", secondary: "D", styleCode: "DC",
+      motivators: { learning: 83, earnings: 58, creativity: 50, independence: 75, leadership: 42, helping: 67, structure: 79 },
+      motivatorRank: ["learning", "structure", "independence", "helping", "earnings", "creativity", "leadership"] } };
+
+  function render(rep) {
+    const r = rep.result, st = C.STYLES[r.styleCode] || C.STYLES[r.primary];
+    const P = C.DIMS[r.primary], S = C.DIMS[r.secondary];
+    const blend = r.styleCode.length === 2;
+    const first = (rep.name || "").split(" ")[0] || "this VA";
+    const date = new Date(rep.completedOn).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+    const list = arr => `<ul>${arr.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
+    const merge = (a, b) => blend || r.styleCode === "BAL" ? a.concat(b.slice(0, 1)) : a;
+    const top3 = r.motivatorRank.slice(0, 3);
+    const verify = CONFIG.publicBaseUrl + rep.code;
+
+    app.innerHTML = `
+      ${DEMO ? '<div class="demo"><strong>Demo:</strong> sample report. On the AAO website each VA gets their own link.</div>' : ""}
+      <div class="toolbar"><button class="btn secondary" id="copy">Copy link</button><button class="btn" id="print">Print / Save as PDF</button></div>
+      <div class="sheet">
+        <div class="hero">
+          <div class="brandline">AMAZING ASSISTANTS ONLINE</div>
+          <h1>Work Style Report</h1>
+          <p class="name">${esc(publicName(rep.name))}</p>
+          <div class="date">Completed ${esc(date)}</div>
+          <div class="hero-grid">
+            <div>
+              <div class="style-label">Work style</div>
+              <div class="style-name">${esc(st.name)}</div>
+              <p class="style-sum">${esc(st.summary)}</p>
+            </div>
+            <div class="bars">${["D", "I", "S", "C"].map(d => `<div class="bar"><div class="top"><span><b>${d}</b> · ${esc(C.DIMS[d].name)}</span><span>${r.disc[d]}</span></div>
+              <div class="track"><div class="fill" style="width:${r.disc[d]}%;background:${C.DIMS[d].color}"></div></div></div>`).join("")}</div>
+          </div>
+        </div>
+        <div class="body">
+          <section>
+            <h2>About ${esc(first)}'s style</h2>
+            <p>${esc(first)}'s strongest style is <strong>${esc(P.name)} (${esc(P.short)})</strong>: ${esc(P.summary.charAt(0).toLowerCase() + P.summary.slice(1))}
+            ${blend ? ` This is closely combined with <strong>${esc(S.name)} (${esc(S.short)})</strong>: ${esc(S.summary.charAt(0).toLowerCase() + S.summary.slice(1))}` : ""}
+            ${r.styleCode === "BAL" ? " Scores are close across all four styles, so they adapt their approach to the situation." : ""}</p>
+          </section>
+          <section class="grid2">
+            <div class="box"><h3>💪 Strengths</h3>${list(merge(P.strengths, S.strengths))}</div>
+            <div class="box"><h3>⚠️ May struggle with</h3>${list(merge(P.struggles, S.struggles))}</div>
+            <div class="box"><h3>🌡️ Under pressure</h3><p style="margin:0">${esc(P.stress)}</p></div>
+            <div class="box"><h3>🎯 Best-fit VA work</h3>${list(merge(P.roles, S.roles))}</div>
+          </section>
+          <section>
+            <h2>How to work with ${esc(first)}</h2>
+            <div class="grid2">
+              <div class="box do"><h3>✓ Do</h3>${list(merge(P.dos, S.dos))}</div>
+              <div class="box dont"><h3>✗ Don't</h3>${list(merge(P.donts, S.donts))}</div>
+            </div>
+          </section>
+          <section>
+            <h2>What motivates ${esc(first)}</h2>
+            ${r.motivatorRank.map(m => `<div class="mot-row ${top3.includes(m) ? "top" : ""}"><span class="mlabel">${esc(C.MOTIVATORS[m].name)}</span>
+              <div class="mot-track"><div class="mot-fill" style="width:${r.motivators[m]}%"></div></div><span class="num">${r.motivators[m]}</span></div>`).join("")}
+            <div class="motcards">${top3.map(m => `<div class="motcard"><h3>${C.MOTIVATORS[m].icon} ${esc(C.MOTIVATORS[m].name)}</h3>
+              <p>${esc(C.MOTIVATORS[m].high)}</p><p class="tip"><strong>Keep them motivated:</strong> ${esc(C.MOTIVATORS[m].keep)}</p></div>`).join("")}</div>
+          </section>
+          <p class="disclaimer">The AAO Work Style Assessment describes how a person prefers to work. There are no right or wrong styles, and it shouldn't be used on its own to make hiring decisions. Based on the DISC model of behavior and work-values research. Developed by Amazing Assistants Online.</p>
+          <p class="code">Report link: ${esc(verify)}</p>
+        </div>
+      </div>`;
+    document.getElementById("print").onclick = () => { try { window.print(); } catch (e) {} };
+    document.getElementById("copy").onclick = async e => {
+      const b = e.currentTarget, full = /^https?:/.test(verify) ? verify : "https://" + verify;
+      try { await navigator.clipboard.writeText(full); b.textContent = "Copied ✓"; } catch (err) { b.textContent = full; }
+      setTimeout(() => { b.textContent = "Copy link"; }, 2500);
+    };
+  }
+
+  async function init() {
+    if (DEMO) return render(SAMPLE);
+    const code = (new URLSearchParams(location.search).get("c") || location.hash.slice(1) || "").toUpperCase().replace(/[^A-Z0-9-]/g, "");
+    try {
+      if (!code) throw new Error("Check the link and try again.");
+      const res = await fetch(CONFIG.apiBase + "/disc/report/" + encodeURIComponent(code));
+      if (!res.ok) throw new Error("This report doesn't exist.");
+      render(await res.json());
+    } catch (e) { app.innerHTML = `<div class="msg"><h2>Report not found</h2><p>${esc(e.message)}</p></div>`; }
+  }
+  init();
+}
+</script>
+</body>
+</html>

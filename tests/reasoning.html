@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AAO Reasoning Assessment</title>
+<style>
+  :root{--brand:#1f4e79;--brand-dark:#163a5a;--accent:#f2a900;--bg:#f5f7fa;--card:#fff;--text:#1d2433;--muted:#5b6475;--border:#dde2ea;--danger:#c0392b;--ok:#1e8449;--radius:12px}
+  *{box-sizing:border-box;min-width:0}
+  html,body{margin:0}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.55;font-size:16px}
+  .wrap{max-width:780px;margin:0 auto;padding:24px 16px 80px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+  h1{font-size:1.6rem;margin:0 0 6px;color:var(--brand-dark)}
+  h2{font-size:1.25rem;margin:0 0 12px;color:var(--brand-dark)}
+  p{margin:0 0 12px}
+  .muted{color:var(--muted)} .small{font-size:.9rem}
+  .brandline{font-weight:600;color:var(--brand);letter-spacing:.02em;text-transform:uppercase;font-size:.8rem;margin-bottom:8px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-weight:600;margin-bottom:4px}
+  .field input{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:1rem}
+  .btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:8px;padding:12px 20px;font-size:1rem;font-weight:600;cursor:pointer;background:var(--brand);color:#fff}
+  .btn:hover{background:var(--brand-dark)} .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.secondary{background:#e8edf4;color:var(--brand-dark)}
+  .topbar{position:sticky;top:0;z-index:10;background:var(--brand);color:#fff;display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-radius:0 0 var(--radius) var(--radius);margin:-24px -16px 16px}
+  .timer{font-variant-numeric:tabular-nums;font-weight:700;background:rgba(255,255,255,.15);padding:4px 10px;border-radius:6px}
+  .timer.low{background:var(--danger)}
+  .progress{height:6px;background:#e3e8ef;border-radius:3px;overflow:hidden;margin-bottom:16px}
+  .progress>div{height:100%;background:var(--accent);transition:width .25s}
+  .qtext{font-size:1.15rem;font-weight:600;margin-bottom:16px}
+  .seq{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:18px}
+  .seq .qm{width:72px;height:72px;border:2px dashed var(--brand);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:var(--brand)}
+  .numseq{font-size:1.5rem;font-weight:700;letter-spacing:.05em;color:var(--brand-dark);margin-bottom:16px;font-variant-numeric:tabular-nums}
+  .opts{display:grid;gap:10px}
+  .opts.visual{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+  .opt{display:flex;gap:10px;align-items:center;padding:12px 14px;border:1px solid var(--border);border-radius:10px;cursor:pointer;background:#fff;min-height:48px}
+  .opt:hover{background:#f3f6fa}
+  .opt:has(input:checked){border-color:var(--brand);background:#eef4fb;box-shadow:0 0 0 1px var(--brand)}
+  .opt .letter{font-weight:700;color:var(--brand);width:18px}
+  .opts.visual .opt{flex-direction:column;justify-content:center}
+  .nav{display:flex;justify-content:space-between;gap:10px;margin-top:20px;flex-wrap:wrap}
+  .palette{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px}
+  .palette button{width:34px;height:34px;border-radius:6px;border:1px solid var(--border);background:#fff;font-weight:600;cursor:pointer;font-size:.85rem}
+  .palette button.done{background:#dcebf9;border-color:#9cc3ea}
+  .palette button.cur{outline:2px solid var(--brand)}
+  .notice{background:#fff7e0;border:1px solid #f2d27a;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:.95rem}
+  .error{background:#fdecea;border:1px solid #f5b7b1;color:#7b241c;border-radius:8px;padding:10px 14px;margin-bottom:14px}
+  .center{text-align:center}
+  .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px}
+  .modal{background:#fff;border-radius:var(--radius);padding:24px;max-width:440px;width:100%}
+  .modal .actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+  .spinner{width:36px;height:36px;border:4px solid #dde2ea;border-top-color:var(--brand);border-radius:50%;animation:spin 1s linear infinite;margin:12px auto}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  ul.small li{margin:4px 0}
+</style>
+<script>
+/* Show a message instead of a blank page if something fails to load. */
+window.addEventListener("error", function (e) {
+  var a = document.getElementById("app");
+  if (a && !a.textContent.trim()) a.innerHTML = '<div style="max-width:640px;margin:40px auto;padding:20px;border:1px solid #f5b7b1;background:#fdecea;color:#7b241c;border-radius:10px;font-family:Arial,sans-serif"><strong>This page couldn\'t load.</strong><br>' + String(e.message || "Unknown error").replace(/[<>&]/g, "") + '<br><br>Open it in Chrome, Edge, Safari or Firefox (not a file preview). Developers: check the browser console.</div>';
+});
+</script>
+<script src="../aao-config.js"></script>
+<script src="aao-tests-config.js" data-page="reasoning-test"></script>
+</head>
+<body>
+<noscript><div style="max-width:640px;margin:40px auto;padding:20px;border:1px solid #f2d27a;background:#fff7e0;border-radius:10px;font-family:Arial,sans-serif">
+<strong>This page needs JavaScript.</strong> Previews in email, Google Drive, GitHub or a code editor don't run it, so the page looks blank.
+Download the file and open it in Chrome, Edge, Safari or Firefox, or serve it from your website.</div></noscript>
+<div class="wrap" id="app"></div>
+<script>
+/* =====================================================================
+   AAO Reasoning Assessment v1 (Amazing Assistants Online)
+   32 questions · 25 minutes · numerical, verbal, logical, visual patterns
+   DEVELOPER SETUP: in a script tag placed BEFORE this one, define:
+     window.AAO_CONFIG = {
+       submitUrl: "/api/assessments/reasoning",
+       eligibilityUrl: "/api/assessments/reasoning/eligibility",
+       reportUrl: "/report/reasoning?c=",     // where to send the VA after submitting
+       candidateName: "...", candidateEmail: "..."
+     };
+   With no submitUrl the page runs in DEMO MODE. Answer key is on the server only.
+   ===================================================================== */
+{
+  const CONFIG = Object.assign({ submitUrl: "", eligibilityUrl: "", reportUrl: "", candidateName: "", candidateEmail: "", authToken: "", minutes: 25 }, window.AAO_CONFIG || {});
+  const TEST_VERSION = "aao-reasoning-v1";
+
+  /* ---------- question bank (answers are NOT here) ---------- */
+  const N = (id, text, seq, options) => ({ id, cat: "numerical", text, seq, options });
+  const V = (id, text, options) => ({ id, cat: "verbal", text, options });
+  const G = (id, text, options) => ({ id, cat: "logical", text, options });
+  const P = (id, text, seq, options) => ({ id, cat: "pattern", text, seq, options });
+
+  const Q = [
+    N("q1", "What number comes next?", "2, 4, 6, 8, ?", { a: "9", b: "10", c: "12", d: "14" }),
+    V("q2", "Book is to reading as fork is to:", { a: "drawing", b: "writing", c: "eating", d: "cooking" }),
+    P("q3", "Which picture comes next in the sequence?", [{ k: "dots", n: 1 }, { k: "dots", n: 2 }, { k: "dots", n: 3 }, { k: "dots", n: 4 }],
+      { a: { k: "dots", n: 6 }, b: { k: "dots", n: 3 }, c: { k: "dots", n: 5 }, d: { k: "dots", n: 4 } }),
+    G("q4", "Anna is taller than Ben. Ben is taller than Cara. Who is the shortest?", { a: "Anna", b: "Ben", c: "Cara", d: "Cannot be determined" }),
+    N("q5", "What number comes next?", "3, 6, 12, 24, ?", { a: "30", b: "36", c: "48", d: "54" }),
+    V("q6", "Which word is the odd one out?", { a: "Monday", b: "Friday", c: "July", d: "Sunday" }),
+    P("q7", "Which shape comes next in the sequence?", [{ k: "shape", s: "circle" }, { k: "shape", s: "square" }, { k: "shape", s: "triangle" }, { k: "shape", s: "circle" }, { k: "shape", s: "square" }],
+      { a: { k: "shape", s: "circle" }, b: { k: "shape", s: "square" }, c: { k: "poly", sides: 5, dots: 0 }, d: { k: "shape", s: "triangle" } }),
+    G("q8", "All managers are employees. Sam is a manager. Which statement must be true?", { a: "Sam is an employee", b: "Sam is not an employee", c: "All employees are managers", d: "Cannot be determined" }),
+    N("q9", "What number comes next?", "1, 4, 9, 16, 25, ?", { a: "30", b: "35", c: "49", d: "36" }),
+    V("q10", "Doctor is to patient as lawyer is to:", { a: "judge", b: "client", c: "court", d: "law" }),
+    P("q11", "The arrow turns the same amount each time. Which arrow comes next?", [{ k: "arrow", r: 0, f: 1 }, { k: "arrow", r: 45, f: 1 }, { k: "arrow", r: 90, f: 1 }, { k: "arrow", r: 135, f: 1 }],
+      { a: { k: "arrow", r: 225, f: 1 }, b: { k: "arrow", r: 180, f: 1 }, c: { k: "arrow", r: 90, f: 1 }, d: { k: "arrow", r: 0, f: 1 } }),
+    G("q12", "If it rains, the event moves indoors. The event did not move indoors. What can you conclude?", { a: "It rained", b: "The event was canceled", c: "It did not rain", d: "Cannot be determined" }),
+    N("q13", "What number comes next?", "50, 45, 39, 32, ?", { a: "24", b: "25", c: "26", d: "27" }),
+    V("q14", "Which word is the odd one out?", { a: "inch", b: "meter", c: "mile", d: "liter" }),
+    P("q15", "The shaded square moves in the same direction each time. What comes next?", [{ k: "quad", q: 0 }, { k: "quad", q: 1 }, { k: "quad", q: 2 }, { k: "quad", q: 3 }],
+      { a: { k: "quad", q: 1 }, b: { k: "quad", q: 0 }, c: { k: "quad", q: 2 }, d: { k: "quad", q: 3 } }),
+    G("q16", "Some VAs are designers. All designers use Canva. Which statement must be true?", { a: "All VAs use Canva", b: "No VAs use Canva", c: "All Canva users are VAs", d: "Some VAs use Canva" }),
+    N("q17", "A course costs $40 after a 20% discount. What was the original price?", null, { a: "$48", b: "$50", c: "$52", d: "$60" }),
+    V("q18", "Which word means the opposite of \"reluctant\"?", { a: "eager", b: "hesitant", c: "tired", d: "careful" }),
+    P("q19", "Which shape comes next?", [{ k: "poly", sides: 3, dots: 0 }, { k: "poly", sides: 4, dots: 0 }, { k: "poly", sides: 5, dots: 0 }, { k: "poly", sides: 6, dots: 0 }],
+      { a: { k: "poly", sides: 6, dots: 0 }, b: { k: "poly", sides: 8, dots: 0 }, c: { k: "poly", sides: 7, dots: 0 }, d: { k: "shape", s: "circle" } }),
+    G("q20", "Five tasks are done one after another. Task D is first and Task B is last. Task C is done after E but before A. Which task is done third?", { a: "A", b: "E", c: "D", d: "C" }),
+    N("q21", "What number comes next?", "2, 3, 5, 8, 13, ?", { a: "18", b: "21", c: "20", d: "26" }),
+    V("q22", "\"Ephemeral\" most nearly means:", { a: "lasting forever", b: "very large", c: "short-lived", d: "mysterious" }),
+    P("q23", "Which arrow comes next?", [{ k: "arrow", r: 0, f: 1 }, { k: "arrow", r: 90, f: 0 }, { k: "arrow", r: 180, f: 1 }, { k: "arrow", r: 270, f: 0 }],
+      { a: { k: "arrow", r: 0, f: 0 }, b: { k: "arrow", r: 90, f: 1 }, c: { k: "arrow", r: 180, f: 1 }, d: { k: "arrow", r: 0, f: 1 } }),
+    G("q24", "A meeting starts at 3:00 p.m. in New York. Manila is 13 hours ahead of New York. What time is the meeting in Manila?", { a: "2:00 a.m. the same day", b: "4:00 p.m. the same day", c: "4:00 a.m. the next day", d: "3:00 a.m. the next day" }),
+    N("q25", "A VA completes 12 tasks in 3 hours. At the same pace, how many tasks can she complete in 5½ hours?", null, { a: "20", b: "21", c: "24", d: "22" }),
+    V("q26", "\"Mitigate\" is closest in meaning to:", { a: "reduce", b: "worsen", c: "measure", d: "ignore" }),
+    P("q27", "The dot moves by the same rule each time. Where is it next?", [{ k: "dotpos", p: 0 }, { k: "dotpos", p: 2 }, { k: "dotpos", p: 4 }, { k: "dotpos", p: 6 }],
+      { a: { k: "dotpos", p: 7 }, b: { k: "dotpos", p: 4 }, c: { k: "dotpos", p: 8 }, d: { k: "dotpos", p: 0 } }),
+    G("q28", "All bloops are razzies, and all razzies are lazzies. Which statement must be true?", { a: "All lazzies are bloops", b: "All bloops are lazzies", c: "Some razzies are not bloops", d: "No bloops are lazzies" }),
+    N("q29", "What number comes next?", "3, 5, 9, 17, 33, ?", { a: "49", b: "57", c: "66", d: "65" }),
+    V("q30", "Prologue is to epilogue as overture is to:", { a: "symphony", b: "finale", c: "conductor", d: "intermission" }),
+    P("q31", "Which picture comes next?", [{ k: "poly", sides: 3, dots: 1 }, { k: "poly", sides: 4, dots: 2 }, { k: "poly", sides: 5, dots: 3 }],
+      { a: { k: "poly", sides: 6, dots: 3 }, b: { k: "poly", sides: 7, dots: 4 }, c: { k: "poly", sides: 6, dots: 5 }, d: { k: "poly", sides: 6, dots: 4 } }),
+    G("q32", "A file is in Folder A, B or C. Exactly ONE of these statements is true: (1) The file is in Folder A. (2) The file is not in Folder B. (3) The file is not in Folder A. Where is the file?", { a: "Folder A", b: "Folder B", c: "Folder C", d: "Cannot be determined" })
+  ];
+
+  /* ---------- drawing ---------- */
+  const NAVY = "#1f4e79";
+  function svgWrap(inner) { return `<svg viewBox="0 0 80 80" width="72" height="72" aria-hidden="true"><rect x="2" y="2" width="76" height="76" rx="8" fill="#fff" stroke="#cfd6e0"/>${inner}</svg>`; }
+  const GRID = [[20, 20], [40, 20], [60, 20], [20, 40], [40, 40], [60, 40], [20, 60], [40, 60], [60, 60]];
+  function polyPoints(sides, r, cx, cy) {
+    const pts = [];
+    for (let i = 0; i < sides; i++) { const a = -Math.PI / 2 + i * 2 * Math.PI / sides; pts.push((cx + r * Math.cos(a)).toFixed(1) + "," + (cy + r * Math.sin(a)).toFixed(1)); }
+    return pts.join(" ");
+  }
+  function draw(s) {
+    switch (s.k) {
+      case "dots": return svgWrap(GRID.slice(0, s.n).map(([x, y]) => `<circle cx="${x}" cy="${y}" r="6" fill="${NAVY}"/>`).join(""));
+      case "dotpos": return svgWrap(GRID.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="${i === s.p ? 7 : 2.5}" fill="${i === s.p ? NAVY : "#cfd6e0"}"/>`).join(""));
+      case "arrow": return svgWrap(`<polygon points="40,12 58,34 47,34 47,66 33,66 33,34 22,34" transform="rotate(${s.r} 40 40)" fill="${s.f ? NAVY : "#fff"}" stroke="${NAVY}" stroke-width="3" stroke-linejoin="round"/>`);
+      case "shape":
+        if (s.s === "circle") return svgWrap(`<circle cx="40" cy="40" r="22" fill="${NAVY}"/>`);
+        if (s.s === "square") return svgWrap(`<rect x="19" y="19" width="42" height="42" fill="${NAVY}"/>`);
+        return svgWrap(`<polygon points="40,16 64,62 16,62" fill="${NAVY}"/>`);
+      case "quad": {
+        const pos = [[16, 16], [40, 16], [40, 40], [16, 40]];
+        return svgWrap(pos.map(([x, y], i) => `<rect x="${x}" y="${y}" width="24" height="24" fill="${i === s.q ? NAVY : "#fff"}" stroke="${NAVY}" stroke-width="2"/>`).join(""));
+      }
+      case "poly": {
+        const dots = [];
+        const n = s.dots || 0, sp = 9, startX = 40 - (Math.min(n, 3) - 1) * sp / 2;
+        for (let i = 0; i < n; i++) { const row = Math.floor(i / 3), col = i % 3, inRow = Math.min(3, n - row * 3); dots.push(`<circle cx="${(40 - (inRow - 1) * sp / 2 + col * sp).toFixed(1)}" cy="${42 + row * 9 - (n > 3 ? 4 : 0)}" r="3" fill="#fff"/>`); }
+        return svgWrap(`<polygon points="${polyPoints(s.sides, 27, 40, 42)}" fill="${NAVY}"/>${dots.join("")}`);
+      }
+    }
+    return "";
+  }
+
+  /* ---------- state ---------- */
+  const state = { candidate: { name: CONFIG.candidateName, email: CONFIG.candidateEmail }, i: 0, answers: {}, startedAt: null, flags: { tabSwitches: 0, timedOut: false }, done: false };
+  const app = document.getElementById("app");
+  let endsAt = 0, timer = null;
+
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const fmt = sec => { sec = Math.max(0, Math.ceil(sec)); return Math.floor(sec / 60) + ":" + String(sec % 60).padStart(2, "0"); };
+  function modal(html, buttons) {
+    return new Promise(resolve => {
+      const bg = document.createElement("div"); bg.className = "modal-bg";
+      bg.innerHTML = '<div class="modal" role="dialog" aria-modal="true">' + html + '<div class="actions"></div></div>';
+      buttons.forEach(b => { const el = document.createElement("button"); el.className = "btn" + (b.secondary ? " secondary" : ""); el.textContent = b.label; el.onclick = () => { bg.remove(); resolve(b.value); }; bg.querySelector(".actions").appendChild(el); });
+      document.body.appendChild(bg);
+    });
+  }
+  document.addEventListener("visibilitychange", () => { if (document.hidden && state.startedAt && !state.done) state.flags.tabSwitches++; });
+  const beforeUnload = e => { if (!state.done) { e.preventDefault(); e.returnValue = ""; } };
+
+  /* ---------- intro ---------- */
+  function intro(msg) {
+    const needs = !CONFIG.candidateName || !CONFIG.candidateEmail;
+    app.innerHTML = `<div class="card">
+      <div class="brandline">Amazing Assistants Online</div>
+      <h1>Reasoning Assessment</h1>
+      <p class="muted">This assessment measures problem-solving: how quickly you spot patterns, work with numbers, understand words and think logically. These skills help you learn new tasks and tools quickly.</p>
+      ${!CONFIG.submitUrl ? '<div class="notice"><strong>Demo mode:</strong> answers will not be sent anywhere.</div>' : ""}
+      ${msg ? `<div class="error">${esc(msg)}</div>` : ""}
+      <ul class="small">
+        <li><strong>${Q.length} questions · ${CONFIG.minutes} minutes.</strong> Most people don't finish every question, and that's okay.</li>
+        <li>Questions get harder as you go. If you're stuck, skip it and come back.</li>
+        <li>You may use scratch paper. No calculator.</li>
+        <li>Your score is based on correct answers. Wrong answers don't count against you, so answer every question.</li>
+        <li>Work on your own in one sitting. Leaving this page is recorded.</li>
+      </ul>
+      ${needs ? `<div class="field"><label for="n">Full name</label><input id="n" autocomplete="name" value="${esc(state.candidate.name)}"></div>
+        <div class="field"><label for="e">Email address</label><input id="e" type="email" autocomplete="email" value="${esc(state.candidate.email)}"></div>`
+        : `<p class="muted small">Taking the test as <strong>${esc(CONFIG.candidateName)}</strong></p>`}
+      <div class="nav" style="justify-content:flex-end"><button class="btn" id="start" ${msg ? "disabled" : ""}>Start the ${CONFIG.minutes}-minute timer →</button></div></div>`;
+    document.getElementById("start").onclick = async () => {
+      if (needs) {
+        const n = document.getElementById("n").value.trim(), e = document.getElementById("e").value.trim();
+        if (!n || !/^\S+@\S+\.\S+$/.test(e)) { await modal("<h3>Please enter your full name and a valid email.</h3>", [{ label: "OK" }]); return; }
+        state.candidate = { name: n, email: e };
+      }
+      state.startedAt = new Date().toISOString();
+      endsAt = Date.now() + CONFIG.minutes * 60000;
+      window.addEventListener("beforeunload", beforeUnload);
+      timer = setInterval(tick, 500);
+      render();
+    };
+  }
+
+  function tick() {
+    const left = (endsAt - Date.now()) / 1000;
+    const el = document.getElementById("timer");
+    if (el) { el.textContent = fmt(left); el.classList.toggle("low", left <= 120); }
+    if (left <= 0 && !state.done) { state.flags.timedOut = true; clearInterval(timer); modal("<h3>Time's up!</h3><p>Your answers have been saved and will now be submitted.</p>", [{ label: "Submit" }]).then(submit); state.done = true; }
+  }
+
+  /* ---------- question screen ---------- */
+  function render() {
+    const q = Q[state.i];
+    const answered = Object.keys(state.answers).length;
+    const visual = q.cat === "pattern";
+    const opts = Object.entries(q.options).map(([k, v]) => `
+      <label class="opt"><input type="radio" name="ans" value="${k}" ${state.answers[q.id] === k ? "checked" : ""}>
+        ${visual ? draw(v) : `<span class="letter">${k.toUpperCase()}</span><span>${esc(v)}</span>`}</label>`).join("");
+    app.innerHTML = `
+      <div class="topbar"><div>Question <strong>${state.i + 1}</strong> of ${Q.length}</div><div class="timer" id="timer">--:--</div></div>
+      <div class="progress"><div style="width:${answered / Q.length * 100}%"></div></div>
+      <div class="card">
+        <div class="qtext">${esc(q.text)}</div>
+        ${q.cat === "numerical" && q.seq ? `<div class="numseq">${esc(q.seq)}</div>` : ""}
+        ${visual ? `<div class="seq">${q.seq.map(draw).join("")}<div class="qm">?</div></div>` : ""}
+        <div class="opts ${visual ? "visual" : ""}" role="radiogroup">${opts}</div>
+        <div class="nav">
+          <button class="btn secondary" id="prev" ${state.i === 0 ? "disabled" : ""}>← Back</button>
+          ${state.i < Q.length - 1 ? `<button class="btn" id="next">${state.answers[q.id] ? "Next →" : "Skip →"}</button>` : `<button class="btn" id="finish">Finish & submit</button>`}
+        </div>
+        <div class="palette" aria-label="Jump to question">${Q.map((x, i) => `<button data-go="${i}" class="${state.answers[x.id] ? "done" : ""} ${i === state.i ? "cur" : ""}" aria-label="Question ${i + 1}">${i + 1}</button>`).join("")}</div>
+      </div>`;
+    tick();
+    app.querySelectorAll('input[name="ans"]').forEach(r => r.onchange = () => {
+      state.answers[q.id] = r.value;
+      const nb = document.getElementById("next"); if (nb) nb.textContent = "Next →";
+      app.querySelector(`[data-go="${state.i}"]`).classList.add("done");
+      app.querySelector(".progress>div").style.width = (Object.keys(state.answers).length / Q.length * 100) + "%";
+    });
+    const prev = document.getElementById("prev"); if (prev) prev.onclick = () => { state.i--; render(); };
+    const next = document.getElementById("next"); if (next) next.onclick = () => { state.i++; render(); };
+    const fin = document.getElementById("finish"); if (fin) fin.onclick = finish;
+    app.querySelectorAll("[data-go]").forEach(b => b.onclick = () => { state.i = Number(b.dataset.go); render(); });
+  }
+
+  async function finish() {
+    const left = Q.length - Object.keys(state.answers).length;
+    const ok = await modal(`<h3>Submit your assessment?</h3>${left ? `<p>You have <strong>${left} unanswered question${left > 1 ? "s" : ""}</strong>. Wrong answers don't count against you, so it's worth answering every question.</p>` : "<p>You answered every question.</p>"}`,
+      [{ label: "Go back", value: false, secondary: true }, { label: "Submit", value: true }]);
+    if (ok) { state.done = true; clearInterval(timer); submit(); }
+  }
+
+  /* ---------- submit ---------- */
+  async function submit() {
+    const payload = { test: TEST_VERSION, candidate: state.candidate, startedAt: state.startedAt, submittedAt: new Date().toISOString(),
+      secondsUsed: Math.round((Date.now() - Date.parse(state.startedAt)) / 1000), answers: state.answers, flags: state.flags };
+    window.removeEventListener("beforeunload", beforeUnload);
+    if (!CONFIG.submitUrl) { done(null, true); return; }
+    app.innerHTML = '<div class="card center"><h2>Submitting…</h2><div class="spinner"></div></div>';
+    try {
+      const headers = { "Content-Type": "application/json" };
+      { const tk = window.AAO_TOKEN ? window.AAO_TOKEN() : CONFIG.authToken; if (tk) headers.Authorization = "Bearer " + tk; }
+      const res = await fetch(CONFIG.submitUrl, { method: "POST", headers, body: JSON.stringify(payload), credentials: (window.AAO_FETCH_CREDENTIALS || "include") });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Server responded with " + res.status);
+      done(data.reportCode, false);
+    } catch (err) {
+      app.innerHTML = `<div class="card center"><h2>We couldn't submit your assessment</h2><div class="error">${esc(err.message)}. Please check your connection and try again.</div><button class="btn" id="retry">Try again</button></div>`;
+      document.getElementById("retry").onclick = submit;
+    }
+  }
+  function done(code, demo) {
+    state.done = true;
+    try { if (window.parent !== window) window.parent.postMessage({ type: "aao-reasoning-submitted", reportCode: code }, "*"); } catch (e) {}
+    app.innerHTML = `<div class="card center"><div class="brandline">Amazing Assistants Online</div>
+      <h1>Thank you, ${esc((state.candidate.name || "").split(" ")[0])}!</h1>
+      <p>Your Reasoning Assessment has been submitted.</p>
+      ${code && CONFIG.reportUrl ? `<p><a class="btn" href="${esc(CONFIG.reportUrl + encodeURIComponent(code))}">See my results →</a></p>` : '<p class="muted">Your Reasoning Score will appear on your AAO profile.</p>'}
+      ${demo ? `<div class="notice">Demo mode: nothing was sent. You answered ${Object.keys(state.answers).length} of ${Q.length} questions.</div>` : ""}</div>`;
+  }
+
+  async function init() {
+    if (!CONFIG.eligibilityUrl) return intro();
+    try {
+      const headers = {}; { const tk = window.AAO_TOKEN ? window.AAO_TOKEN() : CONFIG.authToken; if (tk) headers.Authorization = "Bearer " + tk; }
+      const r = await fetch(CONFIG.eligibilityUrl, { headers, credentials: (window.AAO_FETCH_CREDENTIALS || "include") });
+      const d = r.ok ? await r.json() : {};
+      intro(d.eligible === false ? (d.message || "You can't take this assessment right now.") : "");
+    } catch (e) { intro(); }
+  }
+  init();
+}
+</script>
+</body>
+</html>
