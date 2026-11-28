@@ -320,7 +320,7 @@ Download the file and open it in Chrome, Edge, Safari or Firefox, or serve it fr
       document.getElementById("list").innerHTML = rows.length
         ? `<div class="tablewrap"><table><thead><tr>${head}</tr></thead><tbody>${rows.map(r => `<tr data-id="${r.id}">${row(r)}</tr>`).join("")}</tbody></table></div>`
         : '<div class="card muted">No results match these filters yet.</div>';
-      app.querySelectorAll("tbody tr").forEach(tr => tr.onclick = () => renderDetail(Number(tr.dataset.id)));
+      app.querySelectorAll("tbody tr").forEach(tr => tr.onclick = () => renderDetail(DEMO ? Number(tr.dataset.id) : tr.dataset.id));
     } catch (e) { document.getElementById("list").innerHTML = `<div class="error">${esc(e.message)}</div>`; }
   }
 

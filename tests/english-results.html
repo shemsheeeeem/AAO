@@ -296,7 +296,7 @@ Download the file and open it in Chrome, Edge, Safari or Firefox, or serve it fr
         </tr>`).join("")}</tbody></table></div>
         <p class="muted small">Overall is shown as provisional until writing and speaking are approved. "AI" means a suggested score that hasn't been approved yet.</p>`
         : '<div class="card muted">No results match these filters yet.</div>';
-      document.querySelectorAll("tbody tr").forEach(tr => tr.onclick = () => renderDetail(Number(tr.dataset.id)));
+      document.querySelectorAll("tbody tr").forEach(tr => tr.onclick = () => renderDetail(DEMO ? Number(tr.dataset.id) : tr.dataset.id));
     } catch (e) {
       document.getElementById("list").innerHTML = `<div class="error">${esc(e.message)}</div>`;
     }
