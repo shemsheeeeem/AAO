@@ -7277,7 +7277,11 @@ function assessToken(){try{var s=JSON.parse(localStorage.getItem("aao-job-board-
 function assessStatus(k){
   var b=assessBase();
   if(!b)return Promise.resolve(null);
-  return fetch(b+"/"+k+"/me",{headers:{Authorization:"Bearer "+assessToken()}}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;});
+  /* AAO's API answers { data: { status, report_code, ... } } (the English certificate code comes as report_code too). */
+  return fetch(b+"/"+k+"/me",{headers:{Authorization:"Bearer "+assessToken()}}).then(function(r){return r.ok?r.json():null;}).then(function(j){
+    var d=j&&j.data;if(!d)return null;
+    return {status:d.status,reportCode:d.report_code||null,certificateCode:k==="english"?(d.report_code||null):null,summary:d.summary||null};
+  }).catch(function(){return null;});
 }
 function assessView(t,st){
   var code=st&&(st.certificateCode||st.reportCode);

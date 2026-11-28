@@ -178,7 +178,8 @@ function count(r){var n=r.items?r.items.length:r.length;return n+((r.meta&&r.met
 function loadStats(){
   var set=function(k,v){var el=$('[data-stat="'+k+'"]');if(el)el.textContent=v;};
   AAOApi.adminIdentityList("submitted").then(function(l){set("ids",l.length);}).catch(function(){set("ids","–");});
-  AAOApi.adminAssessmentList("submitted").then(function(l){set("tests",l.length);}).catch(function(){set("tests","–");});
+  /* Older typing / DISC / aptitude results waiting, plus AAO English tests waiting for review (once the tests are switched on). */
+  Promise.all([AAOApi.adminAssessmentList("submitted"),englishWaiting()]).then(function(r){set("tests",r[0].length+r[1]);}).catch(function(){set("tests","–");});
   AAOApi.adminMessages({flagged:true}).then(function(r){
     set("messages",count(r));
     var card=$('[data-go="messages"]');if(card)card.classList.toggle("alert",r.items.length>0); /* red only when there is something to check */
@@ -199,11 +200,37 @@ function loadTab(){
   drawBar();
   return render(false);
 }
+/* AAO's own tests (decisions 85/86): once assessmentsApi is set in aao-config.js, links to the three results pages in /tests/ and
+   the number of English tests waiting for review. The list below keeps the older typing / DISC / aptitude results. */
+function assessBase(){return String((window.AAO_API_CONFIG||{}).assessmentsApi||"").replace(/\/+$/,"");}
+function aaoTestsHtml(){
+  if(!assessBase())return "";
+  setTimeout(loadEnglishWaiting,0);
+  return '<div style="flex-basis:100%;display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:8px">'+
+    '<strong>AAO tests:</strong>'+
+    '<a class="btn btn-sm" href="tests/english-results.html">English <span data-en-waiting></span></a>'+
+    '<a class="btn btn-sm" href="tests/disc-results.html">Work style (DISC)</a>'+
+    '<a class="btn btn-sm" href="tests/reasoning-results.html">Reasoning</a>'+
+    '<span class="meta">The list below is the older typing, DISC and aptitude results.</span></div>';
+}
+/* Number of English tests waiting for review (0 when the tests are off or the count cannot be loaded). */
+function englishWaiting(){
+  if(!assessBase())return Promise.resolve(0);
+  var tok="";try{var ss=JSON.parse(localStorage.getItem("aao-job-board-auth")||"null");tok=(ss&&ss.access_token)||"";}catch(e){}
+  return fetch(assessBase().replace(/\/assessments$/,"/admin/test-results")+"/english?status=pending&limit=50",{headers:{Authorization:"Bearer "+tok}})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(j){return j&&j.data?j.data.length:0;})
+    .catch(function(){return 0;});
+}
+function loadEnglishWaiting(){
+  englishWaiting().then(function(n){var el=document.querySelector("[data-en-waiting]");if(el)el.textContent="("+n+" waiting)";});
+}
 function drawBar(){
   var bar=$("#bar");
   if(state.tab==="ids"||state.tab==="tests"){
     bar.innerHTML='<label for="f-review">Show</label><select id="f-review"><option value="submitted">Waiting for review</option><option value="done">'+(state.tab==="ids"?"Approved":"Verified")+'</option><option value="rejected">Rejected</option><option value="">All</option></select><button type="button" class="btn btn-sm" data-refresh>Refresh</button>';
     $("#f-review").value=state.review;$("#f-review").onchange=function(){state.review=this.value;render(false);};
+    if(state.tab==="tests")bar.insertAdjacentHTML("beforeend",aaoTestsHtml());
   }else if(state.tab==="jobs"){
     bar.innerHTML='<label for="f-job">Show</label><select id="f-job"><option value="">All jobs</option><option value="open">Open</option><option value="closed">Closed</option><option value="hidden">Hidden</option><option value="expired">Expired</option></select><button type="button" class="btn btn-sm" data-refresh>Refresh</button>';
     $("#f-job").value=state.jobStatus;$("#f-job").onchange=function(){state.jobStatus=this.value;render(false);};
